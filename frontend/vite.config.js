@@ -7,6 +7,8 @@ export default defineConfig({
         proxy: {
             '/agent': 'http://localhost:8000',
             '/kb': 'http://localhost:8000',
+            '/mall': 'http://localhost:8000',
+            '/members': 'http://localhost:8000',
             '/uploads': 'http://localhost:8000',
             '/health': 'http://localhost:8000'
         }

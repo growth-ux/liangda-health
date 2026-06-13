@@ -2,24 +2,16 @@ import { Upload } from 'lucide-react';
 
 type Props = {
   activeFamily: string;
-  counts: Record<'all' | 'mom' | 'dad' | 'me' | 'kid', number>;
+  filters: Array<{ value: string; label: string; count: number }>;
   sortMode: string;
-  onFamilyChange: (family: 'all' | 'mom' | 'dad' | 'me' | 'kid') => void;
+  onFamilyChange: (family: string) => void;
   onSortModeChange: (mode: 'uploaded' | 'exam' | 'family') => void;
   onUploadClick: () => void;
 };
 
-const filters = [
-  { label: '全部', value: 'all' },
-  { label: '妈妈', value: 'mom' },
-  { label: '爸爸', value: 'dad' },
-  { label: '我', value: 'me' },
-  { label: '女儿', value: 'kid' }
-] as const;
-
 export function ReportToolbar({
   activeFamily,
-  counts,
+  filters,
   sortMode,
   onFamilyChange,
   onSortModeChange,
@@ -34,7 +26,7 @@ export function ReportToolbar({
             className={`filter-btn ${activeFamily === filter.value ? 'active' : ''}`}
             onClick={() => onFamilyChange(filter.value)}
           >
-            {filter.label} ({counts[filter.value]})
+            {filter.label} ({filter.count})
           </button>
         ))}
       </div>

@@ -1,36 +1,33 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
+import { listMembers } from '../api/members';
 import { deleteDocument, listDocuments, uploadPdf } from '../api/kb';
 import { AppShell } from '../components/AppShell';
 import { ReportGrid } from '../components/ReportGrid';
 import { ReportToolbar } from '../components/ReportToolbar';
 import { UploadReportDialog } from '../components/UploadReportDialog';
-import type { KbDocument } from '../api/kb';
 
-type FamilyFilter = 'all' | 'mom' | 'dad' | 'me' | 'kid';
+type FamilyFilter = string;
 type SortMode = 'uploaded' | 'exam' | 'family';
-
-function getFamily(document: KbDocument): FamilyFilter {
-  const patient = document.patient_name ?? document.title ?? document.file_name;
-  if (/妈|母|王秀英/.test(patient)) return 'mom';
-  if (/爸|父|张建国/.test(patient)) return 'dad';
-  if (/女儿|小溪|孩子|儿童/.test(patient)) return 'kid';
-  return 'me';
-}
 
 export function ReportsPage() {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [family, setFamily] = useState<FamilyFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('uploaded');
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(searchParams.get('upload') === '1');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const documentsQuery = useQuery({ queryKey: ['documents'], queryFn: listDocuments });
+  const membersQuery = useQuery({ queryKey: ['members'], queryFn: listMembers });
   const uploadMutation = useMutation({
     mutationFn: uploadPdf,
     onSuccess: async () => {
       setDialogOpen(false);
       setUploadError(null);
+      setSearchParams({});
       await queryClient.invalidateQueries({ queryKey: ['documents'] });
+      await queryClient.invalidateQueries({ queryKey: ['members'] });
     },
     onError: (error: Error) => setUploadError(error.message)
   });
@@ -38,30 +35,34 @@ export function ReportsPage() {
     mutationFn: deleteDocument,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['documents'] });
+      await queryClient.invalidateQueries({ queryKey: ['members'] });
     }
   });
 
-  const filterCounts = useMemo(() => {
+  const filters = useMemo(() => {
     const items = documentsQuery.data ?? [];
-    return {
-      all: items.length,
-      mom: items.filter((item) => getFamily(item) === 'mom').length,
-      dad: items.filter((item) => getFamily(item) === 'dad').length,
-      me: items.filter((item) => getFamily(item) === 'me').length,
-      kid: items.filter((item) => getFamily(item) === 'kid').length
-    };
-  }, [documentsQuery.data]);
+    return [
+      { value: 'all', label: '全部', count: items.length },
+      ...(membersQuery.data ?? []).map((member) => ({
+        value: member.member_id,
+        label: member.name,
+        count: items.filter((item) => item.member_id === member.member_id).length
+      }))
+    ];
+  }, [documentsQuery.data, membersQuery.data]);
 
   const documents = useMemo(() => {
     const items = [...(documentsQuery.data ?? [])];
-    const filtered = family === 'all' ? items : items.filter((item) => getFamily(item) === family);
+    const filtered = family === 'all' ? items : items.filter((item) => item.member_id === family);
 
     return filtered.sort((a, b) => {
       if (sortMode === 'exam') {
         return (b.exam_date ?? '').localeCompare(a.exam_date ?? '');
       }
       if (sortMode === 'family') {
-        return getFamily(a).localeCompare(getFamily(b));
+        return `${a.member_name ?? ''}${a.member_relation ?? ''}`.localeCompare(
+          `${b.member_name ?? ''}${b.member_relation ?? ''}`
+        );
       }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
@@ -71,7 +72,7 @@ export function ReportsPage() {
     <AppShell title="上传报告" activeId="reports">
       <ReportToolbar
         activeFamily={family}
-        counts={filterCounts}
+        filters={filters}
         sortMode={sortMode}
         onFamilyChange={setFamily}
         onSortModeChange={setSortMode}
@@ -98,11 +99,15 @@ export function ReportsPage() {
       </div>
 
       <UploadReportDialog
+        defaultMemberId={searchParams.get('memberId')}
         open={dialogOpen}
         uploading={uploadMutation.isPending}
         error={uploadError}
-        onClose={() => setDialogOpen(false)}
-        onUpload={(file) => uploadMutation.mutate(file)}
+        onClose={() => {
+          setDialogOpen(false);
+          setSearchParams({});
+        }}
+        onUpload={(payload) => uploadMutation.mutate(payload)}
       />
     </AppShell>
   );

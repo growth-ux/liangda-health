@@ -39,7 +39,6 @@ export function DocumentDetailPage() {
               <h1>{documentQuery.data.title || documentQuery.data.file_name}</h1>
               <div className="detail-grid">
                 <Info label="文件名" value={documentQuery.data.file_name} />
-                <Info label="姓名" value={documentQuery.data.patient_name || '-'} />
                 <Info label="检查日期" value={documentQuery.data.exam_date || '-'} />
                 <Info label="机构" value={documentQuery.data.institution || '-'} />
                 <Info label="页数" value={`${documentQuery.data.page_count} 页`} />

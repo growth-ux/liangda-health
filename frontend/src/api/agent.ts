@@ -59,6 +59,13 @@ export async function listAgentMessages(sessionId: string): Promise<AgentMessage
   return data.items;
 }
 
+export async function deleteAgentSession(sessionId: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/agent/sessions/${sessionId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('删除会话失败');
+}
+
 export async function listQuickActions(): Promise<QuickAction[]> {
   const response = await fetch(`${API_BASE}/agent/quick-actions`, { cache: 'no-store' });
   if (!response.ok) throw new Error('获取快捷指令失败');

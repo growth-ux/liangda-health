@@ -5,6 +5,9 @@ export type KbDocument = {
   patient_name: string | null;
   exam_date: string | null;
   institution: string | null;
+  member_id?: string | null;
+  member_name?: string | null;
+  member_relation?: string | null;
   status: 'processing' | 'ready' | 'failed';
   page_count: number;
   created_at: string;
@@ -64,9 +67,16 @@ export async function listDocumentChunks(documentId: string): Promise<DocumentCh
   return data.items;
 }
 
-export async function uploadPdf(file: File): Promise<UploadResponse> {
+export async function uploadPdf({
+  file,
+  memberId
+}: {
+  file: File;
+  memberId: string;
+}): Promise<UploadResponse> {
   const form = new FormData();
   form.append('file', file);
+  form.append('member_id', memberId);
   const response = await fetch(`${API_BASE}/kb/upload`, {
     method: 'POST',
     body: form

@@ -53,6 +53,14 @@ def create_session(request: AgentSessionCreate, service: AgentService = Depends(
     return service.create_session(title=request.title)
 
 
+@router.delete("/sessions/{session_id}")
+def delete_session(session_id: str, service: AgentService = Depends(get_agent_service)):
+    deleted = service.delete_session(session_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="会话不存在")
+    return {"status": "ok"}
+
+
 @router.get("/sessions/{session_id}/messages", response_model=AgentMessagesResponse)
 def list_messages(session_id: str, service: AgentService = Depends(get_agent_service)):
     return AgentMessagesResponse(items=service.list_messages(session_id))

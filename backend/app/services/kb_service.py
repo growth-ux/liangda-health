@@ -15,6 +15,7 @@ class DocumentCreate:
     file_path: str
     file_size: int
     status: str
+    member_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,7 @@ class KbService:
         self.vector_store = vector_store
         self.upload_dir = upload_dir
 
-    def upload_pdf(self, file_name: str, content: bytes) -> UploadResult:
+    def upload_pdf(self, file_name: str, content: bytes, member_id: str | None = None) -> UploadResult:
         if not file_name.lower().endswith(".pdf"):
             raise ValueError("只支持 PDF 文件")
 
@@ -66,6 +67,7 @@ class KbService:
                 file_name=file_name,
                 file_path=str(target_path),
                 file_size=len(content),
+                member_id=member_id,
                 status="processing",
             )
         )

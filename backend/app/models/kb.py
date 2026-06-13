@@ -20,6 +20,7 @@ class KbDocument(Base):
     patient_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     exam_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     institution: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    member_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
 
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="processing")
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)

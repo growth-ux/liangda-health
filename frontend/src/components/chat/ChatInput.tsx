@@ -56,6 +56,26 @@ export function ChatInput({
       )}
       <div className="chat-input">
         <div className="chat-input-box">
+          {attachments.length > 0 && (
+            <div className="attachment-preview-list">
+              {attachments.map((attachment, index) => (
+                <div key={index} className="attachment-preview-item">
+                  <span className="attachment-icon">
+                    {attachment.type === 'image' ? <Image size={14} /> : <FileText size={14} />}
+                  </span>
+                  <span className="attachment-name">{attachment.name}</span>
+                  <button
+                    type="button"
+                    className="attachment-remove"
+                    onClick={() => onRemoveAttachment?.(index)}
+                    title="移除"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="chat-input-main">
             <input
               type="text"
@@ -87,26 +107,6 @@ export function ChatInput({
               <Smile size={16} strokeWidth={1.8} />
             </div>
           </div>
-          {attachments.length > 0 && (
-            <div className="attachment-preview-list">
-              {attachments.map((attachment, index) => (
-                <div key={index} className="attachment-preview-item">
-                  <span className="attachment-icon">
-                    {attachment.type === 'image' ? <Image size={14} /> : <FileText size={14} />}
-                  </span>
-                  <span className="attachment-name">{attachment.name}</span>
-                  <button
-                    type="button"
-                    className="attachment-remove"
-                    onClick={() => onRemoveAttachment?.(index)}
-                    title="移除"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
         <button className="chat-send-btn" type="button" disabled={isDisabled || (!value.trim() && attachments.length === 0)} onClick={onSend}>
           <Send size={17} strokeWidth={2} />

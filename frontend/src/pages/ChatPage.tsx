@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createAgentSession,
+  deleteAgentSession,
   listAgentMessages,
   listAgentSessions,
   listQuickActions,
@@ -39,6 +40,15 @@ export function ChatPage() {
     mutationFn: () => createAgentSession('新对话'),
     onSuccess: async (session) => {
       setActiveSessionId(session.session_id);
+      setLocalMessages([]);
+      await queryClient.invalidateQueries({ queryKey: ['agent-sessions'] });
+    }
+  });
+
+  const deleteSessionMutation = useMutation({
+    mutationFn: deleteAgentSession,
+    onSuccess: async () => {
+      setActiveSessionId(null);
       setLocalMessages([]);
       await queryClient.invalidateQueries({ queryKey: ['agent-sessions'] });
     }
@@ -125,8 +135,8 @@ export function ChatPage() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const result = await uploadPdf(file);
+    mutationFn: async ({ file }: { file: File }) => {
+      const result = await uploadPdf({ file, memberId: 'default' });
       return { file, result };
     },
     onMutate: () => {
@@ -149,7 +159,7 @@ export function ChatPage() {
       return;
     }
     // 上传文件，获取 URL 后添加到附件列表（不上传就立即发送）
-    uploadMutation.mutate(file, {
+    uploadMutation.mutate({ file }, {
       onSuccess: (data) => {
         const newAttachment: Attachment = {
           name: data.file.name,
@@ -177,6 +187,8 @@ export function ChatPage() {
             setSendError(null);
           }}
           onCreate={() => createSessionMutation.mutate()}
+          onDelete={(sessionId) => deleteSessionMutation.mutate(sessionId)}
+          deleting={deleteSessionMutation.isPending}
         />
         <section className="chat-main">
           <div className="chat-header">

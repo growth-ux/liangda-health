@@ -20,8 +20,8 @@ const navItems = [
   { id: 'chat', icon: MessageCircle, label: ' Agent', href: '/chat' },
   { id: 'reports', icon: Upload, label: '上传报告', href: '/reports' },
   { id: 'report', icon: BarChart3, label: '健康分析', href: '' },
-  { id: 'mall', icon: ShoppingBag, label: '商城', href: '' },
-  { id: 'members', icon: Users, label: '家人', href: '' },
+  { id: 'mall', icon: ShoppingBag, label: '商城', href: '/mall' },
+  { id: 'members', icon: Users, label: '家人', href: '/members' },
   { id: 'device', icon: Cpu, label: '手环', href: '' },
   { id: 'notice', icon: Bell, label: '通知', href: '' }
 ];
@@ -79,8 +79,8 @@ export function AppShell({ title, activeId, children }: Props) {
             <span className="badge">3</span>
           </div>
           <div className="user-chip">
-            <div className="user-avatar">李</div>
-            <span>张小李</span>
+            <div className="user-avatar">雨</div>
+            <span>张雨微</span>
           </div>
         </header>
         <main className="content">{children}</main>

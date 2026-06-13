@@ -102,6 +102,9 @@ class AgentService:
         )
         yield self._event("done", {})
 
+    def delete_session(self, session_id: str) -> bool:
+        return self.repository.delete_session(session_id)
+
     def _require_session(self, session_id: str):
         session = self.repository.get_session(session_id)
         if session is None:

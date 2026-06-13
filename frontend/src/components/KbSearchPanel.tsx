@@ -12,7 +12,6 @@ export function KbSearchPanel() {
 
   return (
     <section className="search-panel">
-      <div className="section-title">知识库搜索</div>
       <div className="search-row">
         <div className="search-input-wrap">
           <Search size={16} />

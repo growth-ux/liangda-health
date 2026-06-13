@@ -92,3 +92,12 @@ class SqlAlchemyAgentRepository:
         session.title = title
         session.updated_at = datetime.utcnow()
         self.db.commit()
+
+    def delete_session(self, session_id: str) -> bool:
+        session = self.get_session(session_id)
+        if session is None:
+            return False
+        self.db.query(AgentMessage).filter(AgentMessage.session_id == session_id).delete()
+        self.db.delete(session)
+        self.db.commit()
+        return True

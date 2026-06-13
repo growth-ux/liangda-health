@@ -1,0 +1,829 @@
+{
+  "categories": {
+    "beverages": [
+      {
+        "title": "山萃食用菌礼盒230g",
+        "goods_id": "1421",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202111251629022733.png",
+        "local_url": "/mall-products/beverages/1421-山萃食用菌礼盒230g-a17ac178.png"
+      },
+      {
+        "title": "山萃银耳瓶装50g",
+        "goods_id": "3168",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202408230956577641.png",
+        "local_url": "/mall-products/beverages/3168-山萃银耳瓶装50g-7b79b3bc.png"
+      },
+      {
+        "title": "山萃原木黑木耳瓶装180g",
+        "goods_id": "3169",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202408271743253614.png",
+        "local_url": "/mall-products/beverages/3169-山萃原木黑木耳瓶装180g-d02d4792.png"
+      },
+      {
+        "title": "山萃万事兴隆经典山珍礼盒420g",
+        "goods_id": "3349",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410281135348207.png",
+        "local_url": "/mall-products/beverages/3349-山萃万事兴隆经典山珍礼盒420g-6d3c78a6.png"
+      },
+      {
+        "title": "山萃原木香菇瓶装150g",
+        "goods_id": "3359",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202409081637243849.png",
+        "local_url": "/mall-products/beverages/3359-山萃原木香菇瓶装150g-d70bfeda.png"
+      },
+      {
+        "title": "山萃香菇100g",
+        "goods_id": "3520",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202408230959552917.png",
+        "local_url": "/mall-products/beverages/3520-山萃香菇100g-0abc2f80.png"
+      },
+      {
+        "title": "山萃万事兴隆尊享山珍礼盒680g",
+        "goods_id": "3769",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202411251049223446.png",
+        "local_url": "/mall-products/beverages/3769-山萃万事兴隆尊享山珍礼盒680g-2efe0b60.png"
+      },
+      {
+        "title": "山萃陈皮莲子红豆沙684g",
+        "goods_id": "3800",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412101620271290.png",
+        "local_url": "/mall-products/beverages/3800-山萃陈皮莲子红豆沙684g-208c5359.png"
+      },
+      {
+        "title": "山萃黑米燕麦燕窝羹756g",
+        "goods_id": "3822",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=419",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412101616004911.png",
+        "local_url": "/mall-products/beverages/3822-山萃黑米燕麦燕窝羹756g-bc2d5c11.png"
+      }
+    ],
+    "dairy": [
+      {
+        "title": "蒙牛全脂纯牛奶营养美味送长辈礼盒装 【家庭囤货装】250ml×21盒*2箱",
+        "goods_id": "10212110374661",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/434609/26/6178/179088/6a04142eF71804411/0083320320f5739a.png",
+        "local_url": "/mall-products/dairy/10212110374661-蒙牛全脂纯牛奶营养美味送长辈礼盒装-家庭囤货装-250ml-21盒-2箱-8a57d9d2.png"
+      },
+      {
+        "title": "蒙牛高钙牛奶营养早餐牛奶送礼推荐礼盒装年货送礼盒 250ml×24盒*2箱",
+        "goods_id": "10211691661797",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/395518/35/18664/105187/69a52dd5F9cb752e9/008332032024f009.jpg",
+        "local_url": "/mall-products/dairy/10211691661797-蒙牛高钙牛奶营养早餐牛奶送礼推荐礼盒装年货送礼盒-250ml-24盒-2箱-066fc43b.jpg"
+      },
+      {
+        "title": "蒙牛 脱脂纯牛奶 零脂肪牛奶 健身伴侣【礼盒装】 250ml*16盒*2箱",
+        "goods_id": "10211691684181",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/448882/1/8062/141187/6a27a252F3a5cc8f9/00833203200e8b46.png",
+        "local_url": "/mall-products/dairy/10211691684181-蒙牛-脱脂纯牛奶-零脂肪牛奶-健身伴侣-礼盒装-250ml-16盒-2箱-de6f17d2.png"
+      },
+      {
+        "title": "蒙牛 脱脂纯牛奶 零脂肪牛奶 健身伴侣【礼盒装】 250ml*16盒/箱",
+        "goods_id": "10211512125231",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/442669/25/15870/138851/6a27a24dF0ce2ec6d/0083320320f2b067.png",
+        "local_url": "/mall-products/dairy/10211512125231-蒙牛-脱脂纯牛奶-零脂肪牛奶-健身伴侣-礼盒装-250ml-16盒-箱-b4d0f6c3.png"
+      },
+      {
+        "title": "蒙牛 低脂高钙牛奶健身好伴侣礼盒装部分4月产 250ml*21盒",
+        "goods_id": "10168788887556",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/398368/35/6161/88961/69a15348Fc171ebc2/0083320320b48d63.jpg",
+        "local_url": "/mall-products/dairy/10168788887556-蒙牛-低脂高钙牛奶健身好伴侣礼盒装部分4月产-250ml-21盒-4f21ec1a.jpg"
+      },
+      {
+        "title": "蒙牛 低脂高钙牛奶健身好伴侣礼盒装部分4月产 250ml*21盒*2箱",
+        "goods_id": "10168788887557",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/431527/19/13872/153316/6a0415c2F9de7a592/0083320320473913.png",
+        "local_url": "/mall-products/dairy/10168788887557-蒙牛-低脂高钙牛奶健身好伴侣礼盒装部分4月产-250ml-21盒-2箱-72d8a1ee.png"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装3月产 250ml×21盒*2箱",
+        "goods_id": "10156705356535",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/451724/38/6393/179088/6a278897F11ac9c28/0083320320eb4622.png",
+        "local_url": "/mall-products/dairy/10156705356535-蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装3月产-250ml-21盒-2箱-5e14eb8d.png"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装【换购专享】 250ml×18盒",
+        "goods_id": "10130051797326",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/433861/33/9842/603399/6a056fddFdb3eb1cd/00837f47f4147251.jpg",
+        "local_url": "/mall-products/dairy/10130051797326-蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装-换购专享-250ml-18盒-b3899dd2.jpg"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳利乐包（世界杯电商定制装） 250ml×21盒*2箱",
+        "goods_id": "10130051684501",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/431263/2/14500/180056/6a040e64Fd3b9563b/0083320320d2cbd0.jpg",
+        "local_url": "/mall-products/dairy/10130051684501-蒙牛纯牛奶全脂灭菌乳利乐包-世界杯电商定制装-250ml-21盒-2箱-4e7dff14.jpg"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳利乐包（世界杯电商定制装） 250ml×24盒*2箱",
+        "goods_id": "10130051744117",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/428872/38/20172/187371/6a040e4fF566002f1/0083320320f718d9.jpg",
+        "local_url": "/mall-products/dairy/10130051744117-蒙牛纯牛奶全脂灭菌乳利乐包-世界杯电商定制装-250ml-24盒-2箱-1f542c49.jpg"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳整箱礼盒装【送礼推荐】 250ml×18盒",
+        "goods_id": "10127294634321",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/351402/22/9054/149236/68dbf75aF18aedef2/74bbb884c37299c8.jpg",
+        "local_url": "/mall-products/dairy/10127294634321-蒙牛纯牛奶全脂灭菌乳整箱礼盒装-送礼推荐-250ml-18盒-66a35dfb.jpg"
+      },
+      {
+        "title": "蒙牛全脂纯牛奶营养美味送长辈礼盒装 【店铺爆款】250ml×18盒*2箱部分4月产",
+        "goods_id": "10126489518489",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/433809/27/8564/178181/6a041425F3ed74c7d/008332032019a602.png",
+        "local_url": "/mall-products/dairy/10126489518489-蒙牛全脂纯牛奶营养美味送长辈礼盒装-店铺爆款-250ml-18盒-2箱部分4月产-dbed89b6.png"
+      },
+      {
+        "title": "蒙牛全脂纯牛奶营养美味送长辈礼盒装 【送礼推荐】250ml×18盒部分4月产",
+        "goods_id": "10125396470421",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/431696/6/14067/178614/6a0413faF68a32f77/00833203208c1d85.png",
+        "local_url": "/mall-products/dairy/10125396470421-蒙牛全脂纯牛奶营养美味送长辈礼盒装-送礼推荐-250ml-18盒部分4月产-fc2df732.png"
+      },
+      {
+        "title": "蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装3月产 250ml×21盒",
+        "goods_id": "10125396405929",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/442971/9/16374/182450/6a2788a9F94912074/008332032004a3b4.png",
+        "local_url": "/mall-products/dairy/10125396405929-蒙牛纯牛奶全脂灭菌乳利乐包整箱礼盒装3月产-250ml-21盒-3ad7c7ea.png"
+      },
+      {
+        "title": "蒙牛高钙牛奶营养早餐牛奶送礼推荐礼盒装年货送礼盒 250ml×24盒",
+        "goods_id": "10125395680265",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/393946/12/22155/99890/69a52de1Fc33bf99a/0083320320e9a5c1.jpg",
+        "local_url": "/mall-products/dairy/10125395680265-蒙牛高钙牛奶营养早餐牛奶送礼推荐礼盒装年货送礼盒-250ml-24盒-976fce14.jpg"
+      },
+      {
+        "title": "蒙牛 纯牛奶牛奶整箱礼盒装（新老包装随机发）1月产介意慎拍 250ml*24盒",
+        "goods_id": "10118139325836",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/381472/15/14080/147823/695a2e28Fcb39e875/230bd5a9224128e8.jpg",
+        "local_url": "/mall-products/dairy/10118139325836-蒙牛-纯牛奶牛奶整箱礼盒装-新老包装随机发-1月产介意慎拍-250ml-24盒-6310d99c.jpg"
+      },
+      {
+        "title": "蒙牛纯牛奶浓醇整箱牛奶礼盒装 250ml*24盒*2箱部分3月产",
+        "goods_id": "10080350280569",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/447939/10/11728/183108/6a2929efF88d041c2/0083320320e8c46e.png",
+        "local_url": "/mall-products/dairy/10080350280569-蒙牛纯牛奶浓醇整箱牛奶礼盒装-250ml-24盒-2箱部分3月产-626cffdb.png"
+      },
+      {
+        "title": "蒙牛 低脂高钙牛奶    健身伴侣【礼盒装】 250ml*24盒",
+        "goods_id": "10069050913926",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/456584/10/258/135405/6a27a3b5F51e7f4e9/00833203200c4352.png",
+        "local_url": "/mall-products/dairy/10069050913926-蒙牛-低脂高钙牛奶-健身伴侣-礼盒装-250ml-24盒-d806f876.png"
+      },
+      {
+        "title": "蒙牛 低脂高钙牛奶礼盒装  健身好伴侣【送礼推荐】 250mL*16盒",
+        "goods_id": "10068983145184",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/444031/5/16485/133847/6a27a168F10a02820/00833203200d672b.png",
+        "local_url": "/mall-products/dairy/10068983145184-蒙牛-低脂高钙牛奶礼盒装-健身好伴侣-送礼推荐-250mL-16盒-5dd28c42.png"
+      },
+      {
+        "title": "蒙牛 脱脂纯牛奶零脂肪脱脂不脱味健身好伴侣礼盒装（部分4月产） 250ml*24盒",
+        "goods_id": "10068875349817",
+        "source_page": "https://mall.jd.com/view_search-2113248-17960386-99-1-20-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/434994/28/5555/138173/6a0413b5Fad452235/00833203203dc1cf.png",
+        "local_url": "/mall-products/dairy/10068875349817-蒙牛-脱脂纯牛奶零脂肪脱脂不脱味健身好伴侣礼盒装-部分4月产-250ml-24盒-36710bb8.png"
+      }
+    ],
+    "grains": [
+      {
+        "title": "初萃 中粮绿豆2斤（煮绿豆汤绿豆糕原料 粗粮 消暑季 五谷杂粮）",
+        "goods_id": "100035904562",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/102456/24/41210/201730/64ab98e1F21827f60/7bab5dd03178e787.jpg",
+        "local_url": "/mall-products/grains/100035904562-初萃-中粮绿豆2斤-煮绿豆汤绿豆糕原料-粗粮-消暑季-五谷杂粮-4cf9b996.jpg"
+      },
+      {
+        "title": "初萃中粮燕麦米2斤 全谷物米五谷杂粮 粥米伴侣 粗粮 营养早餐 罐装",
+        "goods_id": "100020100284",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/414758/9/14051/237603/69d85e9dF853d278c/008332032035a80b.jpg",
+        "local_url": "/mall-products/grains/100020100284-初萃中粮燕麦米2斤-全谷物米五谷杂粮-粥米伴侣-粗粮-营养早餐-罐装-408f926e.jpg"
+      },
+      {
+        "title": "初萃 中粮高原三色藜麦米2斤 青海原产（白藜麦 黑藜麦 红藜麦）粗粮",
+        "goods_id": "100031245088",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/221910/22/35015/251133/64fb2d1fF52dbb6cb/53251b8a59e700f5.jpg",
+        "local_url": "/mall-products/grains/100031245088-初萃-中粮高原三色藜麦米2斤-青海原产-白藜麦-黑藜麦-红藜麦-粗粮-584ba518.jpg"
+      },
+      {
+        "title": "初萃中粮东北玉米糁2斤（中粒苞米碴 玉米颗粒 粗粮 大米伴侣）",
+        "goods_id": "100020100292",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/352088/26/4202/228287/692ea0feF1df5de92/9d6f0a73b69283c9.jpg",
+        "local_url": "/mall-products/grains/100020100292-初萃中粮东北玉米糁2斤-中粒苞米碴-玉米颗粒-粗粮-大米伴侣-e6a1c434.jpg"
+      },
+      {
+        "title": "初萃中粮山西黄小米2斤（小米粥 小黄米 粥米伴侣 五谷杂粮）真空包装",
+        "goods_id": "100020100302",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/393937/4/1240/211017/697abeb7F4545583a/0083320320e43258.jpg",
+        "local_url": "/mall-products/grains/100020100302-初萃中粮山西黄小米2斤-小米粥-小黄米-粥米伴侣-五谷杂粮-真空包装-dd4aa33d.jpg"
+      },
+      {
+        "title": "初萃中粮 七色糙米2斤(糙米 黑米 红米 燕麦米 紫米 高粱米 荞麦米）",
+        "goods_id": "100059020674",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/399263/15/18124/187837/69b264dbF408ffede/0083320320ad20e9.jpg",
+        "local_url": "/mall-products/grains/100059020674-初萃中粮-七色糙米2斤-糙米-黑米-红米-燕麦米-紫米-高粱米-荞麦米-a1f19a68.jpg"
+      },
+      {
+        "title": "初萃 中粮东北黄大豆2斤 五谷杂粮 可打豆浆 非转基因 粗粮  罐装",
+        "goods_id": "100020100254",
+        "source_page": "https://mall.jd.com/view_search-1135825-16921170-99-1-20-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/221817/18/35929/344581/66827d5cF64d12b29/d14025543a48e844.jpg",
+        "local_url": "/mall-products/grains/100020100254-初萃-中粮东北黄大豆2斤-五谷杂粮-可打豆浆-非转基因-粗粮-罐装-e6d0ae54.jpg"
+      },
+      {
+        "title": "金盈杂粮·好礼盒3000g",
+        "goods_id": "3750",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=421",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412301046260413.png",
+        "local_url": "/mall-products/grains/3750-金盈杂粮-好礼盒3000g-cca025d0.png"
+      },
+      {
+        "title": "金盈杂粮·谷礼盒4000g",
+        "goods_id": "3801",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=421",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412301045211566.png",
+        "local_url": "/mall-products/grains/3801-金盈杂粮-谷礼盒4000g-b2b7a6f5.png"
+      },
+      {
+        "title": "金盈杂粮·道礼盒5000g",
+        "goods_id": "3802",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=421",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412301043167778.png",
+        "local_url": "/mall-products/grains/3802-金盈杂粮-道礼盒5000g-3149faaf.png"
+      }
+    ],
+    "oil": [
+      {
+        "title": "悦润亚麻籽油5L",
+        "goods_id": "1018",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202311071004512399.png",
+        "local_url": "/mall-products/oil/1018-悦润亚麻籽油5L-0c7c9791.png"
+      },
+      {
+        "title": "福临门特级初榨橄榄油礼盒500ml*2",
+        "goods_id": "42",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/201905051322546036.png",
+        "local_url": "/mall-products/oil/42-福临门特级初榨橄榄油礼盒500ml-2-e5a18b1e.png"
+      },
+      {
+        "title": "悦润红花籽油1L",
+        "goods_id": "44",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202404261339091919.png",
+        "local_url": "/mall-products/oil/44-悦润红花籽油1L-333eab0e.png"
+      },
+      {
+        "title": "悦润红花籽油礼盒1L*2",
+        "goods_id": "45",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202404261347134146.png",
+        "local_url": "/mall-products/oil/45-悦润红花籽油礼盒1L-2-200aa0d5.png"
+      },
+      {
+        "title": "悦润亚麻籽油1L",
+        "goods_id": "46",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202311061157523466.png",
+        "local_url": "/mall-products/oil/46-悦润亚麻籽油1L-9588b5ef.png"
+      },
+      {
+        "title": "悦润亚麻籽油礼盒1L*2",
+        "goods_id": "47",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202412190937082010.png",
+        "local_url": "/mall-products/oil/47-悦润亚麻籽油礼盒1L-2-af635837.png"
+      },
+      {
+        "title": "安达露西纯正橄榄油礼盒750ml*2",
+        "goods_id": "1407",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202302101415169394.png",
+        "local_url": "/mall-products/oil/1407-安达露西纯正橄榄油礼盒750ml-2-dc609d08.png"
+      },
+      {
+        "title": "福临门营养家红花籽油礼盒750ml*2",
+        "goods_id": "1205",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202206161612377851.png",
+        "local_url": "/mall-products/oil/1205-福临门营养家红花籽油礼盒750ml-2-468d8272.png"
+      },
+      {
+        "title": "福临门小磨香油（一级）250ml",
+        "goods_id": "1210",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202104201140110784.png",
+        "local_url": "/mall-products/oil/1210-福临门小磨香油-一级-250ml-95751b4e.png"
+      },
+      {
+        "title": "福临门小磨香油礼盒（一级）250ml*4",
+        "goods_id": "1192",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202105131533233587.png",
+        "local_url": "/mall-products/oil/1192-福临门小磨香油礼盒-一级-250ml-4-1d726dd4.png"
+      },
+      {
+        "title": "福临门家香味传承土榨花生油礼盒1.8L*2",
+        "goods_id": "1895",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202208180909226750.png",
+        "local_url": "/mall-products/oil/1895-福临门家香味传承土榨花生油礼盒1-8L-2-49b457d8.png"
+      },
+      {
+        "title": "悦润亚麻籽油（一级）400mL",
+        "goods_id": "1157",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202311070946474279.png",
+        "local_url": "/mall-products/oil/1157-悦润亚麻籽油-一级-400mL-3233aa59.png"
+      },
+      {
+        "title": "福临门家香味传承土榨花生油1.8L",
+        "goods_id": "1724",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202207061120178125.png",
+        "local_url": "/mall-products/oil/1724-福临门家香味传承土榨花生油1-8L-f4fd7853.png"
+      },
+      {
+        "title": "福临门福至心礼压榨一级葵花籽油5L",
+        "goods_id": "3112",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410161142459973.jpg",
+        "local_url": "/mall-products/oil/3112-福临门福至心礼压榨一级葵花籽油5L-4658a28e.jpg"
+      },
+      {
+        "title": "福临门福至心礼非转基因压榨玉米油5L",
+        "goods_id": "3116",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410161144280450.jpg",
+        "local_url": "/mall-products/oil/3116-福临门福至心礼非转基因压榨玉米油5L-c9cf6ec3.jpg"
+      },
+      {
+        "title": "福临门亚麻籽油1.5L",
+        "goods_id": "3347",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202502250912480761.png",
+        "local_url": "/mall-products/oil/3347-福临门亚麻籽油1-5L-dc0f7a8f.png"
+      },
+      {
+        "title": "福临门亚麻籽油5L",
+        "goods_id": "3348",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202408150932238019.png",
+        "local_url": "/mall-products/oil/3348-福临门亚麻籽油5L-d1a0b778.png"
+      },
+      {
+        "title": "福临门福至心礼非转基因浓香压榨菜籽油5L",
+        "goods_id": "3395",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410161145450285.jpg",
+        "local_url": "/mall-products/oil/3395-福临门福至心礼非转基因浓香压榨菜籽油5L-ac896b6c.jpg"
+      },
+      {
+        "title": "福临门福至心礼压榨一级花生油5L",
+        "goods_id": "3521",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410161146487170.jpg",
+        "local_url": "/mall-products/oil/3521-福临门福至心礼压榨一级花生油5L-db4877b8.jpg"
+      }
+    ],
+    "rice_flour": [
+      {
+        "title": "福临门五福临门东北长粒香米2.5kg",
+        "goods_id": "2562",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202308251041546110.png",
+        "local_url": "/mall-products/rice_flour/2562-福临门五福临门东北长粒香米2-5kg-37c8ce32.png"
+      },
+      {
+        "title": "福临门巴盟优选金装麦香小麦粉5kg",
+        "goods_id": "1371",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202108211411419233.png",
+        "local_url": "/mall-products/rice_flour/1371-福临门巴盟优选金装麦香小麦粉5kg-5653e539.png"
+      },
+      {
+        "title": "福临门五常大米5kg (绿稻花)",
+        "goods_id": "681",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202410100850343466.png",
+        "local_url": "/mall-products/rice_flour/681-福临门五常大米5kg-绿稻花-1baef826.png"
+      },
+      {
+        "title": "福临门巴盟优选金装麦香小麦粉2.5kg",
+        "goods_id": "1406",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202210201339155047.jpg",
+        "local_url": "/mall-products/rice_flour/1406-福临门巴盟优选金装麦香小麦粉2-5kg-39395f76.jpg"
+      },
+      {
+        "title": "福临门自然香软糯香米5kg",
+        "goods_id": "1649",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202204111541117667.png",
+        "local_url": "/mall-products/rice_flour/1649-福临门自然香软糯香米5kg-946b7421.png"
+      },
+      {
+        "title": "福临门五福临门东北长粒香米5kg",
+        "goods_id": "2548",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202308161536193552.png",
+        "local_url": "/mall-products/rice_flour/2548-福临门五福临门东北长粒香米5kg-32db531e.png"
+      },
+      {
+        "title": "福临门五福临门五常大米5kg",
+        "goods_id": "2818",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202402011358283208.png",
+        "local_url": "/mall-products/rice_flour/2818-福临门五福临门五常大米5kg-d55fac37.png"
+      },
+      {
+        "title": "皇家粮仓悦享长粒香米5kg",
+        "goods_id": "3255",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202407050848353072.png",
+        "local_url": "/mall-products/rice_flour/3255-皇家粮仓悦享长粒香米5kg-aafe0e6e.png"
+      },
+      {
+        "title": "福临门自然香香稻9号5kg",
+        "goods_id": "3332",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202407041655303541.png",
+        "local_url": "/mall-products/rice_flour/3332-福临门自然香香稻9号5kg-802bf158.png"
+      },
+      {
+        "title": "福临门自然香有机五常大米5kg",
+        "goods_id": "3910",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=423",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202503071024302642.jpg",
+        "local_url": "/mall-products/rice_flour/3910-福临门自然香有机五常大米5kg-e53a0ed3.jpg"
+      }
+    ],
+    "seasoning": [
+      {
+        "title": "中盐 自然海盐300g *10【未加碘】纯净自然 吃好盐选中盐",
+        "goods_id": "100221736597",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/353114/2/7163/588879/690c1148Fdf911c0b/d4a4b233230a2a4c.png",
+        "local_url": "/mall-products/seasoning/100221736597-中盐-自然海盐300g-10-未加碘-纯净自然-吃好盐选中盐-bf2af33f.png"
+      },
+      {
+        "title": "中盐 优质低钠盐250g*10【加碘】 绿色食品低钠盐 吃好盐选中盐",
+        "goods_id": "100221736593",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/341940/38/25049/539016/6911a803F12c92c99/e6615d88dd99cfa4.png",
+        "local_url": "/mall-products/seasoning/100221736593-中盐-优质低钠盐250g-10-加碘-绿色食品低钠盐-吃好盐选中盐-b840c896.png"
+      },
+      {
+        "title": "中盐 自然海盐300g *5【未加碘】纯净自然 吃好盐选中盐",
+        "goods_id": "100221736629",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/353114/2/7163/588879/690c1148Fdf911c0b/d4a4b233230a2a4c.png",
+        "local_url": "/mall-products/seasoning/100221736629-中盐-自然海盐300g-5-未加碘-纯净自然-吃好盐选中盐-29cc2853.png"
+      },
+      {
+        "title": "中盐 低钠海盐300g*10袋【未加碘】 海盐 颗粒均匀  低钠更健康",
+        "goods_id": "100295916314",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/359869/34/8039/87504/691ecba6Fa66e5bda/e90366943ee7213f.jpg",
+        "local_url": "/mall-products/seasoning/100295916314-中盐-低钠海盐300g-10袋-未加碘-海盐-颗粒均匀-低钠更健康-57500baf.jpg"
+      },
+      {
+        "title": "中盐 未加碘竹盐250g *5高温煅烧 非遗工艺  健康弱碱性食用盐",
+        "goods_id": "100295916316",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/341752/38/24638/119819/690dae8eF802003eb/15055ec73712fedf.png",
+        "local_url": "/mall-products/seasoning/100295916316-中盐-未加碘竹盐250g-5高温煅烧-非遗工艺-健康弱碱性食用盐-d0d8bd78.png"
+      },
+      {
+        "title": "中盐 低钠盐400g*10【未加碘】减盐不减咸 低钠 吃好盐 选中盐",
+        "goods_id": "100295916328",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/357657/22/12219/557840/691be48fF876596b5/7d7474638f773d19.png",
+        "local_url": "/mall-products/seasoning/100295916328-中盐-低钠盐400g-10-未加碘-减盐不减咸-低钠-吃好盐-选中盐-d9401d59.png"
+      },
+      {
+        "title": "中盐 未加碘竹盐250g *10高温煅烧 非遗工艺  健康弱碱性食用盐",
+        "goods_id": "100221736575",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/341752/38/24638/119819/690dae8eF802003eb/15055ec73712fedf.png",
+        "local_url": "/mall-products/seasoning/100221736575-中盐-未加碘竹盐250g-10高温煅烧-非遗工艺-健康弱碱性食用盐-f5f13f71.png"
+      },
+      {
+        "title": "中盐 天然含硒盐300g*10【未加碘】湖盐 自然含硒 吃好盐选中盐",
+        "goods_id": "100221736609",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/350067/19/27448/687248/69142b94F2cf77607/0a477b6f86f943e8.png",
+        "local_url": "/mall-products/seasoning/100221736609-中盐-天然含硒盐300g-10-未加碘-湖盐-自然含硒-吃好盐选中盐-e97a7dd3.png"
+      },
+      {
+        "title": "中盐 软水盐10kg*4 树脂还原剂【软水机专用】软化水质预防水垢 国货",
+        "goods_id": "100221736611",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/356303/19/3926/116905/690b3118F942017e0/3547be4848db498c.jpg",
+        "local_url": "/mall-products/seasoning/100221736611-中盐-软水盐10kg-4-树脂还原剂-软水机专用-软化水质预防水垢-国货-213bf0ea.jpg"
+      },
+      {
+        "title": "中盐 低钠盐400g*15【未加碘】减盐不减咸 低钠更健康 量贩装",
+        "goods_id": "100295916324",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/341736/3/23636/121106/690b31a9Fc6bf80cb/419d6f2fee0ff68b.jpg",
+        "local_url": "/mall-products/seasoning/100295916324-中盐-低钠盐400g-15-未加碘-减盐不减咸-低钠更健康-量贩装-51202499.jpg"
+      },
+      {
+        "title": "中盐 球型软水盐10kg*4软水机净水器软化水质预防水垢保护机器 国货",
+        "goods_id": "100295916326",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/359651/17/12044/107265/691c096aFee3bda83/b454b88be788b0d7.jpg",
+        "local_url": "/mall-products/seasoning/100295916326-中盐-球型软水盐10kg-4软水机净水器软化水质预防水垢保护机器-国货-c4170649.jpg"
+      },
+      {
+        "title": "中盐 低钠盐400g*5【未加碘】减盐不减咸 低钠更健康 吃好盐 选中盐",
+        "goods_id": "100292585098",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/308086/29/5016/73537/68371a6cF3e4e7d43/338fb6ce02852b99.jpg",
+        "local_url": "/mall-products/seasoning/100292585098-中盐-低钠盐400g-5-未加碘-减盐不减咸-低钠更健康-吃好盐-选中盐-69a30ded.jpg"
+      },
+      {
+        "title": "中盐 天然湖盐200g*6 未加碘盐 源自新疆哈密天山湖 纯净无污染",
+        "goods_id": "100121706832",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/196762/5/46218/101283/666bbe1dF13fb7859/c3bd8f49705dd7fe.jpg",
+        "local_url": "/mall-products/seasoning/100121706832-中盐-天然湖盐200g-6-未加碘盐-源自新疆哈密天山湖-纯净无污染-d39e3662.jpg"
+      },
+      {
+        "title": "中盐 低钠岩盐350g*5【未加碘】健康低钠 天然矿盐 低钠减盐不减咸",
+        "goods_id": "100100317573",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/315730/11/4932/83174/68371a4bFeafff3fd/9ba2c7d45e1ee055.jpg",
+        "local_url": "/mall-products/seasoning/100100317573-中盐-低钠岩盐350g-5-未加碘-健康低钠-天然矿盐-低钠减盐不减咸-cbf7d690.jpg"
+      },
+      {
+        "title": "中盐 绿色低钠湖盐280g*5袋 绿色食品 国家地理标识 吃好盐选中盐",
+        "goods_id": "100114800672",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/310689/11/4907/93287/68371a4bF6013c81e/cf738140a374c1fd.jpg",
+        "local_url": "/mall-products/seasoning/100114800672-中盐-绿色低钠湖盐280g-5袋-绿色食品-国家地理标识-吃好盐选中盐-90b8006b.jpg"
+      },
+      {
+        "title": "中盐 低钠盐400g*5 加碘 减盐不减咸 吃好盐 选中盐",
+        "goods_id": "100093288855",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/286507/13/5777/73469/68371a65Fbeff2d45/bdc49e06a3597b6b.jpg",
+        "local_url": "/mall-products/seasoning/100093288855-中盐-低钠盐400g-5-加碘-减盐不减咸-吃好盐-选中盐-eea6c38c.jpg"
+      },
+      {
+        "title": "中盐低钠盐400g*5【未加碘】减盐不减咸 低钠 吃好盐 选中盐",
+        "goods_id": "100104276720",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/308086/29/5016/73537/68371a6cF3e4e7d43/338fb6ce02852b99.jpg",
+        "local_url": "/mall-products/seasoning/100104276720-中盐低钠盐400g-5-未加碘-减盐不减咸-低钠-吃好盐-选中盐-f8ab412a.jpg"
+      },
+      {
+        "title": "中盐 精制食用盐400g*50箱装 20公斤【未加碘】精选原料 吃好盐选中盐",
+        "goods_id": "100099078480",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/304454/14/6094/100980/68371a51F3b51129a/3b2000a1db46dd8c.jpg",
+        "local_url": "/mall-products/seasoning/100099078480-中盐-精制食用盐400g-50箱装-20公斤-未加碘-精选原料-吃好盐选中盐-f72d9375.jpg"
+      },
+      {
+        "title": "中盐 绿色食用盐400g*5【未加碘】绿色食品 吃的放心 吃好盐选中盐",
+        "goods_id": "100078403588",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/291517/18/9379/80581/68371a6cFbe00ce2a/13c49a5cbc5ea4a6.jpg",
+        "local_url": "/mall-products/seasoning/100078403588-中盐-绿色食用盐400g-5-未加碘-绿色食品-吃的放心-吃好盐选中盐-a5094a41.jpg"
+      },
+      {
+        "title": "中盐 天然含硒盐300g*5【未加碘】湖盐 自然含硒 吃好盐选中盐",
+        "goods_id": "100078304962",
+        "source_page": "https://mall.jd.com/view_search-2178728-0-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/318804/21/4609/93830/68371a5aFe061d1b2/d83701a4e7824beb.jpg",
+        "local_url": "/mall-products/seasoning/100078304962-中盐-天然含硒盐300g-5-未加碘-湖盐-自然含硒-吃好盐选中盐-0cd68752.jpg"
+      }
+    ],
+    "snacks": [
+      {
+        "title": "时怡中粮 尖果霸桶 混合坚果 罐装坚果干果每日坚果 什锦果仁 【囤货装】960g*2罐",
+        "goods_id": "10203559066145",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/397902/38/16080/101679/69aa91b4F124a6f14/0083320320961912.jpg",
+        "local_url": "/mall-products/snacks/10203559066145-时怡中粮-尖果霸桶-混合坚果-罐装坚果干果每日坚果-什锦果仁-囤货装-960g-2罐-5251d6dc.jpg"
+      },
+      {
+        "title": "悠采中粮 无糖饼干 混合口味5袋装 酥性饼干 办公室休闲零食108g",
+        "goods_id": "10191738999535",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/240077/37/35797/311596/68f0a3d5F7e3ab92c/77f698138382c2f6.jpg",
+        "local_url": "/mall-products/snacks/10191738999535-悠采中粮-无糖饼干-混合口味5袋装-酥性饼干-办公室休闲零食108g-cc7de380.jpg"
+      },
+      {
+        "title": "悠采中粮原粮小买谷物粗粮无糖饼干 多口味无糖食品 代餐休闲零食 【三色藜麦+奇亚籽+五黑】396g",
+        "goods_id": "10111534693625",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/200166/26/39650/1150802/65bf468fFc9c27859/58f7b2023fc0cd59.png",
+        "local_url": "/mall-products/snacks/10111534693625-悠采中粮原粮小买谷物粗粮无糖饼干-多口味无糖食品-代餐休闲零食-三色藜麦-奇亚籽-五黑-396g-a00bef80.png"
+      },
+      {
+        "title": "悠采中粮 五黑杂粮无糖饼干420g 粮小买桑葚黑芝麻黑豆粗粮休闲零食 【经典五黑配比】五黑杂粮420g",
+        "goods_id": "10148043989799",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/91612/7/50563/1937666/6710c426F4fbb73f1/08bec5285d71bc40.png",
+        "local_url": "/mall-products/snacks/10148043989799-悠采中粮-五黑杂粮无糖饼干420g-粮小买桑葚黑芝麻黑豆粗粮休闲零食-经典五黑配比-五黑杂粮42-cbe5fc54.png"
+      },
+      {
+        "title": "悠采中粮时怡梳打饼干100g 苏打饼干 零食早餐下午茶（原粮小买） 奇亚籽梳打饼干 100g*1袋",
+        "goods_id": "10123833635518",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/241749/28/20952/1563112/6729e2fcF5813d1fb/073420dd640f680c.png",
+        "local_url": "/mall-products/snacks/10123833635518-悠采中粮时怡梳打饼干100g-苏打饼干-零食早餐下午茶-原粮小买-奇亚籽梳打饼干-100g-1袋-60de5126.png"
+      },
+      {
+        "title": "悠采中粮 无糖桃酥396g藜麦薏米红豆 小米山药 传统糕点 老式点心零食 藜麦薏米红豆桃酥396g",
+        "goods_id": "10166851672612",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/350724/32/15424/360739/68f5d97cF96969449/50ddf52ed0efc3a5.jpg",
+        "local_url": "/mall-products/snacks/10166851672612-悠采中粮-无糖桃酥396g藜麦薏米红豆-小米山药-传统糕点-老式点心零食-藜麦薏米红豆桃酥396-219b8ea6.jpg"
+      },
+      {
+        "title": "悠采中粮 无糖饼干组合 粗粮饼干 无糖食品零食 原中粮粮小买无糖饼干 906g（山药薏米+五黑+混合装）",
+        "goods_id": "10147637116559",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/277928/8/17688/286051/67f4a59fFc99c6035/324b21886cf23d4f.jpg",
+        "local_url": "/mall-products/snacks/10147637116559-悠采中粮-无糖饼干组合-粗粮饼干-无糖食品零食-原中粮粮小买无糖饼干-906g-山药薏米-五黑--daa660e9.jpg"
+      },
+      {
+        "title": "时怡中粮 尖果霸桶混合坚果750g 每日坚果纯坚果 休闲零食 腰果开心果",
+        "goods_id": "10161539557963",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img14.360buyimg.com/n7/jfs/t1/317291/22/13296/92602/68635786Fd7ff227f/6245fb02c762ad31.jpg",
+        "local_url": "/mall-products/snacks/10161539557963-时怡中粮-尖果霸桶混合坚果750g-每日坚果纯坚果-休闲零食-腰果开心果-71dee02c.jpg"
+      },
+      {
+        "title": "悠采中粮山药薏米燕麦无糖饼干750g 粮小买粗粮休闲零食 无糖食品 【量贩装】山药薏米燕麦750g",
+        "goods_id": "10147947441818",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/138741/14/47490/394285/6710b218F2a7947ec/16bc856daa4e5573.png",
+        "local_url": "/mall-products/snacks/10147947441818-悠采中粮山药薏米燕麦无糖饼干750g-粮小买粗粮休闲零食-无糖食品-量贩装-山药薏米燕麦750g-b58f3dac.png"
+      },
+      {
+        "title": "悠采中粮 高纤奇亚籽谷物无糖饼干396g 粮小买杂粮粗粮饼干休闲零食 【无糖高纤】奇亚籽味396g",
+        "goods_id": "10147947060833",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img12.360buyimg.com/n7/jfs/t1/98500/21/47117/1206683/65bf419cFf0bb5134/cf6531c6cc7ae5cc.png",
+        "local_url": "/mall-products/snacks/10147947060833-悠采中粮-高纤奇亚籽谷物无糖饼干396g-粮小买杂粮粗粮饼干休闲零食-无糖高纤-奇亚籽味396g-518c5f24.png"
+      },
+      {
+        "title": "悠采中粮 高蛋白薄饼亚麻籽海苔味无糖饼干408g 零食休闲零食",
+        "goods_id": "10166849585319",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/319565/8/18207/350449/687f3af4F5d343d92/de2f3e24f4ee48c1.png",
+        "local_url": "/mall-products/snacks/10166849585319-悠采中粮-高蛋白薄饼亚麻籽海苔味无糖饼干408g-零食休闲零食-04631335.png"
+      },
+      {
+        "title": "悠采中粮山药薏米燕麦无糖饼干420g 原粮小买早餐代餐休闲零食 山药薏米燕麦420g",
+        "goods_id": "10147947254708",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/138741/14/47490/394285/6710b218F2a7947ec/16bc856daa4e5573.png",
+        "local_url": "/mall-products/snacks/10147947254708-悠采中粮山药薏米燕麦无糖饼干420g-原粮小买早餐代餐休闲零食-山药薏米燕麦420g-d791d820.png"
+      },
+      {
+        "title": "悠采中粮 无糖玉米饼干396g 粗粮杂粮谷物饼干 无糖食品代餐零食 【尝鲜装】无糖玉米饼干396g*1盒",
+        "goods_id": "10136232685877",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img11.360buyimg.com/n7/jfs/t1/234095/39/40459/258559/68ef5173F9e5f2098/7ffe66fea1b2827d.jpg",
+        "local_url": "/mall-products/snacks/10136232685877-悠采中粮-无糖玉米饼干396g-粗粮杂粮谷物饼干-无糖食品代餐零食-尝鲜装-无糖玉米饼干396g-ab25e958.jpg"
+      },
+      {
+        "title": "悠采中粮 猴头菇无糖饼干 酥性饼干 早餐休闲零食 猴头菇添加量≥6% 【送礼推荐】猴头菇饼干礼盒1kg",
+        "goods_id": "10191718726722",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/392767/24/7838/1594461/69804e21Fde3d2f0b/00835dc5dc42a266.png",
+        "local_url": "/mall-products/snacks/10191718726722-悠采中粮-猴头菇无糖饼干-酥性饼干-早餐休闲零食-猴头菇添加量-6-送礼推荐-猴头菇饼干礼盒1k-129ce011.png"
+      },
+      {
+        "title": "悠采中粮 无糖饼干混合口味 五黑杂粮山药 粗粮杂粮饼干 休闲代餐零食 混合口味512g*2盒",
+        "goods_id": "10158586933918",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img13.360buyimg.com/n7/jfs/t1/450019/14/7746/1955021/6a28c3e5F130fcda5/00835dc5dcd48e99.png",
+        "local_url": "/mall-products/snacks/10158586933918-悠采中粮-无糖饼干混合口味-五黑杂粮山药-粗粮杂粮饼干-休闲代餐零食-混合口味512g-2盒-9aed3117.png"
+      },
+      {
+        "title": "悠采中粮无糖饼干礼盒1kg 玉米饼干山药桃酥高蛋白薄饼",
+        "goods_id": "10096462468833",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/387547/9/21386/1611322/69804e20F1f755882/00835dc5dc3dbcf6.png",
+        "local_url": "/mall-products/snacks/10096462468833-悠采中粮无糖饼干礼盒1kg-玉米饼干山药桃酥高蛋白薄饼-18f7f866.png"
+      },
+      {
+        "title": "悠采中粮高蛋白三色藜麦谷物无糖饼干396g 粗粮杂粮饼干 休闲零食 【嚼出高蛋白】三色藜麦饼干396g",
+        "goods_id": "10147945996945",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/149231/24/37409/418947/65bf3ea9F3f5c6dbd/c507bb53ce086d5c.png",
+        "local_url": "/mall-products/snacks/10147945996945-悠采中粮高蛋白三色藜麦谷物无糖饼干396g-粗粮杂粮饼干-休闲零食-嚼出高蛋白-三色藜麦饼干39-c2830630.png"
+      },
+      {
+        "title": "悠采中粮 五黑杂粮谷物无糖饼干396g 粮小买桑葚黑芝麻休闲零食 【以黑养黑】五黑杂粮配比396g",
+        "goods_id": "10148043163350",
+        "source_page": "https://mall.jd.com/view_search-1747684-27198550-99-1-24-1.html",
+        "source_url": "https://img10.360buyimg.com/n7/jfs/t1/239419/39/4314/1279219/65bf4394F6eb8e425/89018041961fac7a.png",
+        "local_url": "/mall-products/snacks/10148043163350-悠采中粮-五黑杂粮谷物无糖饼干396g-粮小买桑葚黑芝麻休闲零食-以黑养黑-五黑杂粮配比396g-c85de9fa.png"
+      }
+    ],
+    "wine_tea": [
+      {
+        "title": "长城蓬莱玖干红葡萄酒4232 750ml",
+        "goods_id": "1940",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202208261758236274.png",
+        "local_url": "/mall-products/wine_tea/1940-长城蓬莱玖干红葡萄酒4232-750ml-0b9340d3.png"
+      },
+      {
+        "title": "中茶千山·滇红金针(升级款）180g",
+        "goods_id": "2026",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202405280907309103.jpg",
+        "local_url": "/mall-products/wine_tea/2026-中茶千山-滇红金针-升级款-180g-2bbf79be.jpg"
+      },
+      {
+        "title": "长城宁夏赤霞珠干红葡萄酒750ml",
+        "goods_id": "2025",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202211151338548709.png",
+        "local_url": "/mall-products/wine_tea/2025-长城宁夏赤霞珠干红葡萄酒750ml-99a86149.png"
+      },
+      {
+        "title": "中茶茉莉茗香特级茉莉花茶礼盒200g",
+        "goods_id": "2200",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202405130925265048.jpg",
+        "local_url": "/mall-products/wine_tea/2200-中茶茉莉茗香特级茉莉花茶礼盒200g-93a0738e.jpg"
+      },
+      {
+        "title": "长城宁夏贵人香干白葡萄酒750ml",
+        "goods_id": "3143",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202404261419086993.png",
+        "local_url": "/mall-products/wine_tea/3143-长城宁夏贵人香干白葡萄酒750ml-26aea449.png"
+      },
+      {
+        "title": "长城悦pop（悦泡泡）白起泡葡萄酒/4546/750ml",
+        "goods_id": "3253",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202405241031463942.png",
+        "local_url": "/mall-products/wine_tea/3253-长城悦pop-悦泡泡-白起泡葡萄酒-4546-750ml-a4ec2e68.png"
+      },
+      {
+        "title": "长城悦pop（悦泡泡）桃红起泡葡萄酒/4553/750ml",
+        "goods_id": "3254",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202405241032574723.png",
+        "local_url": "/mall-products/wine_tea/3254-长城悦pop-悦泡泡-桃红起泡葡萄酒-4553-750ml-7f33e8a5.png"
+      },
+      {
+        "title": "长城蓬莱长城民白兰地国潮（喜庆）4423 700ml",
+        "goods_id": "3351",
+        "source_page": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=427",
+        "source_url": "http://gl.fucardu.cn/upfiles/good/202409251017114322.png",
+        "local_url": "/mall-products/wine_tea/3351-长城蓬莱长城民白兰地国潮-喜庆-4423-700ml-46fb5268.png"
+      }
+    ]
+  },
+  "product_images": {
+    "prod_low_gi_rice": "/mall-products/rice_flour/681-福临门五常大米5kg-绿稻花-1baef826.png",
+    "prod_high_calcium_milk": "/mall-products/dairy/10211691661797-蒙牛高钙牛奶营养早餐牛奶送礼推荐礼盒装年货送礼盒-250ml-24盒-2箱-066fc43b.jpg",
+    "prod_olive_oil": "/mall-products/oil/42-福临门特级初榨橄榄油礼盒500ml-2-e5a18b1e.png",
+    "prod_low_sodium_salt": "/mall-products/seasoning/100221736593-中盐-优质低钠盐250g-10-加碘-绿色食品低钠盐-吃好盐选中盐-b840c896.png",
+    "prod_calcium_biscuit": "/mall-products/snacks/10191738999535-悠采中粮-无糖饼干-混合口味5袋装-酥性饼干-办公室休闲零食108g-cc7de380.jpg",
+    "prod_walnut_oil": "/mall-products/oil/1018-悦润亚麻籽油5L-0c7c9791.png",
+    "prod_oat_milk": "/mall-products/beverages/3822-山萃黑米燕麦燕窝羹756g-bc2d5c11.png",
+    "prod_brown_rice": "/mall-products/grains/100059020674-初萃中粮-七色糙米2斤-糙米-黑米-红米-燕麦米-紫米-高粱米-荞麦米-a1f19a68.jpg",
+    "prod_canola_oil": "/mall-products/oil/3116-福临门福至心礼非转基因压榨玉米油5L-c9cf6ec3.jpg"
+  }
+}

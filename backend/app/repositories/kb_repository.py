@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models.kb import KbChunk, KbDocument, KbPage
+from app.models.member import Member
 from app.services.kb_service import DocumentCreate, PageCreate
 from app.services.metadata import BasicMetadata
 
@@ -16,6 +17,7 @@ class SqlAlchemyKbRepository:
                 file_name=document.file_name,
                 file_path=document.file_path,
                 file_size=document.file_size,
+                member_id=document.member_id,
                 status=document.status,
             )
         )
@@ -67,10 +69,16 @@ class SqlAlchemyKbRepository:
         self.db.commit()
 
     def list_documents(self) -> list[KbDocument]:
-        return self.db.query(KbDocument).order_by(KbDocument.created_at.desc()).all()
+        documents = self.db.query(KbDocument).order_by(KbDocument.created_at.desc()).all()
+        self._attach_member_info(documents)
+        return documents
 
     def get_document(self, document_id: str) -> KbDocument | None:
-        return self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one_or_none()
+        document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one_or_none()
+        if document is None:
+            return None
+        self._attach_member_info([document])
+        return document
 
     def delete_document(self, document_id: str) -> KbDocument | None:
         document = self.get_document(document_id)
@@ -99,3 +107,19 @@ class SqlAlchemyKbRepository:
         chunks = self.db.query(KbChunk).filter(KbChunk.chunk_id.in_(chunk_ids)).all()
         order = {chunk_id: index for index, chunk_id in enumerate(chunk_ids)}
         return sorted(chunks, key=lambda chunk: order.get(chunk.chunk_id, len(order)))
+
+    def _attach_member_info(self, documents: list[KbDocument]) -> None:
+        member_ids = sorted({document.member_id for document in documents if document.member_id})
+        members_by_id: dict[str, Member] = {}
+        if member_ids:
+            members = self.db.query(Member).filter(Member.member_id.in_(member_ids)).all()
+            members_by_id = {member.member_id: member for member in members}
+
+        for document in documents:
+            member = members_by_id.get(document.member_id or "")
+            if member is None:
+                document.member_name = document.patient_name
+                document.member_relation = "本人" if document.member_id else None
+            else:
+                document.member_name = member.name
+                document.member_relation = member.relation

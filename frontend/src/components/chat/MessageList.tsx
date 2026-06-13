@@ -16,7 +16,7 @@ export function MessageList({ messages, loading }: Props) {
           <div className="msg-wrap">
             <div className="msg-bubble">
               <div className="msg-text">
-                早上好，小李，今天可以继续问我健康报告相关问题。
+                早上好，雨微，今天可以继续问我健康报告相关问题。
               </div>
             </div>
             <div className="msg-time">现在</div>

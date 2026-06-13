@@ -39,6 +39,7 @@ class FakeDb:
             title="体检报告",
             patient_name="王秀英",
             institution="市立医院",
+            member_id="mem_1",
             status="ready",
             created_at=datetime(2026, 6, 12, 10, 0, 0),
             updated_at=datetime(2026, 6, 12, 10, 0, 0),
@@ -96,9 +97,12 @@ def test_kb_document_list_and_detail_endpoints():
 
     assert list_response.status_code == 200
     assert list_response.json()[0]["document_id"] == "doc_1"
+    assert list_response.json()[0]["member_id"] == "mem_1"
+    assert list_response.json()[0]["member_name"] == "王秀英"
     assert list_response.json()[0]["thumbnail_url"] == "/uploads/doc_1/thumbnail.png"
     assert detail_response.status_code == 200
     assert detail_response.json()["file_name"] == "report.pdf"
+    assert detail_response.json()["member_relation"] == "本人"
     assert detail_response.json()["thumbnail_url"] == "/uploads/doc_1/thumbnail.png"
 
 
@@ -155,6 +159,20 @@ def test_kb_upload_rejects_non_pdf_file():
 
     assert response.status_code == 400
     assert response.json()["detail"] == "只支持 PDF 文件"
+
+
+def test_kb_upload_requires_member_id():
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    client = TestClient(app)
+
+    response = client.post(
+        "/kb/upload",
+        files={"file": ("report.pdf", b"%PDF-1.4 fake", "application/pdf")},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "请选择家人"
 
 
 def test_kb_upload_rejects_pdf_content_type_with_non_pdf_extension():

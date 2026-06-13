@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, ConfigDict, computed_field
 
 
 class UploadResponse(BaseModel):
@@ -18,9 +18,14 @@ class DocumentListItem(BaseModel):
     patient_name: str | None
     exam_date: date | None
     institution: str | None
+    member_id: str | None = None
+    member_name: str | None = None
+    member_relation: str | None = None
     status: str
     page_count: int
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
     @computed_field
     @property

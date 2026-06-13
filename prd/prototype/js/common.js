@@ -56,8 +56,8 @@ function renderTopbar(title, extra = "") {
             <span class="badge">3</span>
         </a>
         <div class="user-chip">
-            <div class="user-avatar">李</div>
-            <span style="font-size: 13px;">张小李</span>
+            <div class="user-avatar">张</div>
+            <span style="font-size: 13px;">张雨微</span>
         </div>
     </header>`;
 }

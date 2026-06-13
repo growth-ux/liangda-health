@@ -1,13 +1,14 @@
 import shutil
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi import Response
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.kb_repository import SqlAlchemyKbRepository
+from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.kb import (
     DocumentChunkItem,
     DocumentChunksResponse,
@@ -49,12 +50,19 @@ def get_embedding_service():
 @router.post("/upload", response_model=UploadResponse)
 async def upload_pdf(
     file: UploadFile = File(...),
+    member_id: str = Form(""),
     db: Session = Depends(get_db),
     embedding_service: DashScopeEmbeddingService = Depends(get_embedding_service),
     vector_store=Depends(get_vector_store),
 ):
     if file.content_type != "application/pdf" or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="只支持 PDF 文件")
+    member_id = member_id.strip()
+    if not member_id:
+        raise HTTPException(status_code=400, detail="请选择家人")
+    member_repository = SqlAlchemyMemberRepository(db)
+    if not member_repository.exists_by_member_id(member_id):
+        raise HTTPException(status_code=404, detail="家人不存在")
 
     repository = SqlAlchemyKbRepository(db)
     service = KbService(
@@ -66,7 +74,7 @@ async def upload_pdf(
         upload_dir=settings.upload_dir,
     )
     content = await file.read()
-    return service.upload_pdf(file_name=file.filename, content=content)
+    return service.upload_pdf(file_name=file.filename, content=content, member_id=member_id)
 
 
 @router.get("/documents", response_model=list[DocumentListItem])

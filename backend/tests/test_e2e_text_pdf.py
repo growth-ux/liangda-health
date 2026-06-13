@@ -44,6 +44,19 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
     client = TestClient(app)
 
+    member_response = client.post(
+        "/members",
+        json={
+            "name": "WangXiuying",
+            "relation": "母亲",
+            "gender": "女",
+            "birth_year": 1961,
+            "health_tags": ["高血压"],
+        },
+    )
+    assert member_response.status_code == 200
+    member_id = member_response.json()["member_id"]
+
     pdf_path = tmp_path / "report.pdf"
     _write_text_pdf(
         pdf_path,
@@ -58,6 +71,7 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     with pdf_path.open("rb") as file:
         upload_response = client.post(
             "/kb/upload",
+            data={"member_id": member_id},
             files={"file": ("report.pdf", file, "application/pdf")},
         )
 

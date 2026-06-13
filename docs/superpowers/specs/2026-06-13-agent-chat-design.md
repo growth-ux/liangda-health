@@ -222,7 +222,7 @@ GET /agent/sessions/{session_id}/messages
       "message_id": "msg_welcome_20260613",
       "session_id": "sess_health_20260613",
       "role": "assistant",
-      "content": "早上好，小李，今天可以继续问我健康报告相关问题。",
+      "content": "早上好，雨微，今天可以继续问我健康报告相关问题。",
       "status": "done",
       "created_at": "2026-06-13T10:00:00"
     }
