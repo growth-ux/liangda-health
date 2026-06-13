@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>通知 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="notice" data-title="通知中心">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary">全部 (12)</button>
+                <button class="btn">健康预警 (3)</button>
+                <button class="btn">系统 (4)</button>
+                <button class="btn">推荐 (5)</button>
+            </div>
+            <button class="btn">全部已读</button>
+        </div>
+
+        <!-- 今日 -->
+        <div class="card">
+            <div class="card-title" style="color: var(--text-3); font-size: 12px; font-weight: 500;">今天</div>
+            <div class="notice-list">
+                <div class="notice-item">
+                    <div class="notice-icon danger">⚠</div>
+                    <div class="notice-body">
+                        <div class="notice-title">妈妈血压持续偏高</div>
+                        <div class="notice-desc">本周收缩压均值 152 mmHg，已超过阈值 7 天。已为您推荐"低钠专区"。</div>
+                        <div class="notice-meta">30 分钟前 · 来自管家</div>
+                    </div>
+                    <div class="notice-actions">
+                        <button class="btn">稍后</button>
+                        <a href="chat.html" class="btn btn-primary">查看</a>
+                    </div>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-icon info">📊</div>
+                    <div class="notice-body">
+                        <div class="notice-title">新报告已识别</div>
+                        <div class="notice-desc">张桂兰 5 月 12 日的体检报告已识别完成，3 项异常已归档。</div>
+                        <div class="notice-meta">2 小时前 · 来自系统</div>
+                    </div>
+                    <div class="notice-actions">
+                        <a href="report.html" class="btn btn-primary">查看</a>
+                    </div>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-icon success">✓</div>
+                    <div class="notice-body">
+                        <div class="notice-title">爸爸血糖改善</div>
+                        <div class="notice-desc">本周空腹血糖均值 6.5 mmol/L，较上周下降 0.3。继续保持！</div>
+                        <div class="notice-meta">4 小时前 · 来自管家</div>
+                    </div>
+                    <div class="notice-actions">
+                        <button class="btn">👍 收到</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 本周 -->
+        <div class="card">
+            <div class="card-title" style="color: var(--text-3); font-size: 12px; font-weight: 500;">本周</div>
+            <div class="notice-list">
+                <div class="notice-item">
+                    <div class="notice-icon warning">⏰</div>
+                    <div class="notice-body">
+                        <div class="notice-title">女儿下次体检提醒</div>
+                        <div class="notice-desc">张小溪的下一次体检建议在 2026-09，距今 3 个月。</div>
+                        <div class="notice-meta">昨天 18:30 · 来自管家</div>
+                    </div>
+                    <div class="notice-actions">
+                        <button class="btn btn-primary">预约</button>
+                    </div>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-icon info">📄</div>
+                    <div class="notice-body">
+                        <div class="notice-title">建议补充报告</div>
+                        <div class="notice-desc">王建国（爸爸）的最新体检报告已过 6 个月，建议安排下一次体检。</div>
+                        <div class="notice-meta">2026-06-08 · 来自管家</div>
+                    </div>
+                    <div class="notice-actions">
+                        <a href="upload.html" class="btn">上传</a>
+                    </div>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-icon info">🛒</div>
+                    <div class="notice-body">
+                        <div class="notice-title">3 个新推荐商品</div>
+                        <div class="notice-desc">根据家庭最新健康数据，管家为您推荐 3 款新商品。</div>
+                        <div class="notice-meta">2026-06-07 · 来自管家</div>
+                    </div>
+                    <div class="notice-actions">
+                        <a href="mall.html" class="btn btn-primary">查看</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 更早 -->
+        <div class="card">
+            <div class="card-title" style="color: var(--text-3); font-size: 12px; font-weight: 500;">更早</div>
+            <div class="notice-list">
+                <div class="notice-item" style="opacity: 0.7;">
+                    <div class="notice-icon info">👋</div>
+                    <div class="notice-body">
+                        <div class="notice-title">欢迎使用粮达健康</div>
+                        <div class="notice-desc">您的家庭健康档案已创建，添加家人并上传第一份报告开始吧！</div>
+                        <div class="notice-meta">2026-06-01 · 来自系统</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

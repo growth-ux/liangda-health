@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>商城 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="mall" data-title="商城">
+        <div class="page-banner">
+            <span>🛒</span>
+            <span>本页所有商品均根据您家庭健康档案<strong>智能推荐</strong>。每个商品都有"为什么推荐"。</span>
+        </div>
+
+        <!-- 顶部 banner -->
+        <div class="banner">
+            <h2>为家人的健康，挑对每一份柴米油盐</h2>
+            <p>已根据家庭 4 位成员的健康档案，生成个性化专区与商品推荐</p>
+            <button class="btn" style="background: white; color: var(--primary);">查看推荐逻辑 →</button>
+        </div>
+
+        <!-- 为家庭推荐 -->
+        <div class="card">
+            <div class="card-title">🎯 为你家庭推荐</div>
+            <div class="zone-grid">
+                <div class="zone-card" onclick="location.href='product-detail.html'">
+                    <div class="zone-icon">👵</div>
+                    <div class="zone-name">为妈妈推荐</div>
+                    <div class="zone-sub">低钠 · 高钙</div>
+                </div>
+                <div class="zone-card" onclick="location.href='product-detail.html'">
+                    <div class="zone-icon">👴</div>
+                    <div class="zone-name">为爸爸推荐</div>
+                    <div class="zone-sub">控糖 · 低脂</div>
+                </div>
+                <div class="zone-card" onclick="location.href='product-detail.html'">
+                    <div class="zone-icon">👧</div>
+                    <div class="zone-name">为女儿推荐</div>
+                    <div class="zone-sub">成长 · 高钙</div>
+                </div>
+                <div class="zone-card" onclick="location.href='product-detail.html'">
+                    <div class="zone-icon">🏠</div>
+                    <div class="zone-name">全家通用</div>
+                    <div class="zone-sub">健康均衡</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 健康专区 -->
+        <div class="card">
+            <div class="card-title">
+                🏥 健康专区
+                <span class="card-title-actions" style="color: var(--text-3);">根据健康规则引擎筛选</span>
+            </div>
+            <div class="zone-grid">
+                <div class="zone-card zone-low-sodium">
+                    <div class="zone-icon">🧂</div>
+                    <div class="zone-name">低钠专区</div>
+                    <div class="zone-sub">12 款商品</div>
+                </div>
+                <div class="zone-card zone-sugar">
+                    <div class="zone-icon">🍚</div>
+                    <div class="zone-name">控糖专区</div>
+                    <div class="zone-sub">18 款商品</div>
+                </div>
+                <div class="zone-card zone-calcium">
+                    <div class="zone-icon">🥛</div>
+                    <div class="zone-name">高钙专区</div>
+                    <div class="zone-sub">9 款商品</div>
+                </div>
+                <div class="zone-card zone-low-fat">
+                    <div class="zone-icon">🥗</div>
+                    <div class="zone-name">低脂专区</div>
+                    <div class="zone-sub">15 款商品</div>
+                </div>
+                <div class="zone-card zone-sleep">
+                    <div class="zone-icon">🌾</div>
+                    <div class="zone-name">助眠专区</div>
+                    <div class="zone-sub">7 款商品</div>
+                </div>
+                <div class="zone-card zone-protein">
+                    <div class="zone-icon">🫘</div>
+                    <div class="zone-name">高蛋白专区</div>
+                    <div class="zone-sub">22 款商品</div>
+                </div>
+                <div class="zone-card zone-no-sugar">
+                    <div class="zone-icon">🍵</div>
+                    <div class="zone-name">无糖茶饮</div>
+                    <div class="zone-sub">14 款商品</div>
+                </div>
+                <div class="zone-card zone-nuts">
+                    <div class="zone-icon">🥜</div>
+                    <div class="zone-name">坚果专区</div>
+                    <div class="zone-sub">11 款商品</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今日推荐 -->
+        <div class="card">
+            <div class="card-title">
+                🔥 今日猜你想买
+                <span class="card-title-actions">换一批 🔄</span>
+            </div>
+            <div class="product-grid">
+                <div class="product-card-lg" onclick="location.href='product-detail.html'">
+                    <div class="product-image product-image-art">
+                        <span class="product-tag">低钠</span>
+                        <svg class="product-svg" viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="28" y="14" width="24" height="10" rx="2" fill="currentColor" fill-opacity="0.08"/>
+                            <path d="M30 24 Q24 28 24 38 L24 86 Q24 92 30 92 L50 92 Q56 92 56 86 L56 38 Q56 28 50 24 Z"/>
+                            <line x1="30" y1="50" x2="50" y2="50"/>
+                            <line x1="30" y1="58" x2="50" y2="58"/>
+                            <text x="40" y="76" text-anchor="middle" font-size="9" fill="currentColor" stroke="none" font-family="serif" font-style="italic">低钠</text>
+                        </svg>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">薄盐生抽 500ml</div>
+                        <div class="recommend-reason">💡 妈妈血压偏高，建议替代普通生抽</div>
+                        <div class="product-price">¥19.9</div>
+                    </div>
+                </div>
+                <div class="product-card-lg" onclick="location.href='product-detail.html'">
+                    <div class="product-image product-image-art">
+                        <span class="product-tag">控糖</span>
+                        <svg class="product-svg" viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 28 L22 86 Q22 90 26 90 L54 90 Q58 90 58 86 L58 28 Z"/>
+                            <path d="M22 28 L58 28 L54 22 L26 22 Z" fill="currentColor" fill-opacity="0.08"/>
+                            <line x1="22" y1="38" x2="58" y2="38"/>
+                            <line x1="22" y1="46" x2="58" y2="46"/>
+                            <text x="40" y="68" text-anchor="middle" font-size="9" fill="currentColor" stroke="none" font-family="serif" font-style="italic">糙米</text>
+                        </svg>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">低 GI 糙米 1kg</div>
+                        <div class="recommend-reason">💡 爸爸糖尿病，适合替代白米</div>
+                        <div class="product-price">¥29.9</div>
+                    </div>
+                </div>
+                <div class="product-card-lg" onclick="location.href='product-detail.html'">
+                    <div class="product-image product-image-art">
+                        <span class="product-tag">高钙</span>
+                        <svg class="product-svg" viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M26 24 L26 84 Q26 88 30 88 L50 88 Q54 88 54 84 L54 24 L50 18 L30 18 Z" fill="currentColor" fill-opacity="0.04"/>
+                            <line x1="26" y1="32" x2="54" y2="32"/>
+                            <text x="40" y="60" text-anchor="middle" font-size="11" fill="currentColor" stroke="none" font-family="serif" font-weight="600">高钙</text>
+                            <text x="40" y="74" text-anchor="middle" font-size="8" fill="currentColor" stroke="none" font-family="serif">牛奶</text>
+                        </svg>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">高钙牛奶 250ml×12</div>
+                        <div class="recommend-reason">💡 妈妈骨密度下降 + 女儿成长</div>
+                        <div class="product-price">¥49.9</div>
+                    </div>
+                </div>
+                <div class="product-card-lg" onclick="location.href='product-detail.html'">
+                    <div class="product-image product-image-art">
+                        <span class="product-tag">低脂</span>
+                        <svg class="product-svg" viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M34 14 L46 14 L46 22 L52 22 Q56 22 56 28 L56 86 Q56 90 52 90 L28 90 Q24 90 24 86 L24 28 Q24 22 28 22 L34 22 Z"/>
+                            <line x1="24" y1="50" x2="56" y2="50"/>
+                            <line x1="24" y1="58" x2="56" y2="58"/>
+                            <text x="40" y="74" text-anchor="middle" font-size="9" fill="currentColor" stroke="none" font-family="serif" font-style="italic">EV</text>
+                        </svg>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">特级初榨橄榄油 1L</div>
+                        <div class="recommend-reason">💡 爸爸 BMI 偏高，建议少动物油</div>
+                        <div class="product-price">¥89.9</div>
+                    </div>
+                </div>
+                <div class="product-card-lg" onclick="location.href='product-detail.html'">
+                    <div class="product-image product-image-art">
+                        <span class="product-tag">助眠</span>
+                        <svg class="product-svg" viewBox="0 0 80 100" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M24 30 L24 84 Q24 90 30 90 L50 90 Q56 90 56 84 L56 30 L50 22 L30 22 Z" fill="currentColor" fill-opacity="0.04"/>
+                            <path d="M24 30 L56 30" />
+                            <line x1="24" y1="40" x2="56" y2="40"/>
+                            <text x="40" y="66" text-anchor="middle" font-size="9" fill="currentColor" stroke="none" font-family="serif" font-style="italic">小米</text>
+                        </svg>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">小米粥料包 500g</div>
+                        <div class="recommend-reason">💡 妈妈睡眠不足，小米有助眠功效</div>
+                        <div class="product-price">¥15.9</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分类 -->
+        <div class="card">
+            <div class="card-title">柴米油盐分类</div>
+            <div class="zone-grid">
+                <div class="zone-card zone-cat-rice">
+                    <div class="zone-icon">🌾</div>
+                    <div class="zone-name">米面</div>
+                    <div class="zone-sub">32 款</div>
+                </div>
+                <div class="zone-card zone-cat-oil">
+                    <div class="zone-icon">🫒</div>
+                    <div class="zone-name">油品</div>
+                    <div class="zone-sub">18 款</div>
+                </div>
+                <div class="zone-card zone-cat-season">
+                    <div class="zone-icon">🧂</div>
+                    <div class="zone-name">调味</div>
+                    <div class="zone-sub">45 款</div>
+                </div>
+                <div class="zone-card zone-cat-sauce">
+                    <div class="zone-icon">🥫</div>
+                    <div class="zone-name">酱料</div>
+                    <div class="zone-sub">28 款</div>
+                </div>
+                <div class="zone-card zone-cat-snack">
+                    <div class="zone-icon">🍪</div>
+                    <div class="zone-name">零食</div>
+                    <div class="zone-sub">56 款</div>
+                </div>
+                <div class="zone-card zone-cat-drink">
+                    <div class="zone-icon">🥤</div>
+                    <div class="zone-name">饮料</div>
+                    <div class="zone-sub">22 款</div>
+                </div>
+                <div class="zone-card zone-cat-clean">
+                    <div class="zone-icon">🧴</div>
+                    <div class="zone-name">家清</div>
+                    <div class="zone-sub">19 款</div>
+                </div>
+                <div class="zone-card zone-cat-care">
+                    <div class="zone-icon">🧻</div>
+                    <div class="zone-name">个护</div>
+                    <div class="zone-sub">26 款</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

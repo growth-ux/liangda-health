@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/vite-env.d.ts","./src/api/kb.ts","./src/components/appshell.tsx","./src/components/kbsearchpanel.tsx","./src/components/reportcard.tsx","./src/components/reportgrid.tsx","./src/components/reporttoolbar.tsx","./src/components/uploadreportdialog.tsx","./src/pages/documentdetailpage.tsx","./src/pages/reportspage.tsx"],"version":"5.9.3"}

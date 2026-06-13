@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>家人详情 · 张桂兰 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="members" data-title="家人详情 · 张桂兰">
+        <a href="members.html" style="color: var(--text-2); font-size: 13px; text-decoration: none; display: inline-block; margin-bottom: 16px;">← 返回家人列表</a>
+
+        <!-- 头部 -->
+        <div class="member-hero">
+            <div class="member-avatar avatar-mom" style="width: 64px; height: 64px; font-size: 22px; border-radius: 10px;">王</div>
+            <div class="member-hero-info">
+                <div class="member-hero-name">王秀英 <span style="font-size: 14px; color: var(--text-3); font-weight: normal;">· 妈妈 · 65岁</span></div>
+                <div class="member-hero-meta">身高 158cm · 体重 60kg · BMI 24.0</div>
+                <div class="member-hero-tags">
+                    <span class="tag tag-warning">糖尿病前期</span>
+                    <span class="tag tag-info">少糖</span>
+                    <span class="tag tag-success">已绑手环</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="upload.html" class="btn">📄 上传报告</a>
+                <a href="device.html" class="btn">⌚ 设备</a>
+                <button class="btn">✎</button>
+            </div>
+        </div>
+
+        <!-- 关键健康指标 -->
+        <div class="card">
+            <div class="card-title">
+                关键健康指标
+                <span class="card-title-actions">最新更新：10 分钟前</span>
+            </div>
+            <div class="health-indicators">
+                <div class="health-indicator">
+                    <div class="health-indicator-label">收缩压</div>
+                    <div class="health-indicator-value" style="color: var(--danger);">152</div>
+                    <div class="health-indicator-status tag-danger">↑ 偏高</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">舒张压</div>
+                    <div class="health-indicator-value" style="color: var(--danger);">95</div>
+                    <div class="health-indicator-status tag-danger">↑ 偏高</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">心率</div>
+                    <div class="health-indicator-value">78</div>
+                    <div class="health-indicator-status tag-success">✓ 正常</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">睡眠</div>
+                    <div class="health-indicator-value" style="color: var(--warning);">5.2h</div>
+                    <div class="health-indicator-status tag-warning">↓ 不足</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">骨密度 T</div>
+                    <div class="health-indicator-value" style="color: var(--warning);">-2.1</div>
+                    <div class="health-indicator-status tag-warning">↓ 减少</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">空腹血糖</div>
+                    <div class="health-indicator-value">5.8</div>
+                    <div class="health-indicator-status tag-success">✓ 正常</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">总胆固醇</div>
+                    <div class="health-indicator-value">5.2</div>
+                    <div class="health-indicator-status tag-success">✓ 正常</div>
+                </div>
+                <div class="health-indicator">
+                    <div class="health-indicator-label">血氧</div>
+                    <div class="health-indicator-value">97%</div>
+                    <div class="health-indicator-status tag-success">✓ 正常</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 血压趋势 -->
+        <div class="card">
+            <div class="card-title">近 7 天血压趋势（来自手环）</div>
+            <div class="chart-box">
+                <div class="chart-placeholder">
+                    <div class="chart-bar danger" style="height: 80%;"></div>
+                    <div class="chart-bar danger" style="height: 90%;"></div>
+                    <div class="chart-bar warning" style="height: 75%;"></div>
+                    <div class="chart-bar danger" style="height: 95%;"></div>
+                    <div class="chart-bar warning" style="height: 70%;"></div>
+                    <div class="chart-bar danger" style="height: 88%;"></div>
+                    <div class="chart-bar danger" style="height: 92%;"></div>
+                </div>
+            </div>
+            <div class="chart-labels">
+                <span>6/5</span><span>6/6</span><span>6/7</span><span>6/8</span><span>6/9</span><span>6/10</span><span>6/11</span>
+            </div>
+        </div>
+
+        <!-- 报告时间轴 -->
+        <div class="card">
+            <div class="card-title">
+                体检报告
+                <a href="upload.html" class="card-title-actions">+ 上传新报告</a>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2026-05-12 · 市立医院</div>
+                    <div class="timeline-title">2026 春季体检</div>
+                    <div class="timeline-desc">骨密度 T 值 -2.1；血压 152/95；总胆固醇 5.2。共 3 项异常，已自动归档。</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2025-11-08 · 市立医院</div>
+                    <div class="timeline-title">2025 秋季体检</div>
+                    <div class="timeline-desc">整体健康，新增"高血压"标签。共 2 项异常。</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2025-05-15 · 社区医院</div>
+                    <div class="timeline-title">2025 春季体检</div>
+                    <div class="timeline-desc">基本正常。基线报告。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent 长期建议 -->
+        <div class="card" style="background: linear-gradient(135deg, var(--primary-bg), #fef3c7); border: none;">
+            <div class="card-title">🤖 管家长期建议</div>
+            <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">粮</div>
+                <div style="font-size: 13px; line-height: 1.7; color: var(--text-1);">
+                    妈目前的健康重点是 <strong>血压控制 + 骨密度管理</strong>：<br>
+                    1. 严格执行每日盐摄入 < 5g，可使用低钠酱油<br>
+                    2. 每天 1 杯高钙牛奶 + 1 小时户外活动<br>
+                    3. 每周监测血压 3 次，晨峰重点关注<br>
+                    4. 下次体检建议增加 <strong>颈动脉超声</strong>（高血压人群推荐）
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <a href="chat.html" class="btn btn-primary">💬 跟管家细聊</a>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

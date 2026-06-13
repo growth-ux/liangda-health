@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>上传报告 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="members" data-title="上传体检报告">
+        <a href="members.html" style="color: var(--text-2); font-size: 13px; text-decoration: none; display: inline-block; margin-bottom: 16px;">← 返回</a>
+
+        <div class="steps">
+            <div class="step-dot active"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+        </div>
+
+        <!-- 步骤 1：上传文件 -->
+        <div class="card">
+            <div class="card-title">步骤 1：上传报告文件</div>
+            <div class="upload-zone" onclick="alert('演示：选择文件')">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">点击或拖拽文件到此处</div>
+                <div class="upload-sub">支持 PDF / JPG / PNG / HEIC · 单文件最大 20MB</div>
+            </div>
+
+            <div style="margin-top: 16px; padding: 12px; background: var(--bg-1); border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 24px;">📑</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 500;">张桂兰_2026春季体检.pdf</div>
+                    <div style="font-size: 12px; color: var(--text-3);">2.3 MB · 上传成功</div>
+                </div>
+                <span class="tag tag-success">✓ 已上传</span>
+            </div>
+        </div>
+
+        <!-- 步骤 2：识别结果 -->
+        <div class="card">
+            <div class="card-title">
+                步骤 2：识别结果确认
+                <span class="card-title-actions" style="color: var(--text-3);">如有误可手动修正</span>
+            </div>
+
+            <div class="parse-result">
+                <!-- 左侧：识别字段 -->
+                <div>
+                    <div class="parse-fields" style="margin-bottom: 12px;">
+                        <div class="parse-field">
+                            <span class="parse-label">姓名</span>
+                            <span class="parse-value">张桂兰</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">性别</span>
+                            <span class="parse-value">女</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">年龄</span>
+                            <span class="parse-value">65</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">检查日期</span>
+                            <span class="parse-value">2026-05-12</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">检查机构</span>
+                            <span class="parse-value">市立医院</span>
+                        </div>
+                    </div>
+
+                    <div class="parse-fields">
+                        <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px;">关键指标</div>
+                        <div class="parse-field">
+                            <span class="parse-label">血压</span>
+                            <span class="parse-value" style="color: var(--danger);">152/95 ⚠</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">空腹血糖</span>
+                            <span class="parse-value" style="color: var(--warning);">6.8 ⚠</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">骨密度 T</span>
+                            <span class="parse-value" style="color: var(--warning);">-2.1 ⚠</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">总胆固醇</span>
+                            <span class="parse-value">5.2</span>
+                        </div>
+                        <div class="parse-field">
+                            <span class="parse-label">血红蛋白</span>
+                            <span class="parse-value">118</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：报告预览 -->
+                <div>
+                    <div class="parse-preview">
+                        📄 报告 PDF 预览<br>
+                        （原型图此处为占位）
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤 3：归属 -->
+        <div class="card">
+            <div class="card-title">步骤 3：归属到家人</div>
+            <div class="alert alert-success">
+                <div class="alert-icon">✓</div>
+                <div>
+                    智能匹配：识别到"<strong>张桂兰</strong>"，已匹配到您家庭中的 <strong>张桂兰（妈妈）</strong>。
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: center; padding: 14px 16px; border: 1px solid var(--primary); border-radius: 8px; background: var(--primary-bg);">
+                <div class="member-avatar avatar-mom">王</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 14px; font-weight: 500;">王秀英</div>
+                    <div style="font-size: 12px; color: var(--text-3);">妈妈 · 65岁 · 当前已有 1 份报告</div>
+                </div>
+                <span class="tag tag-success">✓ 已选</span>
+            </div>
+
+            <div style="margin-top: 12px; text-align: center; font-size: 13px; color: var(--text-3);">
+                匹配不对？<a href="javascript:;" style="color: var(--primary);">手动选择其他家人</a>
+            </div>
+        </div>
+
+        <!-- 操作 -->
+        <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+            <a href="members.html" class="btn">取消</a>
+            <a href="members.html" class="btn btn-primary">保存到档案</a>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

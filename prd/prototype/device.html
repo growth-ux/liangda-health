@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>手环设备 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 家庭角色切换 */
+        .role-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .role-tab {
+            padding: 8px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-1);
+            transition: all 0.1s;
+        }
+        .role-tab:hover { border-color: var(--primary); }
+        .role-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* 设备状态卡（参考图） */
+        .device-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .device-stat {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 20px;
+            position: relative;
+        }
+        .device-stat-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-2);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .device-stat-head svg { width: 14px; height: 14px; }
+        .device-stat-value {
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text-1);
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .device-stat-sub {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+        .device-stat-sub .target {
+            display: block;
+            margin-top: 2px;
+        }
+        .device-stat .sync-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 12px;
+            color: var(--primary);
+            border: 1px solid var(--primary-light);
+            background: var(--primary-bg);
+            border-radius: 4px;
+            padding: 3px 10px;
+            cursor: pointer;
+        }
+        .device-stat .battery {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        /* 图表卡 */
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 24px;
+        }
+        .chart-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-1);
+        }
+        .bar-chart {
+            height: 220px;
+            position: relative;
+            padding: 0 4px 24px 36px;
+        }
+        .bar-chart-grid {
+            position: absolute;
+            inset: 0 0 24px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .bar-chart-grid span {
+            font-size: 11px;
+            color: var(--text-3);
+            border-bottom: 1px dashed var(--border-light);
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+        .bar-chart-grid span:last-child { border-bottom: none; }
+        .bar-chart-bars {
+            position: relative;
+            height: calc(100% - 24px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 4px;
+        }
+        .bar-col {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .bar {
+            flex: 1;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
+            opacity: 0.85;
+        }
+        .bar.muted { background: #d1d5db; opacity: 0.5; }
+        .bar-col .bar:last-child { margin-left: 2px; }
+        .bar-labels {
+            position: absolute;
+            left: 36px;
+            right: 4px;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-3);
+        }
+        .bar-labels span { flex: 1; text-align: center; }
+
+        .line-chart {
+            height: 220px;
+            position: relative;
+            padding: 0 4px 24px 36px;
+        }
+        .line-chart-grid {
+            position: absolute;
+            inset: 0 0 24px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .line-chart-grid span {
+            font-size: 11px;
+            color: var(--text-3);
+            border-bottom: 1px dashed var(--border-light);
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+        .line-chart-grid span:last-child { border-bottom: none; }
+        .line-svg {
+            position: absolute;
+            left: 36px;
+            right: 4px;
+            top: 0;
+            bottom: 24px;
+            width: calc(100% - 40px);
+            height: calc(100% - 24px);
+        }
+        .line-labels {
+            position: absolute;
+            left: 36px;
+            right: 4px;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-3);
+        }
+        .line-labels span { flex: 1; text-align: center; }
+
+        /* 同步记录 */
+        .sync-list { display: flex; flex-direction: column; gap: 8px; }
+        .sync-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-1);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 12px 16px;
+        }
+        .sync-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+        .sync-icon.success { background: var(--primary-light); color: #047857; }
+        .sync-icon.warning { background: var(--warning-light); color: #b45309; }
+        .sync-name { flex: 1; font-size: 14px; color: var(--text-1); }
+        .sync-time { font-size: 12px; color: var(--text-3); }
+    </style>
+</head>
+<body>
+    <div id="app" data-active="device" data-title="手环设备">
+        <div class="page-banner">
+            <span>⌚</span>
+            <span>为家人绑定手环，<strong>每日自动同步</strong>心率/血压/睡眠/血氧/步数。体征异常会触发聊天预警。</span>
+        </div>
+
+        <!-- 家庭角色切换 -->
+        <div class="role-switch">
+            <div class="role-tab active">王建国</div>
+            <div class="role-tab">李秀芳</div>
+        </div>
+
+        <!-- 设备状态 / 步数 / 心率 / 睡眠 -->
+        <div class="device-stat-grid">
+            <div class="device-stat">
+                <div class="device-stat-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                        <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                        <path d="M9 6V3h6v3"></path>
+                        <path d="M9 18v3h6v-3"></path>
+                    </svg>
+                    设备状态
+                </div>
+                <div style="font-size: 14px; font-weight: 500; color: var(--text-1); margin-bottom: 4px;">小米手环 8 Pro</div>
+                <div style="font-size: 12px; color: var(--primary); margin-bottom: 8px;">● 已连接</div>
+                <div class="battery">电量 78%</div>
+                <button class="sync-btn">↻ 同步</button>
+            </div>
+
+            <div class="device-stat">
+                <div class="device-stat-head" style="color: var(--primary);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 3l3 6-3 3 4 6 3-3 3 3 4-6-3-3 3-6h-4l-3 3-3-3z"></path>
+                    </svg>
+                    今日步数
+                </div>
+                <div class="device-stat-value" style="color: var(--text-1);">8,432</div>
+                <div class="device-stat-sub">目标: 8,000<span class="target">深睡 2.1h</span></div>
+            </div>
+
+            <div class="device-stat">
+                <div class="device-stat-head" style="color: var(--danger);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    平均心率
+                </div>
+                <div class="device-stat-value" style="color: var(--danger);">72</div>
+                <div class="device-stat-sub">bpm</div>
+            </div>
+
+            <div class="device-stat">
+                <div class="device-stat-head" style="color: var(--primary);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    昨夜睡眠
+                </div>
+                <div class="device-stat-value" style="color: var(--text-1);">7.2h</div>
+                <div class="device-stat-sub">深睡 2.1h</div>
+            </div>
+        </div>
+
+        <!-- 图表：本周步数 / 今日心率变化 -->
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="chart-card-title">本周步数</div>
+                <div class="bar-chart">
+                    <div class="bar-chart-grid">
+                        <span>12000</span>
+                        <span>9000</span>
+                        <span>6000</span>
+                        <span>3000</span>
+                        <span>0</span>
+                    </div>
+                    <div class="bar-chart-bars">
+                        <div class="bar-col">
+                            <div class="bar" style="height: 50%;"></div>
+                            <div class="bar muted" style="height: 65%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 70%;"></div>
+                            <div class="bar muted" style="height: 60%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 62%;"></div>
+                            <div class="bar muted" style="height: 60%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 75%;"></div>
+                            <div class="bar muted" style="height: 65%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 58%;"></div>
+                            <div class="bar muted" style="height: 66%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 88%;"></div>
+                            <div class="bar muted" style="height: 65%;"></div>
+                        </div>
+                        <div class="bar-col">
+                            <div class="bar" style="height: 82%;"></div>
+                            <div class="bar muted" style="height: 64%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-labels">
+                        <span>周一</span><span>周二</span><span>周三</span><span>周四</span>
+                        <span>周五</span><span>周六</span><span>周日</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-card-title">今日心率变化</div>
+                <div class="line-chart">
+                    <div class="line-chart-grid">
+                        <span>120</span>
+                        <span>100</span>
+                        <span>80</span>
+                        <span>60</span>
+                        <span>40</span>
+                    </div>
+                    <svg class="line-svg" viewBox="0 0 600 200" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="hrGrad" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.18"></stop>
+                                <stop offset="100%" stop-color="#ef4444" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0 140 C 60 145, 100 140, 150 130 S 250 80, 320 55 S 450 30, 520 60 S 580 110, 600 130 L 600 200 L 0 200 Z"
+                              fill="url(#hrGrad)"></path>
+                        <path d="M 0 140 C 60 145, 100 140, 150 130 S 250 80, 320 55 S 450 30, 520 60 S 580 110, 600 130"
+                              fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <div class="line-labels">
+                        <span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span>
+                        <span>16:00</span><span>20:00</span><span>23:59</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据同步记录 -->
+        <div class="card">
+            <div class="card-title">数据同步记录</div>
+            <div class="sync-list">
+                <div class="sync-item">
+                    <div class="sync-icon success">✓</div>
+                    <div class="sync-name">步数数据同步</div>
+                    <div class="sync-time">今日 08:30</div>
+                </div>
+                <div class="sync-item">
+                    <div class="sync-icon success">✓</div>
+                    <div class="sync-name">心率数据同步</div>
+                    <div class="sync-time">今日 08:30</div>
+                </div>
+                <div class="sync-item">
+                    <div class="sync-icon success">✓</div>
+                    <div class="sync-name">睡眠数据同步</div>
+                    <div class="sync-time">今日 06:00</div>
+                </div>
+                <div class="sync-item">
+                    <div class="sync-icon warning">⚠</div>
+                    <div class="sync-name">心率异常提醒</div>
+                    <div class="sync-time">昨日 22:15</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <div class="alert-icon">🔒</div>
+            <div>
+                <strong>数据隐私：</strong>体征数据仅用于生成健康建议与商品推荐，不会用于其他用途。父母无需独立登录账号，由主账号统一管理。
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

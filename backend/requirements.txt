@@ -1,0 +1,14 @@
+fastapi==0.115.6
+setuptools==75.8.0
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+sqlalchemy==2.0.36
+pymysql==1.1.1
+cryptography==44.0.0
+pydantic-settings==2.7.1
+PyMuPDF==1.25.1
+pymilvus==2.5.3
+requests==2.32.3
+httpx==0.28.1
+pytest==8.3.4
+langchain-text-splitters==1.1.2

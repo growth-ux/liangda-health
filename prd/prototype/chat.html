@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="chat" data-title="与管家对话" style="padding: 0;">
+        <div class="chat-layout">
+            <!-- 会话列表 -->
+            <div class="chat-sessions">
+                <div class="chat-sessions-header">
+                    <span style="font-size: 14px; font-weight: 600;">对话历史</span>
+                    <span class="btn btn-ghost" style="padding: 4px 8px; font-size: 18px;">+</span>
+                </div>
+                <div class="session-list">
+                    <div class="session-item active">
+                        <div class="session-title">💬 妈妈的健康咨询</div>
+                        <div class="session-preview">建议试试低钠酱油...</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-title">📄 报告解读 · 张桂兰</div>
+                        <div class="session-preview">骨密度 T 值 -2.1，提示...</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-title">🛒 给爸爸的控糖推荐</div>
+                        <div class="session-preview">低 GI 糙米 + 荞麦面</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-title">👧 女儿的成长问题</div>
+                        <div class="session-preview">身高增速偏慢...</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-title">❓ 孕期营养</div>
+                        <div class="session-preview">叶酸和 DHA 推荐...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对话主区 -->
+            <div class="chat-main">
+                <div class="chat-header">
+                    <div class="chat-agent-avatar">家</div>
+                    <div style="flex: 1;">
+                        <div class="chat-agent-name">Agent 管家</div>
+                        <div class="chat-agent-status">在线 · 已连接家庭健康档案</div>
+                    </div>
+                </div>
+
+                <div class="chat-messages">
+                    <!-- Agent 欢迎 -->
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="msg-bubble">
+                                <div class="msg-text">早上好，小李 ☀️ 今天的家庭健康摘要：<br>
+                                    • 妈妈收缩压本周均值为 <strong style="color: var(--danger);">152</strong>，仍偏高<br>
+                                    • 爸爸血糖控制稳定，继续保持<br>
+                                    • 女儿身高增速放缓，建议增加高钙摄入
+                                </div>
+                            </div>
+                            <div class="msg-time">9:02</div>
+                        </div>
+                    </div>
+
+                    <!-- 主动推荐卡片 -->
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="card-message">
+                                <div class="card-message-header">
+                                    💡 为妈妈主动推荐
+                                </div>
+                                <div class="card-message-body">
+                                    <strong>低钠酱油 + 控盐勺组合</strong><br>
+                                    理由：本周血压持续偏高，减盐是首要干预。已为您筛选钠含量低于 50% 的薄盐生抽。
+                                </div>
+                                <div class="card-message-footer">
+                                    <a href="mall.html" class="btn btn-primary" style="flex: 1; justify-content: center;">查看推荐</a>
+                                    <button class="btn">换一批</button>
+                                </div>
+                            </div>
+                            <div class="msg-time">9:02</div>
+                        </div>
+                    </div>
+
+                    <!-- 用户消息 -->
+                    <div class="message-row user">
+                        <div class="msg-avatar user">李</div>
+                        <div>
+                            <div class="msg-bubble">
+                                <div class="msg-text">我妈最近老说没胃口，睡眠也不太好，有什么建议？</div>
+                            </div>
+                            <div class="msg-time">9:05</div>
+                        </div>
+                    </div>
+
+                    <!-- Agent 回复 -->
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="msg-bubble">
+                                <div class="msg-text">嗯，妈最近一周手环数据我也看了——平均睡眠只有 5.2 小时，深睡比例偏低，加上血压偏高，人会没精神。建议：</div>
+                            </div>
+                            <div class="msg-time">9:05</div>
+                        </div>
+                    </div>
+
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="msg-bubble">
+                                <div class="msg-text">
+                                    1. <strong>饮食上</strong>：增加小米、山药、银耳等健脾食材<br>
+                                    2. <strong>作息上</strong>：晚上 10 点前关灯，睡前 1 小时不刷手机<br>
+                                    3. <strong>注意</strong>：若睡眠持续 < 5 小时超过 2 周，建议去医院睡眠科看看
+                                </div>
+                            </div>
+                            <div class="msg-time">9:05</div>
+                        </div>
+                    </div>
+
+                    <!-- 商品推荐横滑 -->
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="card-message">
+                                <div class="card-message-header info">
+                                    🛒 助眠·健脾食材
+                                </div>
+                                <div class="card-message-body">
+                                    <div class="product-row">
+                                        <div class="product-card" onclick="location.href='product-detail.html'">
+                                            <div class="product-image">🌾</div>
+                                            <div class="product-info">
+                                                <div class="product-name">小米 1kg</div>
+                                                <div class="product-price">¥15.9</div>
+                                            </div>
+                                        </div>
+                                        <div class="product-card" onclick="location.href='product-detail.html'">
+                                            <div class="product-image">🥔</div>
+                                            <div class="product-info">
+                                                <div class="product-name">铁棍山药</div>
+                                                <div class="product-price">¥19.9</div>
+                                            </div>
+                                        </div>
+                                        <div class="product-card" onclick="location.href='product-detail.html'">
+                                            <div class="product-image">🍄</div>
+                                            <div class="product-info">
+                                                <div class="product-name">银耳 100g</div>
+                                                <div class="product-price">¥39.9</div>
+                                            </div>
+                                        </div>
+                                        <div class="product-card" onclick="location.href='product-detail.html'">
+                                            <div class="product-image">🌰</div>
+                                            <div class="product-info">
+                                                <div class="product-name">莲子 500g</div>
+                                                <div class="product-price">¥29.9</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="msg-time">9:06</div>
+                        </div>
+                    </div>
+
+                    <!-- 报告解读 -->
+                    <div class="message-row">
+                        <div class="msg-avatar agent">家</div>
+                        <div>
+                            <div class="card-message">
+                                <div class="card-message-header danger">
+                                    ⚠ 上次体检异常提示
+                                </div>
+                                <div class="card-message-body">
+                                    妈妈 5 月 12 日的体检报告中，<strong>骨密度 T 值 -2.1</strong>，属于骨量减少。建议：
+                                    <ul style="margin: 8px 0 0 16px; color: var(--text-2);">
+                                        <li>每天 1 杯高钙牛奶</li>
+                                        <li>每周 2 次豆腐/小鱼</li>
+                                        <li>每日 15 分钟户外晒太阳</li>
+                                    </ul>
+                                </div>
+                                <div class="card-message-footer">
+                                    <a href="report.html" class="btn btn-primary" style="flex: 1; justify-content: center;">查看完整报告解读</a>
+                                </div>
+                            </div>
+                            <div class="msg-time">9:06</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入区 -->
+                <div class="chat-input-area">
+                    <div class="quick-actions">
+                        <span class="quick-action">/ 查看报表</span>
+                        <span class="quick-action">/ 上传报告</span>
+                        <span class="quick-action">/ 添加家人</span>
+                        <span class="quick-action">/ 换一批推荐</span>
+                    </div>
+                    <div class="chat-input">
+                        <div class="chat-input-box">
+                            <input type="text" placeholder="问问管家...">
+                            <div class="chat-input-actions">
+                                <span>📎</span>
+                                <span>🎤</span>
+                                <span>😊</span>
+                            </div>
+                        </div>
+                        <button class="chat-send-btn">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

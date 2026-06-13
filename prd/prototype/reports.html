@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>上传报告 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .report-tile {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            aspect-ratio: 1 / 1.15;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+        }
+
+        .report-tile:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+        }
+
+        .report-tile.new {
+            background: var(--bg-2);
+            border: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .report-tile.new:hover {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+        }
+
+        .new-icon-circle {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin: 0 auto 10px;
+        }
+
+        .new-text {
+            color: var(--text-2);
+            font-size: 13px;
+        }
+
+        .tile-header {
+            flex: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .tile-emoji {
+            font-size: 56px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+        }
+
+        .tile-header.mom { background: #fce7f3; }
+        .tile-header.dad { background: #dbeafe; }
+        .tile-header.me { background: var(--accent-light); }
+        .tile-header.kid { background: #d1fae5; }
+        .tile-header.other { background: #e9d5ff; }
+
+        .tile-more {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-2);
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .tile-more:hover {
+            background: var(--bg-2);
+            color: var(--text-1);
+        }
+
+        .tile-more svg { width: 14px; height: 14px; }
+
+        .tile-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-1);
+            line-height: 1.4;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 36px;
+        }
+
+        .tile-meta {
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 6px;
+        }
+
+        .filter-btn {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-2);
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" data-active="reports" data-title="上传报告">
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="filter-btn active">全部 (8)</button>
+                <button class="filter-btn">妈妈 (3)</button>
+                <button class="filter-btn">爸爸 (2)</button>
+                <button class="filter-btn">我 (2)</button>
+                <button class="filter-btn">女儿 (1)</button>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <select class="form-select" style="width: 130px;">
+                    <option>按上传时间</option>
+                    <option>按检查日期</option>
+                    <option>按家人</option>
+                </select>
+                <a href="upload.html" class="btn btn-primary">+ 上传新报告</a>
+            </div>
+        </div>
+
+        <div class="reports-grid">
+
+            <!-- 新建报告卡 -->
+            <div class="report-tile new" onclick="location.href='upload.html'">
+                <div>
+                    <div class="new-icon-circle">+</div>
+                    <div class="new-text">上传新报告</div>
+                </div>
+            </div>
+
+            <!-- 报告 1 -->
+            <div class="report-tile">
+                <div class="tile-header mom">
+                    <span class="tile-emoji">🩺</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">王秀英 2026 春季体检</div>
+                <div class="tile-meta">2026年5月12日 · 3 项异常</div>
+            </div>
+
+            <!-- 报告 2 -->
+            <div class="report-tile">
+                <div class="tile-header mom">
+                    <span class="tile-emoji">🫀</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">王秀英 心血管专项</div>
+                <div class="tile-meta">2025年11月8日 · 2 项异常</div>
+            </div>
+
+            <!-- 报告 3 -->
+            <div class="report-tile">
+                <div class="tile-header mom">
+                    <span class="tile-emoji">🦴</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">王秀英 骨密度检测</div>
+                <div class="tile-meta">2025年9月20日 · T值-2.1</div>
+            </div>
+
+            <!-- 报告 4 -->
+            <div class="report-tile">
+                <div class="tile-header dad">
+                    <span class="tile-emoji">🩸</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">张建国 2025 冬季体检</div>
+                <div class="tile-meta">2025年12月20日 · 4 项异常</div>
+            </div>
+
+            <!-- 报告 5 -->
+            <div class="report-tile">
+                <div class="tile-header dad">
+                    <span class="tile-emoji">🧪</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">张建国 糖化血红蛋白</div>
+                <div class="tile-meta">2025年10月5日 · 1 项异常</div>
+            </div>
+
+            <!-- 报告 6 -->
+            <div class="report-tile">
+                <div class="tile-header me">
+                    <span class="tile-emoji">📋</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">张小李 2026 入职体检</div>
+                <div class="tile-meta">2026年3月1日 · 全部正常</div>
+            </div>
+
+            <!-- 报告 7 -->
+            <div class="report-tile">
+                <div class="tile-header me">
+                    <span class="tile-emoji">🫁</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">张小李 胸部 CT</div>
+                <div class="tile-meta">2024年8月15日 · 全部正常</div>
+            </div>
+
+            <!-- 报告 8 -->
+            <div class="report-tile">
+                <div class="tile-header kid">
+                    <span class="tile-emoji">👧</span>
+                    <div class="tile-more">⋯</div>
+                </div>
+                <div class="tile-title">张小溪 入园体检</div>
+                <div class="tile-meta">2024年9月1日 · 全部正常</div>
+            </div>
+
+        </div>
+
+        <!-- 操作说明 -->
+        <div class="alert alert-info" style="margin-top: 20px;">
+            <div class="alert-icon">ℹ</div>
+            <div>
+                <strong>说明：</strong>报告上传后会自动 OCR 识别并归档到对应家人。点击右上角"⋯"可<strong>删除 / 重新识别 / 导出</strong>。
+            </div>
+        </div>
+
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

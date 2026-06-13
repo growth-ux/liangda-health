@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app" data-active="home" data-title="张小李的家庭">
+        <!-- 欢迎条 -->
+        <div class="page-banner">
+            <span>👋</span>
+            <span>早上好，小李。今天是 2026 年 6 月 11 日，妈妈血压仍偏高，建议关注。</span>
+        </div>
+
+        <!-- 家庭健康指标 -->
+        <div class="metric-grid">
+            <div class="metric">
+                <div class="metric-label">家庭健康分</div>
+                <div class="metric-value">78</div>
+                <div class="metric-trend">↓ 3 较上周</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">待关注指标</div>
+                <div class="metric-value" style="color: var(--danger);">2</div>
+                <div class="metric-trend">项需干预</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">已存报告</div>
+                <div class="metric-value">5</div>
+                <div class="metric-trend">份</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">绑定设备</div>
+                <div class="metric-value" style="color: var(--primary);">1</div>
+                <div class="metric-trend">只手环</div>
+            </div>
+        </div>
+
+        <!-- 关键入口 -->
+        <div class="row">
+            <div class="card col" style="cursor: pointer;" onclick="location.href='chat.html'">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                    <div class="member-avatar" style="background: var(--primary-light); color: var(--primary); width: 44px; height: 44px; font-size: 20px;">💬</div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">与 Agent 对话</div>
+                        <div style="font-size: 12px; color: var(--text-3);">咨询健康 · 获取推荐 · 解读报告</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card col" style="cursor: pointer;" onclick="location.href='upload.html'">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                    <div class="member-avatar" style="background: #dbeafe; color: #2563eb; width: 44px; height: 44px; font-size: 20px;">📄</div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">上传体检报告</div>
+                        <div style="font-size: 12px; color: var(--text-3);">自动识别并归档到对应家人</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-md">
+            <div class="card col" style="cursor: pointer;" onclick="location.href='report.html'">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                    <div class="member-avatar" style="background: var(--warning-light); color: #b45309; width: 44px; height: 44px; font-size: 20px;">📊</div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">家庭健康报表</div>
+                        <div style="font-size: 12px; color: var(--text-3);">查看趋势 · 健康管理建议</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card col" style="cursor: pointer;" onclick="location.href='mall.html'">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                    <div class="member-avatar" style="background: var(--accent-light); color: var(--accent); width: 44px; height: 44px; font-size: 20px;">🛒</div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">为家人推荐</div>
+                        <div style="font-size: 12px; color: var(--text-3);">柴米油盐 · 健康专区</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 家人健康摘要 -->
+        <div class="card mt-md">
+            <div class="card-title">
+                家庭成员健康摘要
+                <a href="members.html" class="card-title-actions">查看全部 →</a>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div class="member-card" onclick="location.href='member-detail.html'">
+                    <div class="member-avatar avatar-dad">张</div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            <span class="relation">爸 ·</span>
+                            <span class="name-text">张建国</span>
+                            <span class="tag tag-warning">1项待关注</span>
+                        </div>
+                        <div class="member-meta">68岁 · 高血压 · 戴小米手环</div>
+                    </div>
+                    <div class="member-arrow">›</div>
+                </div>
+                <div class="member-card" onclick="location.href='member-detail.html'">
+                    <div class="member-avatar avatar-mom">王</div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            <span class="relation">妈 ·</span>
+                            <span class="name-text">王秀英</span>
+                            <span class="tag tag-success">数据正常</span>
+                        </div>
+                        <div class="member-meta">65岁 · 糖尿病前期 · 戴华为手环</div>
+                    </div>
+                    <div class="member-arrow">›</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今日推荐 -->
+        <div class="card mt-md">
+            <div class="card-title">
+                今日为你家庭推荐
+                <a href="mall.html" class="card-title-actions">去商城 →</a>
+            </div>
+            <div class="product-row">
+                <div class="product-card" onclick="location.href='product-detail.html'">
+                    <div class="product-image">
+                        <span class="product-tag">低钠</span>
+                        🧴
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">薄盐生抽 500ml</div>
+                        <div class="product-price">¥19.9</div>
+                    </div>
+                </div>
+                <div class="product-card" onclick="location.href='product-detail.html'">
+                    <div class="product-image">
+                        <span class="product-tag">控糖</span>
+                        🍚
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">低 GI 糙米 1kg</div>
+                        <div class="product-price">¥29.9</div>
+                    </div>
+                </div>
+                <div class="product-card" onclick="location.href='product-detail.html'">
+                    <div class="product-image">
+                        <span class="product-tag">高钙</span>
+                        🥛
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">高钙牛奶 250ml×12</div>
+                        <div class="product-price">¥49.9</div>
+                    </div>
+                </div>
+                <div class="product-card" onclick="location.href='product-detail.html'">
+                    <div class="product-image">
+                        <span class="product-tag">低脂</span>
+                        🫒
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">橄榄油 1L</div>
+                        <div class="product-price">¥89.9</div>
+                    </div>
+                </div>
+                <div class="product-card" onclick="location.href='product-detail.html'">
+                    <div class="product-image">
+                        <span class="product-tag">助眠</span>
+                        🌾
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">小米粥料包</div>
+                        <div class="product-price">¥15.9</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+</body>
+</html>

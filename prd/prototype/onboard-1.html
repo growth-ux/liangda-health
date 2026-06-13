@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>创建家庭 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="onboard">
+        <div class="onboard-card" style="max-width: 520px;">
+            <div class="steps">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="onboard-icon">家</div>
+            <div class="onboard-title">创建你的家庭</div>
+            <div class="onboard-sub">给家庭起个名字，下一步添加家庭成员</div>
+
+            <div class="form-group">
+                <label class="form-label">家庭名称 *</label>
+                <input class="form-input" placeholder="如：张小李的家庭" value="张小李的家庭">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">所在城市（可选）</label>
+                <input class="form-input" placeholder="用于推荐本地化商品和健康资讯" value="上海">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">家庭成员数</label>
+                <select class="form-select">
+                    <option>1 人（仅自己）</option>
+                    <option selected>2-3 人</option>
+                    <option>4-5 人</option>
+                    <option>5 人以上</option>
+                </select>
+            </div>
+
+            <div class="alert alert-info" style="text-align: left;">
+                <div class="alert-icon">ℹ</div>
+                <div>
+                    你将作为<strong>家庭管理员</strong>，管理所有家人的健康档案与数据。
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 24px; justify-content: space-between;">
+                <a href="welcome.html" class="btn">← 上一步</a>
+                <a href="add-member.html" class="btn btn-primary">下一步：添加家人 →</a>
+            </div>
+        </div>
+    </div>
+    <div class="proto-label">原型 v0.2 · 克制留白</div>
+</body>
+</html>
