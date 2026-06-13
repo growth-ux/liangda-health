@@ -17,7 +17,7 @@ type Props = {
 };
 
 const navItems = [
-  { id: 'chat', icon: MessageCircle, label: ' Agent', href: '' },
+  { id: 'chat', icon: MessageCircle, label: ' Agent', href: '/chat' },
   { id: 'reports', icon: Upload, label: '上传报告', href: '/reports' },
   { id: 'report', icon: BarChart3, label: '健康分析', href: '' },
   { id: 'mall', icon: ShoppingBag, label: '商城', href: '' },

@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      '/agent': 'http://localhost:8000',
       '/kb': 'http://localhost:8000',
       '/uploads': 'http://localhost:8000',
       '/health': 'http://localhost:8000'

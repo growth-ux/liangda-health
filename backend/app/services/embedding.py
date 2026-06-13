@@ -1,65 +1,68 @@
-import hashlib
-import math
 from collections.abc import Callable
+from http import HTTPStatus
 
-import requests
-
-
-class DeterministicEmbeddingService:
-    """Small deterministic embedding for local development and tests."""
-
-    def __init__(self, dimension: int = 64):
-        if dimension <= 0:
-            raise ValueError("dimension must be positive")
-        self.dimension = dimension
-
-    def embed(self, text: str) -> list[float]:
-        vector = [0.0] * self.dimension
-        for index, char in enumerate(text):
-            digest = hashlib.sha256(f"{index}:{char}".encode("utf-8")).digest()
-            bucket = int.from_bytes(digest[:4], "big") % self.dimension
-            sign = 1.0 if digest[4] % 2 == 0 else -1.0
-            vector[bucket] += sign
-        return _normalize(vector)
-
-    def embed_many(self, texts: list[str]) -> list[list[float]]:
-        return [self.embed(text) for text in texts]
+import dashscope
 
 
-class HttpEmbeddingService:
+class DashScopeEmbeddingService:
     def __init__(
         self,
-        endpoint: str,
+        model: str,
         api_key: str | None = None,
-        post: Callable | None = None,
+        call: Callable | None = None,
     ):
-        self.endpoint = endpoint
+        self.model = model
         self.api_key = api_key
-        self.post = post or requests.post
+        self.call = call or dashscope.TextEmbedding.call
 
     def embed(self, text: str) -> list[float]:
         return self.embed_many([text])[0]
 
     def embed_many(self, texts: list[str]) -> list[list[float]]:
-        headers = {}
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
-        response = self.post(
-            self.endpoint,
-            headers=headers,
-            json={"texts": texts},
-            timeout=60,
-        )
-        response.raise_for_status()
-        data = response.json()
-        embeddings = data.get("embeddings")
+        if not texts:
+            return []
+        if not self.api_key:
+            raise RuntimeError("未配置 DashScope Embedding API Key")
+
+        dashscope.api_key = self.api_key
+        response = self.call(model=self.model, input=texts)
+        status_code = _get_value(response, "status_code")
+        if status_code != HTTPStatus.OK:
+            message = (
+                _get_value(response, "message")
+                or _get_value(response, "code")
+                or "DashScope Embedding 调用失败"
+            )
+            raise RuntimeError(str(message))
+
+        output = _get_value(response, "output")
+        embeddings = _get_value(output, "embeddings")
         if not isinstance(embeddings, list):
-            raise RuntimeError("Embedding 响应缺少 embeddings 字段")
-        return [[float(value) for value in embedding] for embedding in embeddings]
+            raise RuntimeError("DashScope Embedding 响应缺少 embeddings 字段")
+
+        vectors_by_index: dict[int, list[float]] = {}
+        vectors: list[list[float]] = []
+        for index, item in enumerate(embeddings):
+            if isinstance(item, dict):
+                embedding = item.get("embedding")
+                text_index = item.get("text_index", index)
+            else:
+                embedding = item
+                text_index = index
+            if not isinstance(embedding, list):
+                raise RuntimeError("DashScope Embedding 响应格式错误")
+            vectors_by_index[int(text_index)] = [float(value) for value in embedding]
+
+        for index in range(len(texts)):
+            if index not in vectors_by_index:
+                raise RuntimeError("DashScope Embedding 响应数量与请求文本不一致")
+            vectors.append(vectors_by_index[index])
+        return vectors
 
 
-def _normalize(vector: list[float]) -> list[float]:
-    norm = math.sqrt(sum(value * value for value in vector))
-    if norm == 0:
-        return vector
-    return [value / norm for value in vector]
+def _get_value(data, key: str):
+    if data is None:
+        return None
+    if isinstance(data, dict):
+        return data.get(key)
+    return getattr(data, key, None)

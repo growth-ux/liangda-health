@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.main import create_app
 from app.models.kb import KbChunk, KbDocument, KbPage
-from app.services.embedding import HttpEmbeddingService
+from app.services.embedding import DashScopeEmbeddingService
 
 
 class FakeQuery:
@@ -81,6 +81,11 @@ class FakeVectorStore:
         return [type("Hit", (), {"chunk_id": "chunk_1", "score": 0.9})()]
 
 
+class FakeEmbeddingService:
+    def embed(self, text):
+        return [1.0, 0.0]
+
+
 def test_kb_document_list_and_detail_endpoints():
     app = create_app()
     app.dependency_overrides[get_db] = lambda: FakeDb()
@@ -128,7 +133,7 @@ def test_kb_search_endpoint_returns_chunk_content():
     app = create_app()
     app.dependency_overrides[get_db] = lambda: FakeDb()
     app.dependency_overrides[get_vector_store] = lambda: FakeVectorStore()
-    app.dependency_overrides[get_embedding_service] = get_embedding_service
+    app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
     client = TestClient(app)
 
     response = client.post("/kb/search", json={"query": "骨密度", "top_k": 5})
@@ -166,12 +171,13 @@ def test_kb_upload_rejects_pdf_content_type_with_non_pdf_extension():
     assert response.json()["detail"] == "只支持 PDF 文件"
 
 
-def test_get_embedding_service_uses_http_adapter_when_endpoint_is_configured(monkeypatch):
-    monkeypatch.setattr(settings, "embedding_endpoint", "https://embedding.example/v1/embed")
-    monkeypatch.setattr(settings, "embedding_api_key", "secret")
+def test_get_embedding_service_uses_dashscope_with_existing_api_key(monkeypatch):
+    monkeypatch.setattr(settings, "embedding_model", "text-embedding-v3")
+    monkeypatch.setattr(settings, "embedding_api_key", None)
+    monkeypatch.setattr(settings, "llm_api_key", "secret")
 
     service = get_embedding_service()
 
-    assert isinstance(service, HttpEmbeddingService)
-    assert service.endpoint == "https://embedding.example/v1/embed"
+    assert isinstance(service, DashScopeEmbeddingService)
+    assert service.model == "text-embedding-v3"
     assert service.api_key == "secret"

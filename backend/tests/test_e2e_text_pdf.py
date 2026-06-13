@@ -2,7 +2,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.api.kb import get_vector_store
+from app.api.kb import get_embedding_service, get_vector_store
 from app.core.config import settings
 from app.db.session import Base, get_db
 from app.main import create_app
@@ -10,17 +10,24 @@ from app.models import kb as _kb_models
 from app.services.vector_store import InMemoryVectorStore
 
 
+class FakeEmbeddingService:
+    def embed(self, text):
+        return [1.0, 0.0] if "Bone density" in text else [0.0, 1.0]
+
+    def embed_many(self, texts):
+        return [self.embed(text) for text in texts]
+
+
 def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch):
-    database_url = f"sqlite:///{tmp_path / 'test.db'}"
-    monkeypatch.setattr(settings, "database_url", database_url)
     monkeypatch.setattr(settings, "upload_dir", tmp_path / "uploads")
     monkeypatch.setattr(settings, "milvus_enabled", False)
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
 
-    engine = create_engine(database_url, connect_args={"check_same_thread": False})
+    engine = create_engine(settings.test_database_url)
     TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
     def override_db():
@@ -34,6 +41,7 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     app = create_app()
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_vector_store] = lambda: vector_store
+    app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
     client = TestClient(app)
 
     pdf_path = tmp_path / "report.pdf"
@@ -66,6 +74,8 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     assert search_response.status_code == 200
     assert search_response.json()["items"]
     assert "Bone density" in search_response.json()["items"][0]["content"]
+
+    Base.metadata.drop_all(bind=engine)
 
 
 def _write_text_pdf(path: Path, text: str) -> None:

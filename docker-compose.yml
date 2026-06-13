@@ -3,7 +3,7 @@ services:
     image: mysql:8.4
     container_name: liangda-health-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: liangda_health
       MYSQL_USER: liangda_health
       MYSQL_PASSWORD: liangda_health
@@ -12,7 +12,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123"]
       interval: 10s
       timeout: 5s
       retries: 10

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from app.services.embedding import DeterministicEmbeddingService
 from app.services.kb_service import KbService
 from app.services.vector_store import InMemoryVectorStore
 
@@ -45,6 +44,11 @@ class FakeOcrClient:
         return ["OCR 文本"]
 
 
+class FakeEmbeddingService:
+    def embed_many(self, texts):
+        return [[1.0, 0.0] for _ in texts]
+
+
 def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     repository = FakeRepository()
     vector_store = InMemoryVectorStore()
@@ -52,7 +56,7 @@ def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
         repository=repository,
         pdf_extractor=FakePdfExtractor(),
         ocr_client=FakeOcrClient(),
-        embedding_service=DeterministicEmbeddingService(dimension=8),
+        embedding_service=FakeEmbeddingService(),
         vector_store=vector_store,
         upload_dir=tmp_path,
     )
@@ -83,7 +87,7 @@ def test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short(tmp_path):
         repository=repository,
         pdf_extractor=ShortPdfExtractor(),
         ocr_client=FakeOcrClient(),
-        embedding_service=DeterministicEmbeddingService(dimension=8),
+        embedding_service=FakeEmbeddingService(),
         vector_store=vector_store,
         upload_dir=tmp_path,
     )
@@ -104,7 +108,7 @@ def test_upload_pdf_marks_document_failed_when_processing_fails(tmp_path):
         repository=repository,
         pdf_extractor=BrokenPdfExtractor(),
         ocr_client=FakeOcrClient(),
-        embedding_service=DeterministicEmbeddingService(dimension=8),
+        embedding_service=FakeEmbeddingService(),
         vector_store=InMemoryVectorStore(),
         upload_dir=tmp_path,
     )

@@ -3,7 +3,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from app.services.chunker import TextChunk, chunk_page_text
-from app.services.embedding import DeterministicEmbeddingService
+from app.services.embedding import DashScopeEmbeddingService
 from app.services.metadata import BasicMetadata, extract_basic_metadata
 from app.services.vector_store import VectorRecord
 
@@ -39,7 +39,7 @@ class KbService:
         repository,
         pdf_extractor,
         ocr_client,
-        embedding_service: DeterministicEmbeddingService,
+        embedding_service: DashScopeEmbeddingService,
         vector_store,
         upload_dir: Path,
     ):

@@ -2,4 +2,19 @@
 name = "liangda-health"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "httpx",
+    "langchain",
+    "langchain-openai",
+    "langchain-text-splitters",
+    "pydantic-settings",
+    "pymysql",
+    "pymupdf",
+    "pytest",
+    "python-multipart",
+    "dashscope",
+    "requests",
+    "sqlalchemy",
+    "uvicorn",
+]

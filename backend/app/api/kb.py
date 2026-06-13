@@ -18,7 +18,7 @@ from app.schemas.kb import (
     SearchResultItem,
     UploadResponse,
 )
-from app.services.embedding import DeterministicEmbeddingService, HttpEmbeddingService
+from app.services.embedding import DashScopeEmbeddingService
 from app.services.kb_service import KbService
 from app.services.ocr import CloudOcrClient
 from app.services.pdf_extractor import PdfExtractor
@@ -40,19 +40,17 @@ def get_vector_store():
 
 
 def get_embedding_service():
-    if settings.embedding_endpoint:
-        return HttpEmbeddingService(
-            endpoint=settings.embedding_endpoint,
-            api_key=settings.embedding_api_key,
-        )
-    return DeterministicEmbeddingService(dimension=settings.embedding_dimension)
+    return DashScopeEmbeddingService(
+        model=settings.embedding_model,
+        api_key=settings.embedding_api_key or settings.llm_api_key,
+    )
 
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_pdf(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    embedding_service: DeterministicEmbeddingService = Depends(get_embedding_service),
+    embedding_service: DashScopeEmbeddingService = Depends(get_embedding_service),
     vector_store=Depends(get_vector_store),
 ):
     if file.content_type != "application/pdf" or not file.filename.lower().endswith(".pdf"):
@@ -118,7 +116,7 @@ def delete_document(document_id: str, db: Session = Depends(get_db)):
 def search(
     request: SearchRequest,
     db: Session = Depends(get_db),
-    embedding_service: DeterministicEmbeddingService = Depends(get_embedding_service),
+    embedding_service: DashScopeEmbeddingService = Depends(get_embedding_service),
     vector_store=Depends(get_vector_store),
 ):
     embedding = embedding_service.embed(request.query)

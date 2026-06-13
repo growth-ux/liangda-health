@@ -54,5 +54,5 @@ def _make_pdf() -> Path:
 
 
 if __name__ == "__main__":
-    os.environ.setdefault("MEAL_AGENT_MILVUS_ENABLED", "true")
+    os.environ.setdefault("HEALTH_AGENT_MILVUS_ENABLED", "true")
     main()
