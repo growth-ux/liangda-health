@@ -1,0 +1,242 @@
+frontend/src/components/AppShell.tsx
+  s_cb3014442d4592::t_dfaa0378d2b11b 20
+backend/app/services/langchain_agent.py
+  s_cb3014442d4592::t_736f42ff5f42c1 52,55-60,65,70,72,74-75,80-98
+  s_cb3014442d4592::t_58bc12328022bb 62,77-79,124-137
+  s_cb3014442d4592::t_e029d6f6ed0170 115
+  s_cb3014442d4592::t_f7a9a9902c8098 1-30,50-51,61,63-64,66-69,76,99-114,116-123
+  s_cb3014442d4592::t_2c97dfe0e6ec57 31-49,53-54,71,73
+backend/tests/test_langchain_agent.py
+  s_cb3014442d4592::t_bf4652906f469d 11
+  s_cb3014442d4592::t_6535dfa4b0ef17 16,21-22,25
+  s_cb3014442d4592::t_735c0ed596ddac 43-59
+  s_cb3014442d4592::t_6e80c7e47ffa0c 1-10,12-15,17-20,23-24,26-33
+  s_cb3014442d4592::t_199f5ef9e98488 34-42
+frontend/src/components/chat/MessageList.tsx
+  s_cb3014442d4592::t_06190bfe41cc44 1-31
+frontend/vite.config.js
+  s_cb3014442d4592::t_cc1cbcb1556a45 8
+backend/scripts/verify_agent_chat_with_report.py
+  s_cb3014442d4592::t_b0f65cbe4f31bc 1-65
+backend/app/services/embedding.py
+  s_6c37346b8a598c::t_8e3394633294cd 31-35
+  s_6c37346b8a598c::t_1ae041e43831a6 2,4,7,10,12,14,16,22-30,36-39,41-60,63-68
+docs/superpowers/specs/2026-06-13-agent-chat-design.md
+  s_352085bca9a37f::t_96d1f39e33514c 17,42,73,91,93-94,347,350-351,390,394,396,403-406,413,416,418-420,422,428-431,586,588-590,592-597,603
+  s_352085bca9a37f::t_43e55f99dcd6da 545
+  s_352085bca9a37f::t_c9fca35b0beefd 32,605
+  s_352085bca9a37f::t_e5fb0c9e6346b3 1-4,6,8-15,18-30,33-38,40,43-72,74-90,95-111,117-177,181-195,197-203,205-221,224,226-242,244-253,255-258,261-263,315-325,327-337,345-346,348-349,352-358,360-369,371-376,379-389,391,393,395,414-415,417,423-427,432-433,435-496,498-504,510-511,514-529,531-535,537-544,546-552,556-574,576-580,582-585,587,598-602,604,607-608
+  s_352085bca9a37f::t_058ce36c7401f8 92,392,397-402,407-412
+  s_352085bca9a37f::t_a0ab13f4296a93 112-116
+  s_352085bca9a37f::t_2875a4fe2a20cd 178,204,223
+  s_352085bca9a37f::t_2ee37483375b51 5,179,196,225,243,254,259,326,338-339,370,421
+  s_352085bca9a37f::t_382ae153ef2496 222,359
+  h_7549b7dc6a6921 434,575
+  s_352085bca9a37f::t_cf7af7412f46a8 7,39,41,260
+  s_352085bca9a37f::t_525d91c702bcc6 16,264-314,340-344,497,505-509,530,536,553-555,581,591
+  s_352085bca9a37f::t_89b890efff97de 512-513
+  s_352085bca9a37f::t_bd8fb5e850f059 31,180,377-378,606
+.env.example
+  s_6c37346b8a598c::t_abb80b33e9ff43 2
+  s_6c37346b8a598c::t_5b62f6ceb09ebd 4-5
+  h_7549b7dc6a6921 3,6-12
+  s_cb3014442d4592::t_1c4cae0658896a 13-17
+  s_6c37346b8a598c::t_6ec1ea6db24cd9 1
+backend/scripts/verify_real_services.py
+  h_7549b7dc6a6921 57
+frontend/src/pages/ChatPage.tsx
+  s_a26a96a45e0ef3::t_641d5927af155e 114
+  s_cb3014442d4592::t_18684dacdbf3e3 1-9,12-26,29-57,59-66,68-113,115-116,118-126,139-140,166-190,192-194,196-197,200-201,204-209
+  s_a26a96a45e0ef3::t_1e0068a7b9c6e8 195,203
+  s_43f233be6ef738::t_59cc0ff802edd8 11,27,127,132-138,144-150,191,198-199,202
+  s_a26a96a45e0ef3::t_4477da870e325e 28
+  s_cb3014442d4592::t_ba82bf56511edf 117
+  s_a26a96a45e0ef3::t_3aa6947addfc18 67
+  s_a26a96a45e0ef3::t_0451fd0d9caf1d 128-131,141-142,151-165
+  s_a26a96a45e0ef3::t_fc06b099bd0d37 10
+  s_a26a96a45e0ef3::t_94f3568ea67274 58
+  s_a26a96a45e0ef3::t_811a479cc6250c 143
+backend/app/db/session.py
+  s_6c37346b8a598c::t_5fe15c9da00e28 13
+backend/app/core/config.py
+  s_6c37346b8a598c::t_abb80b33e9ff43 9
+  s_6c37346b8a598c::t_6ec1ea6db24cd9 8
+  h_7549b7dc6a6921 31
+  s_cb3014442d4592::t_dace72b674a6bd 25-30
+  s_6c37346b8a598c::t_5b62f6ceb09ebd 12-13
+backend/tests/test_e2e_text_pdf.py
+  s_6c37346b8a598c::t_5fe15c9da00e28 28,30,78
+  s_6c37346b8a598c::t_037358510e88a7 5,13-20,44
+backend/app/main.py
+  s_cb3014442d4592::t_fc05680b7965c7 5,9,26
+frontend/src/components/chat/SessionList.tsx
+  s_cb3014442d4592::t_370e369c29d585 1-35
+backend/app/services/agent_service.py
+  s_cb3014442d4592::t_7ed8bf6a8d2dcf 38,56,60,93,127-132
+  s_cb3014442d4592::t_49571cee39fcd0 1-37,39-55,57-59,61-92,94-126
+backend/tests/test_agent_tools.py
+  s_cb3014442d4592::t_6c65b56b9c625b 1-66
+frontend/src/components/chat/ChatInput.tsx
+  s_a26a96a45e0ef3::t_4e35bcaeef33ee 1-2,6,14,20,28,31-32,38,111,117
+  s_cb3014442d4592::t_fe8945b8c7692e 3-5,7-8,10-12,16-17,33-34,57-58,110,112-116
+  s_43f233be6ef738::t_59cc0ff802edd8 9,13,18-19,21-27,29-30
+  s_43f233be6ef738::t_ea6beaeedcd237 15,43-56
+  s_cb3014442d4592::t_4b948032f89684 35-37,39-42
+  s_a26a96a45e0ef3::t_885fd5ac2cf3e5 90-109
+  s_a26a96a45e0ef3::t_d021f4e8aa5770 59-89
+backend/tests/test_api_kb.py
+  s_6c37346b8a598c::t_037358510e88a7 10,84-88,136,174-177,181-182
+docs/superpowers/specs/2026-06-13-members-design.md
+  s_d7a3f8490167d2::t_2bd921ca2188ea 1-647
+backend/app/schemas/agent.py
+  s_cb3014442d4592::t_37c31fa35eab07 1-2,4-25,27-51
+  s_cb3014442d4592::t_1d8bd66c613e52 3,26
+backend/app/api/kb.py
+  s_6c37346b8a598c::t_5b62f6ceb09ebd 21,43-46,53,119
+backend/app/repositories/agent_repository.py
+  s_cb3014442d4592::t_4a84f5fbb0f23b 1-86
+  s_cb3014442d4592::t_d8e75cab122a83 87-94
+frontend/src/components/chat/MessageBubble.tsx
+  s_cb3014442d4592::t_17b656b953435b 1-27
+backend/requirements.txt
+  s_6c37346b8a598c::t_ae732bff60ce50 10
+backend/app/services/agent_tools.py
+  s_cb3014442d4592::t_e5f99e6bfa0467 1-36
+backend/app/api/agent.py
+  s_43f233be6ef738::t_acb1b05e2a9bba 86
+  s_cb3014442d4592::t_83fc7d1c724c43 1,67-68,79,87-93
+  s_cb3014442d4592::t_73d6ce7424040c 2-66,69-78,80-85
+backend/app/models/agent.py
+  s_cb3014442d4592::t_e598dbbdd43720 1-37
+frontend/src/api/agent.ts
+  s_cb3014442d4592::t_1110118f039a84 39,56,63
+  s_a26a96a45e0ef3::t_7588c1a5f25e59 71,77
+  s_a26a96a45e0ef3::t_28cfefba232dc8 15-21
+  s_cb3014442d4592::t_1659eefd605869 1-14,22-29,31-38,40-55,57-62,64-70,72-76,78-114
+  s_a26a96a45e0ef3::t_f56af741f24f33 30
+frontend/vite.config.ts
+  s_cb3014442d4592::t_30da2e6e330377 9
+backend/tests/test_agent_service.py
+  s_cb3014442d4592::t_b0e68f0434c95d 36-38
+  s_cb3014442d4592::t_218dbf40f9e43a 1-28,30-35,39,41-54
+  s_cb3014442d4592::t_8e963c28746894 29,40
+AGENTS.md
+  h_7549b7dc6a6921 3
+backend/tests/conftest.py
+  s_cb3014442d4592::t_48b788432987ac 1-5,8-14,31-33,37-43
+  s_6c37346b8a598c::t_5fe15c9da00e28 15,34-36,44
+  s_6c37346b8a598c::t_abb80b33e9ff43 6-7,16-20,22-30
+  s_6c37346b8a598c::t_eca64173f026c1 21
+backend/tests/test_embedding.py
+  s_6c37346b8a598c::t_037358510e88a7 1,3,6,9-22,24,28-39
+backend/README.md
+  h_7549b7dc6a6921 15-16,18,39-41
+  s_6c37346b8a598c::t_6ec1ea6db24cd9 13,64
+  s_6c37346b8a598c::t_8e3394633294cd 17,22
+  s_cb3014442d4592::t_5f1e44d7381d5e 6-7,61
+  s_6c37346b8a598c::t_5fe15c9da00e28 10,65-68
+  s_cb3014442d4592::t_263ab365a7e402 19,29
+  s_cb3014442d4592::t_6af8245acf4b0f 24-28,30-32,78-83
+  s_cb3014442d4592::t_586ca02fa6d678 45-48,51-52
+  s_cb3014442d4592::t_815e3ff3496b7e 50
+  s_cb3014442d4592::t_d249aea465eb27 49
+  s_6c37346b8a598c::t_abb80b33e9ff43 14
+backend/scripts/verify_agent_chat.py
+  s_cb3014442d4592::t_80a42a6e977582 1-40
+backend/scripts/verify_agent_chat_stream.py
+  s_cb3014442d4592::t_877a30684f3476 1-47
+frontend/src/main.tsx
+  s_cb3014442d4592::t_65e9ffb5778911 7,17-18
+frontend/src/styles.css
+  s_a26a96a45e0ef3::t_66f1b545e6e24d 1179,1183
+  s_cb3014442d4592::t_a39872ae509bc5 1152-1174
+  s_a26a96a45e0ef3::t_fa707d927c8942 1059
+  s_a26a96a45e0ef3::t_b00197c1432443 1064-1069,1071
+  s_43f233be6ef738::t_59cc0ff802edd8 1085-1105,1130-1131,1135-1139,1143-1149
+  s_cb3014442d4592::t_5a45c03d72db86 815-1058,1060-1063,1070,1072-1084,1106-1129,1132-1134,1140-1142,1150-1151,1175-1177
+  s_a26a96a45e0ef3::t_c3edbcdef10bc5 1178,1180-1182,1184-1230
+backend/app/services/kb_service.py
+  s_6c37346b8a598c::t_5b62f6ceb09ebd 6,42
+backend/tests/test_agent_api.py
+  s_cb3014442d4592::t_ac1ccc76b2253a 1-107,121-127
+  s_cb3014442d4592::t_068854aeebb4b7 108-120
+docker-compose.yml
+  s_6c37346b8a598c::t_69888a39f46563 6,15
+.gitignore
+  s_cb3014442d4592::t_15b909f62bd8b7 2,5
+frontend/tsconfig.tsbuildinfo
+  s_a26a96a45e0ef3::t_1218381fbd803d 1
+frontend/tsconfig.node.tsbuildinfo
+  s_cb3014442d4592::t_cc1cbcb1556a45 1
+pyproject.toml
+  s_cb3014442d4592::t_b862de655f3553 5-9,11,15,18-20
+  s_6c37346b8a598c::t_5fe15c9da00e28 12
+  s_cb3014442d4592::t_cf0221ea5a5165 14
+  s_cb3014442d4592::t_b9186a8bac9d1b 13
+  s_cb3014442d4592::t_997d4db524c3d0 10
+  s_6c37346b8a598c::t_5b62f6ceb09ebd 16
+  s_cb3014442d4592::t_66d1a54197901c 17
+backend/tests/test_kb_service.py
+  s_6c37346b8a598c::t_037358510e88a7 47-51,59,90,111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "3d051c901a818ed943952941af35427f0b49e338",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_352085bca9a37f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ebf0d-53cb-71b0-ad9c-70f1fb3ea166",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_43f233be6ef738": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec040-2765-7e71-b77e-1030f8c445be",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_6c37346b8a598c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec035-4b1e-70b2-b361-2d83bbb99462",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_a26a96a45e0ef3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b167a04-6dac-456a-bfe2-a9a8241ce7c7",
+        "model": "MiniMax-M2.7"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_cb3014442d4592": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ebf72-a520-7b43-95df-34e90f473c4e",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_d7a3f8490167d2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec046-6592-7fc3-aef9-d21e3c447c08",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
