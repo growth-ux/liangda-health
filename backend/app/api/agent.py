@@ -6,6 +6,7 @@ from app.api.kb import get_embedding_service, get_vector_store
 from app.db.session import get_db
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
+from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.agent import (
     AgentMessageSendRequest,
     AgentMessagesResponse,
@@ -27,12 +28,27 @@ def get_agent_runner(
     embedding_service=Depends(get_embedding_service),
     vector_store=Depends(get_vector_store),
 ):
+    member_repository = SqlAlchemyMemberRepository(db)
+
+    def member_provider():
+        members = member_repository.list_members()
+        return [
+            type("M", (), {
+                "member_id": m.member_id,
+                "name": m.name,
+                "relation": m.relation,
+            })()
+            for m in members
+        ]
+
     return LangChainAgentRunner(
         kb_tool=KbSearchTool(
             repository=SqlAlchemyKbRepository(db),
             embedding_service=embedding_service,
             vector_store=vector_store,
-        )
+            allowed_member_ids=[m.member_id for m in member_provider()],
+        ),
+        member_provider=member_provider,
     )
 
 
