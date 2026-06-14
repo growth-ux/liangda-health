@@ -14,6 +14,7 @@ import { AppShell } from '../components/AppShell';
 import { ChatInput } from '../components/chat/ChatInput';
 import { MessageList } from '../components/chat/MessageList';
 import { SessionList } from '../components/chat/SessionList';
+import { UploadReportDialog } from '../components/UploadReportDialog';
 
 function nowIso() {
   return new Date().toISOString();
@@ -27,6 +28,7 @@ export function ChatPage() {
   const [sendError, setSendError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const sessionsQuery = useQuery({ queryKey: ['agent-sessions'], queryFn: listAgentSessions });
   const quickActionsQuery = useQuery({ queryKey: ['agent-quick-actions'], queryFn: listQuickActions });
@@ -133,8 +135,8 @@ export function ChatPage() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async ({ file }: { file: File }) => {
-      const result = await uploadPdf({ file, memberId: 'default' });
+    mutationFn: async ({ file, memberId }: { file: File; memberId: string }) => {
+      const result = await uploadPdf({ file, memberId });
       return { file, result };
     },
     onMutate: () => {
@@ -155,22 +157,8 @@ export function ChatPage() {
     sendMutation.mutate({ content, messageAttachments: attachments });
   }
 
-  function handleUpload(file: File) {
-    if (!file.name.toLowerCase().endsWith('.pdf') || file.type !== 'application/pdf') {
-      setUploadError('只支持 PDF 文件');
-      return;
-    }
-    // 上传文件，获取 URL 后添加到附件列表（不上传就立即发送）
-    uploadMutation.mutate({ file }, {
-      onSuccess: (data) => {
-        const newAttachment: Attachment = {
-          name: data.file.name,
-          url: `已上传报告：${data.file.name}`,
-          type: 'pdf'
-        };
-        setAttachments((prev) => [...prev, newAttachment]);
-      }
-    });
+  function handleUpload(_file: File) {
+    setUploadDialogOpen(true);
   }
 
   function handleRemoveAttachment(index: number) {
@@ -218,6 +206,25 @@ export function ChatPage() {
           />
         </section>
       </div>
+      <UploadReportDialog
+        open={uploadDialogOpen}
+        uploading={uploadMutation.isPending}
+        error={uploadError}
+        onClose={() => setUploadDialogOpen(false)}
+        onUpload={(payload) => {
+          uploadMutation.mutate(payload, {
+            onSuccess: (data) => {
+              const newAttachment: Attachment = {
+                name: data.file.name,
+                url: `已上传报告：${data.file.name}`,
+                type: 'pdf'
+              };
+              setAttachments((prev) => [...prev, newAttachment]);
+              setUploadDialogOpen(false);
+            }
+          });
+        }}
+      />
     </AppShell>
   );
 }
