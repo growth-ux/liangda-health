@@ -1,0 +1,98 @@
+frontend/src/components/AppShell.tsx
+  s_3f75aef60e034e::t_6f4ce320378adc 11,13,28,32-38,86,88-89
+  s_f0c41c72509c78::t_f22e34855cf64a 24
+frontend/src/api/notices.ts
+  s_3f75aef60e034e::t_47970a42e0ee43 1-83
+backend/app/api/health_analysis.py
+  s_f0c41c72509c78::t_48ea1952665632 1,5-6,18-24
+  s_f0c41c72509c78::t_edcae09305ee52 2-4,7-17
+backend/app/schemas/health_analysis.py
+  s_f0c41c72509c78::t_f93a4aebe0580c 1-50,72-77
+  s_f0c41c72509c78::t_b3cf075a039098 51-71,78-85
+frontend/src/pages/NoticePage.tsx
+  s_3f75aef60e034e::t_47970a42e0ee43 1-173
+backend/app/services/health_analysis_service.py
+  s_f0c41c72509c78::t_8250581a4cde17 1-15,18,20,22-81,102-382,500,533-632
+  s_f0c41c72509c78::t_2caadc62d9eed3 16-17,19,21,82-101,383-499,501-532
+backend/app/main.py
+  s_f0c41c72509c78::t_c7617713ac40b2 12,87
+  s_3f75aef60e034e::t_0adb5fcb285ba0 16,24,91
+backend/app/models/notice.py
+  s_3f75aef60e034e::t_c1a03634348b0c 1-32
+frontend/src/api/healthAnalysis.ts
+  s_f0c41c72509c78::t_2084d32afa08da 44-66,83-87
+  s_f0c41c72509c78::t_22385948cf86f9 1-43,67-82,88
+backend/app/api/notice.py
+  s_3f75aef60e034e::t_c1a03634348b0c 1-53
+frontend/src/pages/HealthAnalysisPage.tsx
+  s_f0c41c72509c78::t_24a536b2ece66a 1-197
+frontend/src/styles.css
+  s_f0c41c72509c78::t_60a34cad19bf7a 3359-3379,3383-3565,3576-3589
+  s_f0c41c72509c78::t_89eecccad4a609 2312-2316
+  s_3f75aef60e034e::t_16ba7fad7d4830 2336-2438
+  s_f0c41c72509c78::t_94463cc977e7d7 3176-3358,3566-3575,3590-3591
+  s_a1de8fc06c4169::t_ae396d022b9607 3380-3382
+  s_f0c41c72509c78::t_f68ee1bd64b2f6 2106-2242
+  s_a1de8fc06c4169::t_4b839ed9303591 299-312
+docs/superpowers/specs/2026-06-14-notice-design.md
+  s_3f75aef60e034e::t_a86653ddac0f67 1-597
+backend/tests/test_api_notice.py
+  s_3f75aef60e034e::t_aad9c1b88b80c5 1-194
+backend/app/schemas/notice.py
+  s_3f75aef60e034e::t_c1a03634348b0c 1-51
+backend/app/services/notice_service.py
+  s_3f75aef60e034e::t_c1a03634348b0c 1-300
+backend/tests/test_api_health_analysis.py
+  s_f0c41c72509c78::t_5d0cd9c849782f 126-159
+frontend/src/pages/MemberDetailPage.tsx
+  s_a1de8fc06c4169::t_0f9519458d0874 2
+  s_f0c41c72509c78::t_07208df1917e7f 6,30-34,128,138,140,143-144,146-148,154-156,159-166,169-172,194-195,199-203,233-234,236-250,252-259
+  s_a1de8fc06c4169::t_557953c92caa7a 123
+  s_f0c41c72509c78::t_e872939b2f4801 58-69,97-98,101-102,104,106-107,111,118,121-122,126,130-131,136-137,141-142,149-153,157-158,167-168,173-193,196-198,206-212,215-232,235,251,277-294
+  s_a1de8fc06c4169::t_6dd33af4adbbe0 127
+  h_7549b7dc6a6921 139
+frontend/src/main.tsx
+  s_3f75aef60e034e::t_6f4ce320378adc 17,41
+  s_f0c41c72509c78::t_51c4e333333506 11,31
+backend/app/repositories/notice_repository.py
+  s_3f75aef60e034e::t_c1a03634348b0c 1-90
+docs/superpowers/plans/2026-06-14-notice-implementation.md
+  s_3f75aef60e034e::t_aca19129e8e53e 1-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c5d27ba4abeb0710b21d60799f35e2a7bb7c68f9",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_3f75aef60e034e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec668-4611-76d1-be90-ab2965980b51",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_a1de8fc06c4169": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ea68aa8d-c17a-4b0e-91a5-2401c61fc84f",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_f0c41c72509c78": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec572-0a1e-75a2-af88-eff3435f5fa3",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
