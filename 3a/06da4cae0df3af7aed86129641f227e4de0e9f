@@ -1,0 +1,25 @@
+backend/tests/test_vector_store.py
+  s_1c4537c8405e3e::t_184ab012a5ef99 1-29
+backend/app/services/vector_store.py
+  s_1c4537c8405e3e::t_2e988e9b0fc5c8 8
+  s_1c4537c8405e3e::t_e8decd773a5e34 93-95,100
+  s_1c4537c8405e3e::t_07ea50b261f0c9 60
+  s_1c4537c8405e3e::t_ef61d0108562fc 85
+  s_1c4537c8405e3e::t_50d3b3f495ca69 28-30,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "3a06da4cae0df3af7aed86129641f227e4de0e9f",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
