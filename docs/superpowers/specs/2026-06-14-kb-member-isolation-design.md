@@ -130,9 +130,10 @@ class SearchRequest(BaseModel):
 ```
 
 `LangChainAgentRunner` 改造：
-- 接受 `member_provider` 依赖（提供 `list_members()` 接口）
-- 在 `_append_kb_context` 或 `_build_messages` 之前调用 `member_provider.list_members()`，格式化后拼接到 `SYSTEM_PROMPT`
-- 成员列表为空时，跳过第 7-9 条规则，但仍保留 kb_search 工具（LLM 会拿到空列表自然无法调用）
+- 构造函数新增 `member_provider: Callable[[], list[Member]]`（在 `backend/app/api/agent.py` 里实现为闭包，调用 `SqlAlchemyMemberRepository.list_members()`）
+- `Member` 结构至少含 `member_id`、`name`、`relation` 三个字段
+- 在 `_append_kb_context` 之前调用 `member_provider()`，把返回的列表格式化成 system prompt 第 8 条的可读文本，拼接到 `SYSTEM_PROMPT`
+- 成员列表为空时，kb_search 工具保留（LLM 看到空列表自然无法调用），但跳过第 7-9 条规则的注入
 
 ### 工具定义
 
@@ -189,7 +190,10 @@ AgentService.send_message(content)
 ### ReportsPage
 **位置**：`frontend/src/pages/ReportsPage.tsx`
 
-`family` 过滤下拉已经存在，复用即可。但顶部新增一个**搜索框**调用 `/api/kb/search` 时也要传当前 family filter 的 member_id（family == 'all' 时禁用搜索，或要求用户先选一个家人）。
+- `family` 过滤下拉已存在（通过 `ReportToolbar`），继续复用
+- 集成 `KbSearchPanel` 组件到顶部工具栏下方（该组件目前未被任何页面挂载，是孤立组件）：
+  - 必传 `memberId`：取自当前 `family` 状态；若 `family === 'all'`，搜索框禁用并提示"请先选择一位家人"
+  - `KbSearchPanel` 需要小改：把 `topK` 选择保留、输入框/按钮保留，但 `searchMutation.mutate()` 调用 `searchKb(query, memberId, topK)` 三参版本
 
 ### MemberDetailPage
 **不变**（已正确传 `memberId`，且只查该成员的文档）。
@@ -202,6 +206,13 @@ AgentService.send_message(content)
 searchKb(query: string, memberId: string, topK: number): Promise<SearchResult[]>
 // memberId 从可选改为必填
 ```
+
+### KbSearchPanel 组件
+**位置**：`frontend/src/components/KbSearchPanel.tsx`
+
+- 新增 `memberId: string` 必填 prop（外部传入当前选中的家人）
+- 父组件（ReportsPage）在 `family === 'all'` 时不渲染或禁用该组件
+- 调用 `searchKb(query, memberId, topK)` 三参版本
 
 ## 6. 迁移脚本
 
@@ -311,6 +322,8 @@ mock LLM，验证：
 
 - `frontend/src/api/kb.ts` — `searchKb` 签名变更
 - `frontend/src/pages/ChatPage.tsx` — 去掉硬编码，集成 UploadReportDialog
+- `frontend/src/pages/ReportsPage.tsx` — 集成 KbSearchPanel
+- `frontend/src/components/KbSearchPanel.tsx` — 新增 memberId prop
 
 ### 测试
 
