@@ -39,8 +39,8 @@ def make_client(db_session, runner=None):
 def test_agent_session_lifecycle(db_session):
     client = make_client(db_session, FakeRunner())
 
-    create_response = client.post("/agent/sessions", json={"title": "健康报告咨询"})
-    list_response = client.get("/agent/sessions")
+    create_response = client.post("/api/agent/sessions", json={"title": "健康报告咨询"})
+    list_response = client.get("/api/agent/sessions")
 
     assert create_response.status_code == 200
     assert create_response.json()["title"] == "健康报告咨询"
@@ -53,13 +53,13 @@ def test_agent_session_lifecycle(db_session):
 def test_agent_send_message_saves_user_and_assistant_messages(db_session):
     runner = FakeRunner()
     client = make_client(db_session, runner)
-    session_id = client.post("/agent/sessions", json={"title": "新对话"}).json()["session_id"]
+    session_id = client.post("/api/agent/sessions", json={"title": "新对话"}).json()["session_id"]
 
     response = client.post(
-        f"/agent/sessions/{session_id}/messages:send",
+        f"/api/agent/sessions/{session_id}/messages:send",
         json={"content": "我妈这份报告有什么异常？"},
     )
-    messages_response = client.get(f"/agent/sessions/{session_id}/messages")
+    messages_response = client.get(f"/api/agent/sessions/{session_id}/messages")
 
     assert response.status_code == 200
     assert response.json()["user_message"]["role"] == "user"
@@ -71,16 +71,16 @@ def test_agent_send_message_saves_user_and_assistant_messages(db_session):
 
 def test_agent_stream_message_emits_events_and_saves_full_assistant_message(db_session):
     client = make_client(db_session, FakeRunner())
-    session_id = client.post("/agent/sessions", json={"title": "新对话"}).json()["session_id"]
+    session_id = client.post("/api/agent/sessions", json={"title": "新对话"}).json()["session_id"]
 
     with client.stream(
         "POST",
-        f"/agent/sessions/{session_id}/messages:stream",
+        f"/api/agent/sessions/{session_id}/messages:stream",
         json={"content": "血压偏高怎么办？"},
     ) as response:
         body = "".join(response.iter_text())
 
-    messages = client.get(f"/agent/sessions/{session_id}/messages").json()["items"]
+    messages = client.get(f"/api/agent/sessions/{session_id}/messages").json()["items"]
     assert response.status_code == 200
     assert "event: user_message" in body
     assert "event: assistant_start" in body
@@ -94,10 +94,10 @@ def test_agent_stream_message_emits_events_and_saves_full_assistant_message(db_s
 def test_agent_send_requires_llm_api_key_when_using_default_runner(db_session, monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", None)
     client = make_client(db_session)
-    session_id = client.post("/agent/sessions", json={"title": "新对话"}).json()["session_id"]
+    session_id = client.post("/api/agent/sessions", json={"title": "新对话"}).json()["session_id"]
 
     response = client.post(
-        f"/agent/sessions/{session_id}/messages:send",
+        f"/api/agent/sessions/{session_id}/messages:send",
         json={"content": "报告怎么看？"},
     )
 
@@ -107,10 +107,10 @@ def test_agent_send_requires_llm_api_key_when_using_default_runner(db_session, m
 
 def test_agent_send_rejects_blank_content(db_session):
     client = make_client(db_session, FakeRunner())
-    session_id = client.post("/agent/sessions", json={"title": "新对话"}).json()["session_id"]
+    session_id = client.post("/api/agent/sessions", json={"title": "新对话"}).json()["session_id"]
 
     response = client.post(
-        f"/agent/sessions/{session_id}/messages:send",
+        f"/api/agent/sessions/{session_id}/messages:send",
         json={"content": "   "},
     )
 
@@ -121,7 +121,7 @@ def test_agent_send_rejects_blank_content(db_session):
 def test_agent_messages_returns_404_for_missing_session(db_session):
     client = make_client(db_session, FakeRunner())
 
-    response = client.get("/agent/sessions/sess_missing/messages")
+    response = client.get("/api/agent/sessions/sess_missing/messages")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "会话不存在"

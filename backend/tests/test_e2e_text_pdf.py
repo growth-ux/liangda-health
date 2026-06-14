@@ -45,7 +45,7 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     client = TestClient(app)
 
     member_response = client.post(
-        "/members",
+        "/api/members",
         json={
             "name": "WangXiuying",
             "relation": "母亲",
@@ -70,7 +70,7 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
 
     with pdf_path.open("rb") as file:
         upload_response = client.post(
-            "/kb/upload",
+            "/api/kb/upload",
             data={"member_id": member_id},
             files={"file": ("report.pdf", file, "application/pdf")},
         )
@@ -80,11 +80,11 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     assert upload_response.json()["page_count"] == 1
     assert upload_response.json()["chunk_count"] >= 1
 
-    list_response = client.get("/kb/documents")
+    list_response = client.get("/api/kb/documents")
     assert list_response.status_code == 200
     assert list_response.json()[0]["patient_name"] == "WangXiuying"
 
-    search_response = client.post("/kb/search", json={"query": "Bone density", "top_k": 3})
+    search_response = client.post("/api/kb/search", json={"query": "Bone density", "top_k": 3})
     assert search_response.status_code == 200
     assert search_response.json()["items"]
     assert "Bone density" in search_response.json()["items"][0]["content"]

@@ -36,13 +36,13 @@ export type StreamCallbacks = {
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 export async function listAgentSessions(): Promise<AgentSession[]> {
-  const response = await fetch(`${API_BASE}/agent/sessions`, { cache: 'no-store' });
+  const response = await fetch(`${API_BASE}/api/agent/sessions`, { cache: 'no-store' });
   if (!response.ok) throw new Error('获取会话列表失败');
   return response.json();
 }
 
 export async function createAgentSession(title = '新对话'): Promise<AgentSession> {
-  const response = await fetch(`${API_BASE}/agent/sessions`, {
+  const response = await fetch(`${API_BASE}/api/agent/sessions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title })
@@ -53,21 +53,21 @@ export async function createAgentSession(title = '新对话'): Promise<AgentSess
 }
 
 export async function listAgentMessages(sessionId: string): Promise<AgentMessage[]> {
-  const response = await fetch(`${API_BASE}/agent/sessions/${sessionId}/messages`, { cache: 'no-store' });
+  const response = await fetch(`${API_BASE}/api/agent/sessions/${sessionId}/messages`, { cache: 'no-store' });
   if (!response.ok) throw new Error('获取消息列表失败');
   const data = await response.json();
   return data.items;
 }
 
 export async function deleteAgentSession(sessionId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/agent/sessions/${sessionId}`, {
+  const response = await fetch(`${API_BASE}/api/agent/sessions/${sessionId}`, {
     method: 'DELETE'
   });
   if (!response.ok) throw new Error('删除会话失败');
 }
 
 export async function listQuickActions(): Promise<QuickAction[]> {
-  const response = await fetch(`${API_BASE}/agent/quick-actions`, { cache: 'no-store' });
+  const response = await fetch(`${API_BASE}/api/agent/quick-actions`, { cache: 'no-store' });
   if (!response.ok) throw new Error('获取快捷指令失败');
   return response.json();
 }
@@ -78,7 +78,7 @@ export async function sendAgentMessageStream(
   attachments: Attachment[] = [],
   callbacks: StreamCallbacks
 ): Promise<void> {
-  const response = await fetch(`${API_BASE}/agent/sessions/${sessionId}/messages:stream`, {
+  const response = await fetch(`${API_BASE}/api/agent/sessions/${sessionId}/messages:stream`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content, attachments })

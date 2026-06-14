@@ -1795,6 +1795,10 @@ select {
 .zone-sugar_control { background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%); border-color: #93c5fd; }
 .zone-high_calcium { background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 100%); border-color: #c4b5fd; }
 .zone-low_fat { background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); border-color: #86efac; }
+.zone-high_protein { background: linear-gradient(135deg, #fee2e2 0%, #ffedd5 100%); border-color: #fca5a5; }
+.zone-high_fiber { background: linear-gradient(135deg, #ecfccb 0%, #dcfce7 100%); border-color: #bef264; }
+.zone-low_purine { background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); border-color: #fcd34d; }
+.zone-nutrients { background: linear-gradient(135deg, #fae8ff 0%, #fdf2f8 100%); border-color: #e879f9; }
 
 /* ===== Product Grid ===== */
 
@@ -1805,8 +1809,9 @@ select {
 }
 
 .product-card-lg {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -1827,14 +1832,19 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 120px;
-  background: #f9fafb;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
   font-size: 48px;
   position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
 }
 
 .product-image-art {
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  background: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .product-emoji {
@@ -1844,13 +1854,19 @@ select {
 .product-photo {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   object-fit: contain;
-  padding: 12px;
   display: block;
 }
 
+.product-photo-large {
+  padding: 12px;
+}
+
 .product-photo-small {
-  padding: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-tag {
@@ -1940,9 +1956,11 @@ select {
 }
 
 .product-card .product-image {
-  height: 60px;
+  width: 72px;
+  min-width: 72px;
+  aspect-ratio: 1 / 1;
   font-size: 36px;
-  background: transparent;
+  background: #ffffff;
 }
 
 .product-card .product-info {
@@ -1985,19 +2003,24 @@ select {
 
 .product-image-lg {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
   border-radius: 12px;
   font-size: 120px;
-  min-height: 300px;
+  padding: 16px;
+  overflow: hidden;
 }
 
 .product-detail-photo {
   width: 100%;
-  height: 300px;
+  height: auto;
+  max-height: 520px;
   object-fit: contain;
-  padding: 20px;
+  object-position: center top;
   display: block;
 }
 
@@ -2147,18 +2170,19 @@ select {
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: #f9fafb;
+  background: #ffffff;
+  border: 1px solid #eef2f7;
   border-radius: 8px;
   font-size: 32px;
   text-decoration: none;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .cart-item-photo {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 4px;
   display: block;
 }
 

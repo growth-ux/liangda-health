@@ -11,7 +11,7 @@ def main() -> None:
     app = create_app()
     client = TestClient(app)
 
-    session_response = client.post("/agent/sessions", json={"title": "新对话"})
+    session_response = client.post("/api/agent/sessions", json={"title": "新对话"})
     print("create_session", session_response.status_code)
     session_response.raise_for_status()
     session_id = session_response.json()["session_id"]
@@ -19,7 +19,7 @@ def main() -> None:
     events: list[str] = []
     with client.stream(
         "POST",
-        f"/agent/sessions/{session_id}/messages:stream",
+        f"/api/agent/sessions/{session_id}/messages:stream",
         json={"content": "请用一句话说明你能帮我做什么。"},
     ) as response:
         print("stream", response.status_code)
@@ -35,7 +35,7 @@ def main() -> None:
     if missing:
         raise SystemExit(f"missing events: {missing}")
 
-    messages_response = client.get(f"/agent/sessions/{session_id}/messages")
+    messages_response = client.get(f"/api/agent/sessions/{session_id}/messages")
     print("messages", messages_response.status_code)
     messages_response.raise_for_status()
     messages = messages_response.json()["items"]

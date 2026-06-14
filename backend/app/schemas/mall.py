@@ -103,6 +103,7 @@ class MallFamilyRecommendation(BaseModel):
 
 class MallHomeResponse(BaseModel):
     family_recommendations: list[MallFamilyRecommendation] = Field(default_factory=list)
+    family_universal: MallFamilyRecommendation | None = None
     health_zones: list[MallZone] = Field(default_factory=list)
     daily_products: list[MallProductSummary] = Field(default_factory=list)
     categories: list[MallZone] = Field(default_factory=list)

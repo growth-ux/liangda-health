@@ -120,8 +120,6 @@ export function ChatPage() {
     },
     onMutate: () => setSendError(null),
     onSuccess: async () => {
-      setDraft('');
-      setAttachments([]);
       setLocalMessages([]);
       await queryClient.invalidateQueries({ queryKey: ['agent-sessions'] });
       await queryClient.invalidateQueries({ queryKey: ['agent-messages'] });
@@ -150,6 +148,10 @@ export function ChatPage() {
     const content = draft.trim();
     if (!content && attachments.length === 0) return;
     if (sendMutation.isPending || uploadMutation.isPending) return;
+    // 点击发送后立刻清空输入框和附件，不等流式回复结束
+    setDraft('');
+    setAttachments([]);
+    setSendError(null);
     sendMutation.mutate({ content, messageAttachments: attachments });
   }
 

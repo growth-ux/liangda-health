@@ -65,6 +65,7 @@ export function MallProductDetailPage() {
   }
 
   const { product, recommend_reason, nutrition_rows, related_products, health_notice } = detailQuery.data;
+  const hasDetailRows = nutrition_rows.length > 0 || !!product.ingredients || !!product.shelf_life;
 
   return (
     <div className="detail-page">
@@ -114,7 +115,7 @@ export function MallProductDetailPage() {
 
             {recommend_reason && <RecommendationReason reason={recommend_reason} />}
 
-            {nutrition_rows.length > 0 && (
+            {hasDetailRows && (
               <table className="table" style={{ marginTop: '16px' }}>
                 <tbody>
                   {nutrition_rows.map((row, i) => (

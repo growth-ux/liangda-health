@@ -1,0 +1,12 @@
+# Vite 配置的 tsc -b 编译产物，Vite 6 会优先用 .js 覆盖 .ts，导致配置改动不生效
+vite.config.js
+vite.config.d.ts
+vite.config.js.map
+vite.config.d.ts.map
+.tsbuild-node
+
+# 其它常见产物
+node_modules
+dist
+*.tsbuildinfo
+.DS_Store

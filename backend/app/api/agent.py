@@ -19,7 +19,7 @@ from app.services.agent_service import AgentService
 from app.services.agent_tools import KbSearchTool
 from app.services.langchain_agent import LangChainAgentRunner
 
-router = APIRouter(prefix="/agent", tags=["agent"])
+router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
 def get_agent_runner(

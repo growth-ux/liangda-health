@@ -92,8 +92,8 @@ def test_kb_document_list_and_detail_endpoints():
     app.dependency_overrides[get_db] = lambda: FakeDb()
     client = TestClient(app)
 
-    list_response = client.get("/kb/documents")
-    detail_response = client.get("/kb/documents/doc_1")
+    list_response = client.get("/api/kb/documents")
+    detail_response = client.get("/api/kb/documents/doc_1")
 
     assert list_response.status_code == 200
     assert list_response.json()[0]["document_id"] == "doc_1"
@@ -111,7 +111,7 @@ def test_kb_document_chunks_endpoint_returns_document_chunks():
     app.dependency_overrides[get_db] = lambda: FakeDb()
     client = TestClient(app)
 
-    response = client.get("/kb/documents/doc_1/chunks")
+    response = client.get("/api/kb/documents/doc_1/chunks")
 
     assert response.status_code == 200
     assert response.json()["items"][0]["chunk_id"] == "chunk_1"
@@ -125,7 +125,7 @@ def test_kb_delete_document_removes_document_pages_and_chunks():
     app.dependency_overrides[get_db] = lambda: db
     client = TestClient(app)
 
-    response = client.delete("/kb/documents/doc_1")
+    response = client.delete("/api/kb/documents/doc_1")
 
     assert response.status_code == 204
     assert any(isinstance(item, KbDocument) for item in db.deleted)
@@ -140,7 +140,7 @@ def test_kb_search_endpoint_returns_chunk_content():
     app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
     client = TestClient(app)
 
-    response = client.post("/kb/search", json={"query": "骨密度", "top_k": 5})
+    response = client.post("/api/kb/search", json={"query": "骨密度", "top_k": 5})
 
     assert response.status_code == 200
     assert response.json()["items"][0]["chunk_id"] == "chunk_1"
@@ -153,7 +153,7 @@ def test_kb_upload_rejects_non_pdf_file():
     client = TestClient(app)
 
     response = client.post(
-        "/kb/upload",
+        "/api/kb/upload",
         files={"file": ("report.txt", b"hello", "text/plain")},
     )
 
@@ -167,7 +167,7 @@ def test_kb_upload_requires_member_id():
     client = TestClient(app)
 
     response = client.post(
-        "/kb/upload",
+        "/api/kb/upload",
         files={"file": ("report.pdf", b"%PDF-1.4 fake", "application/pdf")},
     )
 
@@ -181,7 +181,7 @@ def test_kb_upload_rejects_pdf_content_type_with_non_pdf_extension():
     client = TestClient(app)
 
     response = client.post(
-        "/kb/upload",
+        "/api/kb/upload",
         files={"file": ("report.txt", b"%PDF-1.4 fake", "application/pdf")},
     )
 

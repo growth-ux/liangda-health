@@ -17,19 +17,19 @@ def main() -> None:
 
     with pdf_path.open("rb") as file:
         upload_response = client.post(
-            "/kb/upload",
+            "/api/kb/upload",
             files={"file": ("agent-report.pdf", file, "application/pdf")},
         )
     print("upload", upload_response.status_code)
     upload_response.raise_for_status()
 
-    session_response = client.post("/agent/sessions", json={"title": "新对话"})
+    session_response = client.post("/api/agent/sessions", json={"title": "新对话"})
     print("create_session", session_response.status_code)
     session_response.raise_for_status()
     session_id = session_response.json()["session_id"]
 
     send_response = client.post(
-        f"/agent/sessions/{session_id}/messages:send",
+        f"/api/agent/sessions/{session_id}/messages:send",
         json={"content": "我妈这份报告有什么异常？请用三点简短说明。"},
     )
     print("send", send_response.status_code)

@@ -6,7 +6,7 @@ from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.kb import DocumentListItem
 from app.schemas.member import MemberCreateRequest, MemberDetail, MemberListItem, MemberUpdateRequest
 
-router = APIRouter(prefix="/members", tags=["members"])
+router = APIRouter(prefix="/api/members", tags=["members"])
 
 
 @router.get("", response_model=list[MemberListItem])

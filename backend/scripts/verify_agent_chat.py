@@ -11,13 +11,13 @@ def main() -> None:
     app = create_app()
     client = TestClient(app)
 
-    session_response = client.post("/agent/sessions", json={"title": "新对话"})
+    session_response = client.post("/api/agent/sessions", json={"title": "新对话"})
     print("create_session", session_response.status_code)
     session_response.raise_for_status()
     session_id = session_response.json()["session_id"]
 
     send_response = client.post(
-        f"/agent/sessions/{session_id}/messages:send",
+        f"/api/agent/sessions/{session_id}/messages:send",
         json={"content": "我妈这份报告有什么异常？请用三点简短说明。"},
     )
     print("send", send_response.status_code)
@@ -29,7 +29,7 @@ def main() -> None:
         raise SystemExit("assistant response is empty")
     print("assistant_preview", assistant[:120])
 
-    messages_response = client.get(f"/agent/sessions/{session_id}/messages")
+    messages_response = client.get(f"/api/agent/sessions/{session_id}/messages")
     print("messages", messages_response.status_code)
     messages_response.raise_for_status()
     if len(messages_response.json()["items"]) < 2:

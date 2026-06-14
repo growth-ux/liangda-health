@@ -75,8 +75,8 @@ export function MallPage() {
           ))}
           <Link to="/mall/products" className="zone-card zone-card-home">
             <div className="zone-icon">🏠</div>
-            <div className="zone-name">全家通用</div>
-            <div className="zone-sub">健康均衡</div>
+            <div className="zone-name">{data.family_universal?.zone_name ?? '全家通用'}</div>
+            <div className="zone-sub">{data.family_universal?.summary ?? '健康均衡'}</div>
           </Link>
         </ZoneGrid>
       )}

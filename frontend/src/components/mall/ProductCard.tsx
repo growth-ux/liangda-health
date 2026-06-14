@@ -46,7 +46,7 @@ export function ProductCard({ product, size = 'large' }: Props) {
         {product.health_tags.length > 0 && (
           <span className="product-tag">{product.health_tags[0]}</span>
         )}
-        <ProductImage product={product} className="product-photo" />
+        <ProductImage product={product} className="product-photo product-photo-large" />
       </div>
       <div className="product-info">
         <div className="product-name">{product.name}</div>

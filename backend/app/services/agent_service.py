@@ -1,8 +1,11 @@
 import json
+import logging
 import uuid
 from collections.abc import Iterable
 
 from fastapi import HTTPException
+
+logger = logging.getLogger(__name__)
 
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.services.langchain_agent import LlmConfigError
@@ -80,6 +83,7 @@ class AgentService:
             yield self._event("error", {"message": str(exc)})
             return
         except Exception:
+            logger.exception("agent stream failed for session=%s", session_id)
             yield self._event("error", {"message": "模型调用失败"})
             return
 

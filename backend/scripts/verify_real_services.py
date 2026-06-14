@@ -14,7 +14,7 @@ def main() -> None:
 
     with pdf_path.open("rb") as file:
         upload_response = client.post(
-            "/kb/upload",
+            "/api/kb/upload",
             files={"file": ("real-services-report.pdf", file, "application/pdf")},
         )
     print("upload", upload_response.status_code, upload_response.json())
@@ -22,11 +22,11 @@ def main() -> None:
     if upload_response.json()["status"] != "ready":
         raise SystemExit("upload did not finish as ready")
 
-    list_response = client.get("/kb/documents")
+    list_response = client.get("/api/kb/documents")
     print("documents", list_response.status_code, list_response.json()[:1])
     list_response.raise_for_status()
 
-    search_response = client.post("/kb/search", json={"query": "Bone density", "top_k": 3})
+    search_response = client.post("/api/kb/search", json={"query": "Bone density", "top_k": 3})
     print("search", search_response.status_code, search_response.json())
     search_response.raise_for_status()
     if not search_response.json()["items"]:

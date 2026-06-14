@@ -42,26 +42,26 @@ export type DocumentChunk = {
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 export async function listDocuments(): Promise<KbDocument[]> {
-  const response = await fetch(`${API_BASE}/kb/documents`);
+  const response = await fetch(`${API_BASE}/api/kb/documents`);
   if (!response.ok) throw new Error('获取报告列表失败');
   return response.json();
 }
 
 export async function getDocument(documentId: string): Promise<KbDocument> {
-  const response = await fetch(`${API_BASE}/kb/documents/${documentId}`);
+  const response = await fetch(`${API_BASE}/api/kb/documents/${documentId}`);
   if (!response.ok) throw new Error('获取文档详情失败');
   return response.json();
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/kb/documents/${documentId}`, {
+  const response = await fetch(`${API_BASE}/api/kb/documents/${documentId}`, {
     method: 'DELETE'
   });
   if (!response.ok) throw new Error('删除报告失败');
 }
 
 export async function listDocumentChunks(documentId: string): Promise<DocumentChunk[]> {
-  const response = await fetch(`${API_BASE}/kb/documents/${documentId}/chunks`);
+  const response = await fetch(`${API_BASE}/api/kb/documents/${documentId}/chunks`);
   if (!response.ok) throw new Error('获取分块列表失败');
   const data = await response.json();
   return data.items;
@@ -77,7 +77,7 @@ export async function uploadPdf({
   const form = new FormData();
   form.append('file', file);
   form.append('member_id', memberId);
-  const response = await fetch(`${API_BASE}/kb/upload`, {
+  const response = await fetch(`${API_BASE}/api/kb/upload`, {
     method: 'POST',
     body: form
   });
@@ -89,7 +89,7 @@ export async function uploadPdf({
 }
 
 export async function searchKb(query: string, topK: number): Promise<SearchResult[]> {
-  const response = await fetch(`${API_BASE}/kb/search`, {
+  const response = await fetch(`${API_BASE}/api/kb/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, top_k: topK })

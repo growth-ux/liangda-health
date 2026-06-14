@@ -16,12 +16,13 @@ from app.schemas.mall import (
     MallZone as MallZoneSchema,
 )
 from app.services.mall_recommendation import (
+    build_family_recommendation,
     build_member_recommendations,
     find_best_member_for_product,
     score_product_for_member,
 )
 
-router = APIRouter(prefix="/mall", tags=["mall"])
+router = APIRouter(prefix="/api/mall", tags=["mall"])
 
 CART_OWNER_ID = "default_family"
 
@@ -38,6 +39,7 @@ def get_mall_home(db: Session = Depends(get_db)):
     members = db.query(Member).all()
 
     family_recommendations = build_member_recommendations(members, products)
+    family_universal = build_family_recommendation(members, products)
 
     daily_products: list[MallProductSummary] = []
     for product in products[:8]:
@@ -60,6 +62,7 @@ def get_mall_home(db: Session = Depends(get_db)):
 
     return MallHomeResponse(
         family_recommendations=family_recommendations,
+        family_universal=family_universal,
         health_zones=[
             MallZoneSchema(
                 zone_code=z.zone_code,

@@ -16,7 +16,10 @@ import requests
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 OUTPUT_ROOT = ROOT_DIR / "frontend" / "public" / "mall-products"
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0",
+    "Accept-Language": "zh-CN,zh;q=0.9",
+}
 DEFAULT_CATEGORIES = {
     "oil": "http://www.fu800.cn/index.php/Mall/productlist.html?cid=422",
 }
@@ -58,6 +61,7 @@ class RemoteProductImage:
     url: str
     source_page: str
     goods_id: str | None = None
+    detail_url: str | None = None
 
 
 class ProductImageParser(HTMLParser):
@@ -90,6 +94,7 @@ class ProductImageParser(HTMLParser):
                 url=urljoin(self.page_url, image_url),
                 source_page=self.page_url,
                 goods_id=self._current_goods_id,
+                detail_url=None,
             )
         )
 
@@ -153,7 +158,8 @@ def fetch_jd_shop_images(url: str) -> list[RemoteProductImage]:
     module_url = f"https://module-jshop.jd.com/module/getModuleHtml.html?{urlencode(params)}"
     response = requests.get(module_url, headers={**HEADERS, "Referer": url}, timeout=20)
     response.raise_for_status()
-    return parse_jd_module_images(response.text, url)
+    images = parse_jd_module_images(response.text, url)
+    return enrich_jd_images_with_detail(images)
 
 
 def extract_first(text: str, pattern: str) -> str | None:
@@ -194,6 +200,7 @@ def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImag
         image_match = re.search(r'(?:original|src)="(?P<url>//img[^"]+?/n7/[^"]+?)"', block)
         title_match = re.search(r'<div class="jDesc">\s*<a [^>]* title="(?P<title>.*?)"', block, re.DOTALL)
         sku_match = re.search(r"item\.jd\.com/(?P<sku>\d+)\.html", block)
+        detail_match = re.search(r'href="(?P<href>//item\.jd\.com/\d+\.html[^"]*)"', block)
         if not image_match or not title_match:
             continue
         title = title_match.group("title")
@@ -204,6 +211,7 @@ def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImag
                 url=urljoin("https:", image_url),
                 source_page=source_page,
                 goods_id=sku_match.group("sku") if sku_match else None,
+                detail_url=urljoin("https:", detail_match.group("href")) if detail_match else None,
             )
         )
 
@@ -215,6 +223,84 @@ def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImag
         seen.add(item.url)
         deduped.append(item)
     return deduped
+
+
+def pick_jd_detail_image(detail_html: str) -> str | None:
+    image_list_match = re.search(r'imageList:\s*(\[[^\]]+\])', detail_html, re.DOTALL)
+    if image_list_match:
+        try:
+            image_list = json.loads(image_list_match.group(1))
+        except json.JSONDecodeError:
+            image_list = []
+        for image_path in image_list:
+            if not isinstance(image_path, str) or not image_path.strip():
+                continue
+            normalized = image_path.lstrip("/")
+            return urljoin("https:", f"//img10.360buyimg.com/n1/s720x720_{normalized}")
+
+    urls = re.findall(r'//img\d+\.360buyimg\.com/(?:imgzone/)?(n\d+/[^"\']+)', detail_html)
+    if not urls:
+        return None
+
+    rank = {"n0": 100, "n1": 90, "n2": 80, "n3": 70, "n4": 60, "n5": 50, "n6": 40, "n7": 30}
+
+    def score(path: str) -> tuple[int, int]:
+        parts = path.split("/", 1)
+        bucket = parts[0] if parts else "n7"
+        return rank.get(bucket, 0), len(path)
+
+    best = max(urls, key=score)
+    return urljoin("https:", f"//img10.360buyimg.com/{best}")
+
+
+def upgrade_jd_list_image_to_main_image(url: str) -> str | None:
+    match = re.search(r"//img\d+\.360buyimg\.com/(?:imgzone/)?n\d+/(.+)$", url)
+    if not match:
+        return None
+    return urljoin("https:", f"//img10.360buyimg.com/n1/s720x720_{match.group(1)}")
+
+
+def enrich_jd_images_with_detail(images: list[RemoteProductImage]) -> list[RemoteProductImage]:
+    enriched: list[RemoteProductImage] = []
+    for image in images:
+        if not image.detail_url:
+            enriched.append(image)
+            continue
+        try:
+            response = requests.get(
+                image.detail_url,
+                headers={**HEADERS, "Referer": image.source_page},
+                timeout=20,
+            )
+            response.raise_for_status()
+            best = pick_jd_detail_image(response.text)
+            if best:
+                enriched.append(
+                    RemoteProductImage(
+                        title=image.title,
+                        url=best,
+                        source_page=image.detail_url,
+                        goods_id=image.goods_id,
+                        detail_url=image.detail_url,
+                    )
+                )
+                continue
+        except requests.RequestException:
+            pass
+        upgraded = upgrade_jd_list_image_to_main_image(image.url)
+        if upgraded and image.detail_url:
+            enriched.append(
+                RemoteProductImage(
+                    title=image.title,
+                    url=upgraded,
+                    source_page=image.detail_url,
+                    goods_id=image.goods_id,
+                    detail_url=image.detail_url,
+                )
+            )
+            continue
+        enriched.append(image)
+    return enriched
 
 
 def read_local_images(path: Path) -> list[RemoteProductImage]:
@@ -338,6 +424,37 @@ def update_database(product_images: dict[str, str]) -> None:
         print(f"数据库未更新：{exc}")
 
 
+def update_database_from_manifest(manifest: dict[str, list[dict[str, str]]], product_images: dict[str, str]) -> None:
+    sys.path.insert(0, str(ROOT_DIR / "backend"))
+
+    try:
+        from app.db.session import SessionLocal
+        from app.models.mall import MallProduct
+
+        db = SessionLocal()
+        try:
+            for product_id, image_url in product_images.items():
+                product = db.query(MallProduct).filter(MallProduct.product_id == product_id).one_or_none()
+                if product:
+                    product.image_url = image_url
+
+            for category, items in manifest.items():
+                for item in items:
+                    goods_id = (item.get("goods_id") or "").strip()
+                    local_url = item.get("local_url")
+                    if not goods_id or not local_url:
+                        continue
+                    product_id = f"{category}-{goods_id}"
+                    product = db.query(MallProduct).filter(MallProduct.product_id == product_id).one_or_none()
+                    if product:
+                        product.image_url = local_url
+            db.commit()
+        finally:
+            db.close()
+    except Exception as exc:
+        print(f"数据库未更新：{exc}")
+
+
 def write_manifests(manifest: dict[str, list[dict[str, str]]], product_images: dict[str, str]) -> None:
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     root_manifest_path = OUTPUT_ROOT / "manifest.json"
@@ -415,7 +532,7 @@ def main() -> None:
     manifest, product_images = scrape(categories)
     write_manifests(manifest, product_images)
     if not args.no_db:
-        update_database(product_images)
+        update_database_from_manifest(manifest, product_images)
 
     total = sum(len(items) for items in manifest.values())
     print(f"已抓取 {total} 张商品图")

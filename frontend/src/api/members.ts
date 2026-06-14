@@ -62,12 +62,12 @@ async function readJson<T>(response: Response, fallback: string): Promise<T> {
 }
 
 export async function listMembers(): Promise<Member[]> {
-  const response = await fetch(`${API_BASE}/members`);
+  const response = await fetch(`${API_BASE}/api/members`);
   return readJson<Member[]>(response, '获取家人列表失败');
 }
 
 export async function createMember(payload: MemberPayload): Promise<Member> {
-  const response = await fetch(`${API_BASE}/members`, {
+  const response = await fetch(`${API_BASE}/api/members`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -76,12 +76,12 @@ export async function createMember(payload: MemberPayload): Promise<Member> {
 }
 
 export async function getMember(memberId: string): Promise<Member> {
-  const response = await fetch(`${API_BASE}/members/${memberId}`);
+  const response = await fetch(`${API_BASE}/api/members/${memberId}`);
   return readJson<Member>(response, '获取家人详情失败');
 }
 
 export async function updateMember(memberId: string, payload: MemberPayload): Promise<Member> {
-  const response = await fetch(`${API_BASE}/members/${memberId}`, {
+  const response = await fetch(`${API_BASE}/api/members/${memberId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -90,7 +90,7 @@ export async function updateMember(memberId: string, payload: MemberPayload): Pr
 }
 
 export async function deleteMember(memberId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/members/${memberId}`, {
+  const response = await fetch(`${API_BASE}/api/members/${memberId}`, {
     method: 'DELETE'
   });
   if (!response.ok) {
@@ -100,6 +100,6 @@ export async function deleteMember(memberId: string): Promise<void> {
 }
 
 export async function listMemberDocuments(memberId: string): Promise<MemberDocument[]> {
-  const response = await fetch(`${API_BASE}/members/${memberId}/documents`);
+  const response = await fetch(`${API_BASE}/api/members/${memberId}/documents`);
   return readJson<MemberDocument[]>(response, '获取家人报告失败');
 }

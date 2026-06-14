@@ -51,6 +51,7 @@ export type MallFamilyRecommendation = {
 
 export type MallHomeResponse = {
   family_recommendations: MallFamilyRecommendation[];
+  family_universal: MallFamilyRecommendation | null;
   health_zones: MallZone[];
   daily_products: MallProduct[];
   categories: MallZone[];
@@ -102,7 +103,7 @@ async function readJson<T>(response: Response, fallback: string): Promise<T> {
 }
 
 export async function getMallHome(): Promise<MallHomeResponse> {
-  const response = await fetch(`${API_BASE}/mall/home`);
+  const response = await fetch(`${API_BASE}/api/mall/home`);
   return readJson<MallHomeResponse>(response, '获取商城首页失败');
 }
 
@@ -118,23 +119,23 @@ export async function listMallProducts(params?: {
   if (params?.member_id) search.set('member_id', params.member_id);
   if (params?.limit) search.set('limit', String(params.limit));
   const query = search.toString();
-  const url = `${API_BASE}/mall/products${query ? `?${query}` : ''}`;
+  const url = `${API_BASE}/api/mall/products${query ? `?${query}` : ''}`;
   const response = await fetch(url);
   return readJson<MallProductListResponse>(response, '获取商品列表失败');
 }
 
 export async function getMallProduct(productId: string): Promise<MallProductDetailResponse> {
-  const response = await fetch(`${API_BASE}/mall/products/${productId}`);
+  const response = await fetch(`${API_BASE}/api/mall/products/${productId}`);
   return readJson<MallProductDetailResponse>(response, '获取商品详情失败');
 }
 
 export async function getMallCart(): Promise<MallCartResponse> {
-  const response = await fetch(`${API_BASE}/mall/cart`);
+  const response = await fetch(`${API_BASE}/api/mall/cart`);
   return readJson<MallCartResponse>(response, '获取购物车失败');
 }
 
 export async function addMallCartItem(productId: string, quantity: number): Promise<MallCartResponse> {
-  const response = await fetch(`${API_BASE}/mall/cart/items`, {
+  const response = await fetch(`${API_BASE}/api/mall/cart/items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ product_id: productId, quantity })
@@ -143,7 +144,7 @@ export async function addMallCartItem(productId: string, quantity: number): Prom
 }
 
 export async function updateMallCartItem(productId: string, quantity: number): Promise<MallCartResponse> {
-  const response = await fetch(`${API_BASE}/mall/cart/items/${productId}`, {
+  const response = await fetch(`${API_BASE}/api/mall/cart/items/${productId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ quantity })
@@ -152,7 +153,7 @@ export async function updateMallCartItem(productId: string, quantity: number): P
 }
 
 export async function deleteMallCartItem(productId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/mall/cart/items/${productId}`, {
+  const response = await fetch(`${API_BASE}/api/mall/cart/items/${productId}`, {
     method: 'DELETE'
   });
   if (!response.ok) {

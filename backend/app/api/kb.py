@@ -25,7 +25,7 @@ from app.services.ocr import CloudOcrClient
 from app.services.pdf_extractor import PdfExtractor
 from app.services.vector_store import InMemoryVectorStore, MilvusVectorStore
 
-router = APIRouter(prefix="/kb", tags=["knowledge-base"])
+router = APIRouter(prefix="/api/kb", tags=["knowledge-base"])
 memory_vector_store = InMemoryVectorStore()
 
 

@@ -13,7 +13,7 @@ export function MessageBubble({ message }: Props) {
 
   return (
     <div className={`message-row ${isUser ? 'user' : ''}`}>
-      <div className={`msg-avatar ${isUser ? 'user' : 'agent'}`}>{isUser ? '李' : '家'}</div>
+      <div className={`msg-avatar ${isUser ? 'user' : 'agent'}`}>{isUser ? '张' : '家'}</div>
       <div className="msg-wrap">
         <div className="msg-bubble">
           <div className="msg-text">

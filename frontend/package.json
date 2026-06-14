@@ -9,7 +9,6 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "@rollup/rollup-darwin-x64": "^4.62.0",
     "@tanstack/react-query": "^5.62.8",
     "@vitejs/plugin-react": "^4.3.4",
     "lucide-react": "^0.468.0",

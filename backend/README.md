@@ -69,15 +69,15 @@ docker compose up -d mysql
 
 ## 接口
 
-- `POST /kb/upload`
-- `GET /kb/documents`
-- `GET /kb/documents/{document_id}`
-- `GET /kb/documents/{document_id}/chunks`
-- `DELETE /kb/documents/{document_id}`
-- `POST /kb/search`
-- `GET /agent/sessions`
-- `POST /agent/sessions`
-- `GET /agent/sessions/{session_id}/messages`
-- `POST /agent/sessions/{session_id}/messages:send`
-- `POST /agent/sessions/{session_id}/messages:stream`
-- `GET /agent/quick-actions`
+- `POST /api/kb/upload`
+- `GET /api/kb/documents`
+- `GET /api/kb/documents/{document_id}`
+- `GET /api/kb/documents/{document_id}/chunks`
+- `DELETE /api/kb/documents/{document_id}`
+- `POST /api/kb/search`
+- `GET /api/agent/sessions`
+- `POST /api/agent/sessions`
+- `GET /api/agent/sessions/{session_id}/messages`
+- `POST /api/agent/sessions/{session_id}/messages:send`
+- `POST /api/agent/sessions/{session_id}/messages:stream`
+- `GET /api/agent/quick-actions`
