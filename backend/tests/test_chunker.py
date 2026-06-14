@@ -10,7 +10,7 @@ def test_chunk_page_text_splits_structured_report_sections():
         ]
     )
 
-    chunks = chunk_page_text("doc_1", 2, text, chunk_size=120, overlap=20)
+    chunks = chunk_page_text("doc_1", "mem_1", 2, text, chunk_size=120, overlap=20)
 
     assert len(chunks) == 3
     assert chunks[0].document_id == "doc_1"
@@ -23,7 +23,7 @@ def test_chunk_page_text_splits_structured_report_sections():
 def test_chunk_page_text_splits_long_section_with_langchain_overlap():
     text = "体检总结：" + "一" * 220
 
-    chunks = chunk_page_text("doc_1", 1, text, chunk_size=120, overlap=20)
+    chunks = chunk_page_text("doc_1", "mem_1", 1, text, chunk_size=120, overlap=20)
 
     assert len(chunks) > 1
     assert all(len(chunk.content) <= 120 for chunk in chunks)
@@ -31,6 +31,6 @@ def test_chunk_page_text_splits_long_section_with_langchain_overlap():
 
 
 def test_chunk_page_text_ignores_blank_text():
-    chunks = chunk_page_text("doc_1", 1, "   \n\t  ")
+    chunks = chunk_page_text("doc_1", "mem_1", 1, "   \n\t  ")
 
     assert chunks == []

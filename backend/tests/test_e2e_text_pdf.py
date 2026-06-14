@@ -84,7 +84,10 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
     assert list_response.status_code == 200
     assert list_response.json()[0]["patient_name"] == "WangXiuying"
 
-    search_response = client.post("/api/kb/search", json={"query": "Bone density", "top_k": 3})
+    search_response = client.post(
+        "/api/kb/search",
+        json={"query": "Bone density", "member_id": member_id, "top_k": 3},
+    )
     assert search_response.status_code == 200
     assert search_response.json()["items"]
     assert "Bone density" in search_response.json()["items"][0]["content"]
