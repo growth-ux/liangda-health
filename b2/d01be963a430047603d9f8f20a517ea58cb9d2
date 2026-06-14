@@ -1,0 +1,21 @@
+backend/tests/test_migrate_kb_member_binding.py
+  s_1c4537c8405e3e::t_476b10c176335b 1-97
+backend/app/scripts/migrate_kb_member_binding.py
+  s_1c4537c8405e3e::t_aa477a0c451d17 1-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "b2d01be963a430047603d9f8f20a517ea58cb9d2",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
