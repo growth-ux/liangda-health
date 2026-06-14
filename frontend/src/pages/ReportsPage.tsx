@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { listMembers } from '../api/members';
 import { deleteDocument, listDocuments, uploadPdf } from '../api/kb';
 import { AppShell } from '../components/AppShell';
+import { KbSearchPanel } from '../components/KbSearchPanel';
 import { ReportGrid } from '../components/ReportGrid';
 import { ReportToolbar } from '../components/ReportToolbar';
 import { UploadReportDialog } from '../components/UploadReportDialog';
@@ -79,6 +80,13 @@ export function ReportsPage() {
         onSortModeChange={setSortMode}
         onUploadClick={() => setDialogOpen(true)}
       />
+
+      {!documentsQuery.isLoading && family !== 'all' && (
+        <KbSearchPanel memberId={family} />
+      )}
+      {family === 'all' && !documentsQuery.isLoading && (
+        <div className="empty-state">选择一位家人后即可搜索报告内容</div>
+      )}
 
       {documentsQuery.isLoading && <div className="empty-state">正在加载报告...</div>}
       {documentsQuery.isError && <div className="error-box">报告列表加载失败</div>}
