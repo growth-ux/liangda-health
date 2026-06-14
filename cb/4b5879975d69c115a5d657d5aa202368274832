@@ -1,0 +1,21 @@
+backend/tests/test_api_members.py
+  s_1c4537c8405e3e::t_91b8750ed26337 127-196
+backend/app/repositories/member_repository.py
+  s_1c4537c8405e3e::t_a383d87e6c489a 116-122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "cb4b5879975d69c115a5d657d5aa202368274832",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
