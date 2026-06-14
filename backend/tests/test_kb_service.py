@@ -1,7 +1,14 @@
 from pathlib import Path
 
 from app.services.kb_service import KbService
-from app.services.vector_store import InMemoryVectorStore
+
+
+class FakeVectorStore:
+    def __init__(self):
+        self.records = []
+
+    def upsert(self, records):
+        self.records.extend(records)
 
 
 class FakeRepository:
@@ -51,7 +58,7 @@ class FakeEmbeddingService:
 
 def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     repository = FakeRepository()
-    vector_store = InMemoryVectorStore()
+    vector_store = FakeVectorStore()
     service = KbService(
         repository=repository,
         pdf_extractor=FakePdfExtractor(),
@@ -85,7 +92,7 @@ def test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short(tmp_path):
             return [""]
 
     repository = FakeRepository()
-    vector_store = InMemoryVectorStore()
+    vector_store = FakeVectorStore()
     service = KbService(
         repository=repository,
         pdf_extractor=ShortPdfExtractor(),
@@ -112,7 +119,7 @@ def test_upload_pdf_marks_document_failed_when_processing_fails(tmp_path):
         pdf_extractor=BrokenPdfExtractor(),
         ocr_client=FakeOcrClient(),
         embedding_service=FakeEmbeddingService(),
-        vector_store=InMemoryVectorStore(),
+        vector_store=FakeVectorStore(),
         upload_dir=tmp_path,
     )
 

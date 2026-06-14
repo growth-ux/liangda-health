@@ -15,31 +15,6 @@ class VectorHit:
     score: float
 
 
-class InMemoryVectorStore:
-    def __init__(self):
-        self.records: list[VectorRecord] = []
-
-    def upsert(self, records: list[VectorRecord]) -> None:
-        existing = {record.chunk_id: record for record in self.records}
-        for record in records:
-            existing[record.chunk_id] = record
-        self.records = list(existing.values())
-
-    def search(self, query_embedding: list[float], top_k: int, member_id: str | None = None) -> list[VectorHit]:
-        if member_id is None:
-            raise ValueError("member_id is required for search")
-        hits = [
-            VectorHit(chunk_id=record.chunk_id, score=_dot(query_embedding, record.embedding))
-            for record in self.records
-            if record.member_id == member_id
-        ]
-        return sorted(hits, key=lambda hit: hit.score, reverse=True)[:top_k]
-
-
-def _dot(left: list[float], right: list[float]) -> float:
-    return sum(a * b for a, b in zip(left, right))
-
-
 class MilvusVectorStore:
     def __init__(
         self,

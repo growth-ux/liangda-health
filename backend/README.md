@@ -7,12 +7,11 @@ uv sync
 .venv/bin/uvicorn app.main:app --app-dir backend --reload --port 8000
 ```
 
-默认使用 MySQL 和内存向量库。连接 MySQL/Milvus 时通过环境变量配置：
+默认使用 MySQL 和 Milvus 向量库。连接 MySQL/Milvus 时通过环境变量配置：
 
 ```bash
 export HEALTH_AGENT_DATABASE_URL='mysql+pymysql://root:123@127.0.0.1:3306/liangda_health'
 export HEALTH_AGENT_TEST_DATABASE_URL='mysql+pymysql://root:123@127.0.0.1:3306/liangda_health_test'
-export HEALTH_AGENT_MILVUS_ENABLED=true
 export HEALTH_AGENT_MILVUS_URI='http://localhost:19530'
 export HEALTH_AGENT_EMBEDDING_MODEL='text-embedding-v3'
 export HEALTH_AGENT_CLOUD_OCR_ENDPOINT='https://example.com/ocr/pdf'
@@ -37,7 +36,6 @@ export HEALTH_AGENT_LLM_API_KEY
 docker exec mysql mysql -uroot -p123 -e "CREATE DATABASE IF NOT EXISTS liangda_health CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 export HEALTH_AGENT_DATABASE_URL='mysql+pymysql://root:123@localhost:3306/liangda_health'
-export HEALTH_AGENT_MILVUS_ENABLED=true
 export HEALTH_AGENT_MILVUS_URI='http://localhost:19530'
 PYTHONPATH=. python scripts/verify_real_services.py
 ```
@@ -61,10 +59,29 @@ cd backend
 ../.venv/bin/uvicorn app.main:app --reload --port 8000
 ```
 
-如果不设置 `HEALTH_AGENT_MILVUS_ENABLED=true`，后端默认使用内存向量库，方便本地开发页面和 API。数据库默认使用本机 3306 端口的 MySQL：
+Milvus 是唯一的向量库，必须随 MySQL 一起起。如果只起了 MySQL 没起 Milvus，上传/搜索会连不上。
 
 ```bash
 docker compose up -d mysql
+```
+
+## 重建 Milvus 向量库
+
+⚠️  **破坏性操作**：会 drop 现有 collection 再用新 schema（含 `member_id`）重建。SQL `kb_chunks` 是 source of truth。
+
+```bash
+cd backend
+# 1) 先确保 SQL 端 member_id 已回填
+python -m app.scripts.migrate_kb_member_binding
+
+# 2) 冒烟：先看会处理多少条
+python -m app.scripts.rebuild_milvus_vectors --dry-run
+
+# 3) 小批量验证
+python -m app.scripts.rebuild_milvus_vectors --limit 50
+
+# 4) 全量重建
+python -m app.scripts.rebuild_milvus_vectors
 ```
 
 ## 接口

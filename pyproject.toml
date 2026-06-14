@@ -10,6 +10,7 @@ dependencies = [
     "langchain-text-splitters",
     "pydantic-settings",
     "pymysql",
+    "pymilvus",
     "pymupdf",
     "pytest",
     "python-multipart",

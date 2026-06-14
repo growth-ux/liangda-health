@@ -5,7 +5,7 @@
 **Goal:** 实现知识库严格按家人隔离——上传时归属、检索时强制 member_id、Agent 智能识别家人，并迁移历史脏数据。
 
 **Architecture:**
-- 数据层：`kb_chunks` 新增 `member_id` 字段；向量库（InMemory + Milvus）schema 加 `member_id` 并按其过滤
+- 数据层：`kb_chunks` 新增 `member_id` 字段；Milvus 向量库 schema 加 `member_id` 并按其过滤
 - API 层：`/api/kb/search` 强制要求 `member_id`；Agent `kb_search` 工具强制要求 `member_id`
 - Agent 层：system prompt 注入可用家人列表；LLM 从中识别并显式传 `member_id`；跨家人靠多次调用合成
 - 迁移层：单独脚本按 `patient_name` 严格匹配回填历史脏数据，并补齐向量库
@@ -13,7 +13,7 @@
 **Tech Stack:**
 - 后端：Python 3.13 / FastAPI / SQLAlchemy 2.x / PyMySQL / DashScope Embedding / LangChain / Milvus（可选）
 - 前端：React / TypeScript / TanStack Query / React Router
-- 测试：pytest + FastAPI TestClient + 自定义 FakeDb/FakeVectorStore
+- 测试：pytest + FastAPI TestClient + 自定义 FakeDb/FakeVectorStore（FakeVectorStore 只在测试文件内本地定义，不入 `vector_store.py`）
 
 **关联文档：**
 - 设计：`docs/superpowers/specs/2026-06-14-kb-member-isolation-design.md`
@@ -27,7 +27,7 @@
 | 文件 | 责任 |
 |---|---|
 | `backend/app/models/kb.py` | SQL 模型：`KbChunk.member_id` 新增；`KbDocument.member_id` 改 NOT NULL |
-| `backend/app/services/vector_store.py` | `VectorRecord` 加字段；两个 store 类按 `member_id` 过滤 |
+| `backend/app/services/vector_store.py` | `VectorRecord` 加字段；`MilvusVectorStore` 按 `member_id` 过滤 |
 | `backend/app/services/kb_service.py` | `upload_pdf` 写入 member_id 到 chunks + vectors |
 | `backend/app/repositories/kb_repository.py` | `save_chunks` 带 member_id；新增 `list_documents_by_member`、`get_chunks_by_member` |
 | `backend/app/repositories/member_repository.py` | `delete_member` 校验 KB 引用 |
@@ -38,7 +38,6 @@
 | `backend/app/api/agent.py` | 装配 member_provider |
 | `backend/scripts/migrate_kb_member_binding.py` | **新建**：历史脏数据迁移脚本 |
 | `backend/tests/test_models_kb.py` | **新建**：模型字段测试 |
-| `backend/tests/test_vector_store.py` | **新建**：vector store 过滤测试 |
 | `backend/tests/test_kb_repository.py` | **新建**：repository 过滤测试 |
 | `backend/tests/test_migrate_kb_member_binding.py` | **新建**：迁移脚本测试 |
 | `backend/tests/test_api_kb.py` | 修改：search/upload 测试 |
@@ -120,53 +119,14 @@ git commit -m "feat(kb): kb_chunks.member_id + kb_documents NOT NULL"
 
 ---
 
-## Task 2: 向量库层 VectorRecord + InMemoryVectorStore 加 member_id 过滤
+## Task 2: 向量库层 VectorRecord + MilvusVectorStore 加 member_id 过滤
 
 **Files:**
 - Modify: `backend/app/services/vector_store.py`
-- Test: `backend/tests/test_vector_store.py`
 
-- [ ] **Step 1: 写失败的过滤测试**
+> 说明：不在 `vector_store.py` 内放 `InMemoryVectorStore`。`MilvusVectorStore` 是唯一实现，测试里需要的 fake 在 `tests/test_kb_service.py`、`tests/test_e2e_text_pdf.py` 内本地定义 `FakeVectorStore` 类。
 
-```python
-# backend/tests/test_vector_store.py
-from app.services.vector_store import InMemoryVectorStore, VectorRecord
-
-
-def test_in_memory_vector_store_filters_by_member_id():
-    store = InMemoryVectorStore()
-    store.upsert([
-        VectorRecord(chunk_id="c1", document_id="d1", member_id="mem_1", embedding=[1.0, 0.0]),
-        VectorRecord(chunk_id="c2", document_id="d2", member_id="mem_2", embedding=[1.0, 0.0]),
-    ])
-
-    hits = store.search([1.0, 0.0], top_k=5, member_id="mem_1")
-
-    assert [hit.chunk_id for hit in hits] == ["c1"]
-
-
-def test_in_memory_vector_store_returns_empty_when_no_match():
-    store = InMemoryVectorStore()
-    store.upsert([
-        VectorRecord(chunk_id="c1", document_id="d1", member_id="mem_1", embedding=[1.0, 0.0]),
-    ])
-
-    hits = store.search([1.0, 0.0], top_k=5, member_id="mem_2")
-
-    assert hits == []
-
-
-def test_vector_record_requires_member_id():
-    record = VectorRecord(chunk_id="c1", document_id="d1", member_id="mem_1", embedding=[1.0])
-    assert record.member_id == "mem_1"
-```
-
-- [ ] **Step 2: 跑测试确认失败**
-
-Run: `cd backend && pytest tests/test_vector_store.py -v`
-Expected: FAIL with `TypeError: __init__() missing 1 required positional argument: 'member_id'`
-
-- [ ] **Step 3: 改 VectorRecord 加 member_id**
+- [ ] **Step 1: 改 VectorRecord 加 member_id**
 
 修改 `backend/app/services/vector_store.py`：
 ```python
@@ -178,22 +138,7 @@ class VectorRecord:
     embedding: list[float]
 ```
 
-- [ ] **Step 4: 改 InMemoryVectorStore.search 接 member_id**
-
-替换 `InMemoryVectorStore` 的 `search` 方法：
-```python
-    def search(self, query_embedding: list[float], top_k: int, member_id: str | None = None) -> list[VectorHit]:
-        if member_id is None:
-            raise ValueError("member_id is required for search")
-        hits = [
-            VectorHit(chunk_id=record.chunk_id, score=_dot(query_embedding, record.embedding))
-            for record in self.records
-            if record.member_id == member_id
-        ]
-        return sorted(hits, key=lambda hit: hit.score, reverse=True)[:top_k]
-```
-
-- [ ] **Step 5: 改 MilvusVectorStore.search 接 member_id**
+- [ ] **Step 2: 改 MilvusVectorStore.search 接 member_id**
 
 替换 `MilvusVectorStore.search`：
 ```python
@@ -222,20 +167,15 @@ class VectorRecord:
         schema.add_field("embedding", DataType.FLOAT_VECTOR, dim=dimension)
 ```
 
-- [ ] **Step 6: 跑测试确认通过**
-
-Run: `cd backend && pytest tests/test_vector_store.py -v`
-Expected: PASS
-
-- [ ] **Step 7: 跑全量测试看现有 fake 哪里破了**
+- [ ] **Step 3: 跑全量测试看现有 fake 哪里破了**
 
 Run: `cd backend && pytest -v`
 Expected: 大概率 `test_kb_service.py` 和 `test_api_kb.py` 会 fail（因为 VectorRecord 构造、VectorStore.search 调用没传 member_id）。先记录这些 fail，下个 Task 一起修。
 
-- [ ] **Step 8: 提交**
+- [ ] **Step 4: 提交**
 
 ```bash
-git add backend/app/services/vector_store.py backend/tests/test_vector_store.py
+git add backend/app/services/vector_store.py
 git commit -m "feat(kb): vector store 按 member_id 过滤"
 ```
 
@@ -321,13 +261,22 @@ Expected: 会因为 FakeVectorStore 没 member_id、chunker 签名变了而 fail
 - [ ] **Step 4: 修测试 FakeVectorStore（接受新 search 签名 + 接收 member_id）**
 
 在 `backend/tests/test_kb_service.py` 修改 `FakeRepository` 不用动（接口没变）。
-但 `InMemoryVectorStore()` 直接用，加 member_id 后 `search` 强制要求 member_id。
+加一个本地 `FakeVectorStore` 类替代之前在 `vector_store.py` 里的 `InMemoryVectorStore`（仅本测试文件使用）：
+
+```python
+class FakeVectorStore:
+    def __init__(self):
+        self.records = []
+
+    def upsert(self, records):
+        self.records.extend(records)
+```
 
 修改 `test_upload_pdf_builds_pages_chunks_and_vectors`：
 ```python
 def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     repository = FakeRepository()
-    vector_store = InMemoryVectorStore()
+    vector_store = FakeVectorStore()
     service = KbService(
         repository=repository,
         pdf_extractor=FakePdfExtractor(),
@@ -355,7 +304,7 @@ def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     assert vector_store.records[0].member_id == "mem_1"  # NEW
 ```
 
-对另外两个测试 `test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short` 和 `test_upload_pdf_marks_document_failed_when_processing_fails` 同样加上 `member_id="mem_1"` 参数。
+对另外两个测试 `test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short` 和 `test_upload_pdf_marks_document_failed_when_processing_fails` 同样改用 `FakeVectorStore()` 并加上 `member_id="mem_1"` 参数。
 
 - [ ] **Step 5: 跑测试确认通过**
 
@@ -1687,7 +1636,7 @@ git commit -m "test(kb): 端到端家人隔离集成测试"
 
 **Type consistency check:**
 - `VectorRecord(chunk_id, document_id, member_id, embedding)` — Task 2 定义，Task 3 使用，Task 6 Agent 不直接用（间接通过 vector store.search）
-- `InMemoryVectorStore.search(embedding, top_k, member_id)` — Task 2 定义，Task 5 API 路由、Task 6 agent_tools 都按此签名调用
+- `MilvusVectorStore.search(embedding, top_k, member_id)` — Task 2 定义，Task 5 API 路由、Task 6 agent_tools 都按此签名调用
 - `KbSearchTool(repository, embedding_service, vector_store, allowed_member_ids)` — Task 6 定义，Task 8 调用
 - `LangChainAgentRunner(kb_tool=None, member_provider=None)` — Task 7 定义，Task 8 调用
 - `searchKb(query: string, memberId: string, topK: number)` — Task 11 定义，Task 12 使用
@@ -1696,4 +1645,4 @@ git commit -m "test(kb): 端到端家人隔离集成测试"
 **Potential gaps:**
 - Task 5 中用 `FakeDb` 测试 `FakeMemberRepository` 的部分比较曲折，简化为真实 db_session 测试
 - Task 8 中 `member_provider` 闭包返回 `type('M', (), ...)` 匿名对象，测试已对齐（FakeMember 模拟同样形态）
-- Milvus 升级路径未单独写 Task —— 实际 MilvusVectorStore.search 已改（Task 2 Step 5），schema 升级的运行时路径在 deploy 时按 `add_collection_field` 走；如需自动化，可后续加 Task "Milvus 启动时自动 add_field"
+- Milvus 升级路径未单独写 Task —— 实际 `MilvusVectorStore.search` 已改（Task 2 Step 2），schema 升级的运行时路径在 deploy 时按 `add_collection_field` 走；如需自动化，可后续加 Task "Milvus 启动时自动 add_field"

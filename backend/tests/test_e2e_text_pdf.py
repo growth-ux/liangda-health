@@ -7,7 +7,23 @@ from app.core.config import settings
 from app.db.session import Base, get_db
 from app.main import create_app
 from app.models import kb as _kb_models
-from app.services.vector_store import InMemoryVectorStore
+from app.services.vector_store import VectorHit
+
+
+class FakeVectorStore:
+    def __init__(self):
+        self.records = []
+
+    def upsert(self, records):
+        self.records.extend(records)
+
+    def search(self, query_embedding, top_k, member_id=None):
+        hits = [
+            VectorHit(chunk_id=record.chunk_id, score=sum(a * b for a, b in zip(query_embedding, record.embedding)))
+            for record in self.records
+            if record.member_id == member_id
+        ]
+        return sorted(hits, key=lambda hit: hit.score, reverse=True)[:top_k]
 
 
 class FakeEmbeddingService:
@@ -20,7 +36,6 @@ class FakeEmbeddingService:
 
 def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "upload_dir", tmp_path / "uploads")
-    monkeypatch.setattr(settings, "milvus_enabled", False)
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
@@ -37,7 +52,7 @@ def test_upload_text_pdf_then_search_returns_source_chunk(tmp_path, monkeypatch)
         finally:
             db.close()
 
-    vector_store = InMemoryVectorStore()
+    vector_store = FakeVectorStore()
     app = create_app()
     app.dependency_overrides[get_db] = override_db
     app.dependency_overrides[get_vector_store] = lambda: vector_store

@@ -11,9 +11,8 @@ class Settings(BaseSettings):
 
     embedding_dimension: int = 1024
     embedding_model: str = "text-embedding-v3"
-    embedding_api_key: str | None = None
+    embedding_api_key: str | None = "sk-f3c793c9e1ee4427abbc33311695588c"
 
-    milvus_enabled: bool = False
     milvus_uri: str = "http://localhost:19530"
     milvus_token: str | None = None
     milvus_collection: str = "kb_chunks_vector"

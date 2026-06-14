@@ -23,21 +23,18 @@ from app.services.embedding import DashScopeEmbeddingService
 from app.services.kb_service import KbService
 from app.services.ocr import CloudOcrClient
 from app.services.pdf_extractor import PdfExtractor
-from app.services.vector_store import InMemoryVectorStore, MilvusVectorStore
+from app.services.vector_store import MilvusVectorStore
 
 router = APIRouter(prefix="/api/kb", tags=["knowledge-base"])
-memory_vector_store = InMemoryVectorStore()
 
 
 def get_vector_store():
-    if settings.milvus_enabled:
-        return MilvusVectorStore(
-            uri=settings.milvus_uri,
-            token=settings.milvus_token,
-            collection_name=settings.milvus_collection,
-            dimension=settings.embedding_dimension,
-        )
-    return memory_vector_store
+    return MilvusVectorStore(
+        uri=settings.milvus_uri,
+        token=settings.milvus_token,
+        collection_name=settings.milvus_collection,
+        dimension=settings.embedding_dimension,
+    )
 
 
 def get_embedding_service():

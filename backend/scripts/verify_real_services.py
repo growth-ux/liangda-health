@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 import tempfile
 
 from fastapi.testclient import TestClient
@@ -12,9 +11,24 @@ def main() -> None:
     app = create_app()
     client = TestClient(app)
 
+    member_response = client.post(
+        "/api/members",
+        json={
+            "name": "RealServiceUser",
+            "relation": "本人",
+            "gender": "其他",
+            "birth_year": 1990,
+            "health_tags": [],
+        },
+    )
+    member_response.raise_for_status()
+    member_id = member_response.json()["member_id"]
+    print("member", member_response.status_code, member_id)
+
     with pdf_path.open("rb") as file:
         upload_response = client.post(
             "/api/kb/upload",
+            data={"member_id": member_id},
             files={"file": ("real-services-report.pdf", file, "application/pdf")},
         )
     print("upload", upload_response.status_code, upload_response.json())
@@ -26,7 +40,10 @@ def main() -> None:
     print("documents", list_response.status_code, list_response.json()[:1])
     list_response.raise_for_status()
 
-    search_response = client.post("/api/kb/search", json={"query": "Bone density", "top_k": 3})
+    search_response = client.post(
+        "/api/kb/search",
+        json={"query": "Bone density", "member_id": member_id, "top_k": 3},
+    )
     print("search", search_response.status_code, search_response.json())
     search_response.raise_for_status()
     if not search_response.json()["items"]:
@@ -54,5 +71,4 @@ def _make_pdf() -> Path:
 
 
 if __name__ == "__main__":
-    os.environ.setdefault("HEALTH_AGENT_MILVUS_ENABLED", "true")
     main()

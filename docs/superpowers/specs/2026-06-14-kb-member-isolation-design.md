@@ -72,13 +72,10 @@ class VectorRecord:
 - 在 `member_id` 上建标量索引
 - 搜索时通过 `expr='member_id == "xxx"'` 过滤
 
-#### `InMemoryVectorStore`
-- 内部用 `dict[str, dict[str, VectorRecord]]`（外层 key 是 member_id）
-- `search(query_embedding, member_id, top_k)` 先按 member_id 取桶，再做点积
+> 不提供进程内的 `InMemoryVectorStore` 兜底实现 —— Milvus 是唯一向量存储。测试需要的 fake 在测试文件本地定义 `FakeVectorStore` 类。
 
 ### 迁移策略（向量库）
 
-- **InMemory**：进程重启即丢，启动后从 SQL 懒加载，无需特殊处理
 - **Milvus**：用 `MilvusClient.add_collection_field` 加字段；如版本不支持，fallback 到 drop+recreate
 
 ## 3. API 契约变更
@@ -229,9 +226,7 @@ searchKb(query: string, memberId: string, topK: number): Promise<SearchResult[]>
    d. 无匹配 → 写入 reports/unmatched_documents.csv
    e. 多匹配（重名） → 写入 reports/ambiguous_documents.csv 待人工处理
 3. 同步更新 kb_chunks.member_id（同样的批量 UPDATE）
-4. 重新 embed 所有 chunk 并写向量库：
-   - InMemory：进程重启即丢，无需主动操作（启动时会懒加载）
-   - Milvus：按 document_id 批量查 chunk → embed → upsert
+4. 重新 embed 所有 chunk 并写向量库（Milvus：按 document_id 批量查 chunk → embed → upsert）
 5. 输出汇总：
    - 成功 N 条
    - 未匹配 M 条 → reports/unmatched_documents.csv
@@ -268,7 +263,6 @@ searchKb(query: string, memberId: string, topK: number): Promise<SearchResult[]>
 | 模块 | 重点 |
 |---|---|
 | `KbSearchTool.search` | 按 `member_id` 过滤正确性；不存在的 `member_id` 返回错误；跨家人拒绝 |
-| `InMemoryVectorStore` | 加字段后 search 按 member_id 正确过滤 |
 | `MilvusVectorStore` | `expr` 过滤正确性（集成测试） |
 | SystemPromptBuilder | 成员列表正确注入；空列表时不崩溃 |
 | `kb_repository.list_documents_by_member` | 按成员过滤正确 |
