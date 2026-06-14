@@ -1,0 +1,77 @@
+backend/scripts/verify_real_services.py
+  s_8ce70618dea9ad::t_71c795d5a5e377 14-27,31,43-46
+docs/superpowers/specs/2026-06-14-kb-member-isolation-design.md
+  s_8ce70618dea9ad::t_334837ddd02a03 75
+  s_8ce70618dea9ad::t_5311686e3d2ca6 229
+backend/app/scripts/rebuild_milvus_vectors.py
+  s_8ce70618dea9ad::t_68f4dd48fca95e 1-29,31-114
+  s_a9b2ef0edf2958::t_87a0b6a1611fd9 30
+docs/superpowers/plans/2026-06-14-kb-member-isolation.md
+  s_8ce70618dea9ad::t_a2d4c4d0a072db 122,127,129,141,170,175,178
+  s_8ce70618dea9ad::t_a5112811b983e9 1648
+  s_8ce70618dea9ad::t_3d7e1164f1c68a 30
+  s_8ce70618dea9ad::t_8a16207c52ea44 16
+  s_8ce70618dea9ad::t_8c8354856392e3 264-273,279,307
+  s_8ce70618dea9ad::t_62199ccbb742b9 8
+  s_8ce70618dea9ad::t_30cd1be50c930b 1639
+backend/tests/test_e2e_text_pdf.py
+  s_8ce70618dea9ad::t_f30fbdba5e77b8 10-26
+  s_8ce70618dea9ad::t_3bc770f95ce7f5 55
+backend/app/core/config.py
+  h_7549b7dc6a6921 14
+uv.lock
+  s_a9b2ef0edf2958::t_bb415ffbfdaff0 4-11,16-17,19,25,35-100,106,110,112,118-119,121,127-128,130,136,140,142,148-158,160,166-167,169,175,179-214,220-271,277,281,283,289-290,292,298,302-342,348,359,365-366,368,374,382,384,390-457,463-545,551-552,554,560,565,567,573,580,582,588-589,591,597-598,600,606-654,660,664,666,672-673,675,681,687,689,695,707,709,715,721,723,729,733,735,741,745,747,753,762,764,770,775,777,783,788,790,796,804,806,812,825,827,842,861,874,878,880,886-887,889,895-1020,1026,1037,1039,1045-1077,1083-1107,1113-1114,1116-1160,1166-1167,1169,1175-1261,1267-1268,1270,1276,1283,1285,1291,1295-1341,1347,1353,1355,1361-1362,1364-1382,1388-1389,1391-1398,1404-1405,1407,1413,1421-1433,1435,1441-1442,1444,1450-1451,1453,1459-1489,1495-1561,1567,1574,1576,1582,1586,1588,1594,1599,1601-1610,1616-1626,1628,1634-1635,1637,1643,1648-1671,1677,1681,1683,1689-1690,1692,1698,1703-1732,1738,1742,1744,1750,1757,1759,1765-1766,1768,1774,1778-1787,1789,1795-1796,1798,1804-1862,1868,1873,1875,1881-1882,1884,1890-1891,1893-1904,1910-1998,2004,2010-2063,2069-2103
+pyproject.toml
+  s_a9b2ef0edf2958::t_c6b5f306aac138 13
+backend/app/api/kb.py
+  s_8ce70618dea9ad::t_25cf60527bb1be 26,32-37
+backend/tests/test_kb_service.py
+  s_8ce70618dea9ad::t_2223fbd6242cd3 95
+  s_8ce70618dea9ad::t_45a233c53de63f 122
+  s_8ce70618dea9ad::t_811514fc482543 4-11
+  s_8ce70618dea9ad::t_bcf173f729c810 61
+backend/tests/test_api_health_analysis.py
+  s_f0c41c72509c78::t_4efc538cf1edb9 50,63-64,104-105
+  s_f0c41c72509c78::t_22c60280657b9a 1-49,51-62,65-103,106-125
+backend/README.md
+  s_8ce70618dea9ad::t_32594f1a86ca23 62
+  s_8ce70618dea9ad::t_437141e396ac22 10
+  s_8ce70618dea9ad::t_9e7e2bd9b4de2c 68-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "efcd62360caeff54a1a672ee27f288700f15160c",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_8ce70618dea9ad": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fe66f689-45fa-4957-9bc7-ac1f835054a8",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_a9b2ef0edf2958": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "312d4dca-f107-4672-9d38-14c7ba30219f",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_f0c41c72509c78": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec572-0a1e-75a2-af88-eff3435f5fa3",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
