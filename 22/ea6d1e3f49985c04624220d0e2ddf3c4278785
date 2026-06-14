@@ -1,0 +1,21 @@
+backend/app/services/agent_tools.py
+  s_1c4537c8405e3e::t_be29ce500cdb52 5-11,15,17-21,24,26-27,39
+backend/tests/test_agent_tools.py
+  s_1c4537c8405e3e::t_281c4657fb81e7 13-20,33,54,56,58,66-79,81,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "22ea6d1e3f49985c04624220d0e2ddf3c4278785",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
