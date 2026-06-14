@@ -1,20 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Download, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   getHealthAnalysisOverview,
-  type HealthAnalysisOverview,
-  type HealthAnalysisRange
+  type HealthAnalysisOverview
 } from '../api/healthAnalysis';
 import { AppShell } from '../components/AppShell';
-
-const rangeOptions: { value: HealthAnalysisRange; label: string }[] = [
-  { value: 'this_month', label: '本月' },
-  { value: 'last_3_months', label: '近 3 月' },
-  { value: 'last_6_months', label: '近 6 月' },
-  { value: 'last_12_months', label: '近 1 年' }
-];
 
 function metricTrend(delta: number): string {
   if (delta > 0) return `↑ ${delta} 较上月`;
@@ -34,10 +26,9 @@ function summaryClass(level: HealthAnalysisOverview['summary'][number]['level'])
 
 export function HealthAnalysisPage() {
   const navigate = useNavigate();
-  const [range, setRange] = useState<HealthAnalysisRange>('this_month');
   const overviewQuery = useQuery({
-    queryKey: ['health-analysis', range],
-    queryFn: () => getHealthAnalysisOverview(range)
+    queryKey: ['health-analysis'],
+    queryFn: () => getHealthAnalysisOverview('this_month')
   });
 
   const overview = overviewQuery.data;
@@ -55,19 +46,8 @@ export function HealthAnalysisPage() {
           </div>
         </div>
         <div className="health-analysis-actions">
-          <select
-            className="form-select health-analysis-range"
-            value={range}
-            onChange={(event) => setRange(event.target.value as HealthAnalysisRange)}
-          >
-            {rangeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <button className="btn-secondary" type="button">
-            <Download size={16} />
+          <button className="btn" type="button">
+            <span aria-hidden>📥</span>
             导出
           </button>
         </div>
