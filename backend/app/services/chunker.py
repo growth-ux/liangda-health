@@ -8,12 +8,14 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 class TextChunk:
     chunk_id: str
     document_id: str
+    member_id: str
     page_no: int
     content: str
 
 
 def chunk_page_text(
     document_id: str,
+    member_id: str,
     page_no: int,
     text: str,
     chunk_size: int = 800,
@@ -55,6 +57,7 @@ def chunk_page_text(
                 TextChunk(
                     chunk_id=f"chunk_{uuid4().hex}",
                     document_id=document_id,
+                    member_id=member_id,
                     page_no=page_no,
                     content=normalized,
                 )

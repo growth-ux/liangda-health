@@ -91,7 +91,14 @@ class KbService:
 
             chunks: list[TextChunk] = []
             for page in pages:
-                chunks.extend(chunk_page_text(document_id, page.page_no, page.text_content))
+                chunks.extend(
+                    chunk_page_text(
+                        document_id=document_id,
+                        member_id=member_id or "",
+                        page_no=page.page_no,
+                        text=page.text_content,
+                    )
+                )
             self.repository.save_chunks(chunks)
 
             embeddings = self.embedding_service.embed_many([chunk.content for chunk in chunks])
@@ -100,6 +107,7 @@ class KbService:
                     VectorRecord(
                         chunk_id=chunk.chunk_id,
                         document_id=chunk.document_id,
+                        member_id=chunk.member_id,
                         embedding=embedding,
                     )
                     for chunk, embedding in zip(chunks, embeddings)

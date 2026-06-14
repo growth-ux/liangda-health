@@ -64,6 +64,7 @@ def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     result = service.upload_pdf(
         file_name="report.pdf",
         content=b"%PDF-1.4 fake",
+        member_id="mem_1",
     )
 
     assert result.status == "ready"
@@ -73,7 +74,9 @@ def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     assert (tmp_path / result.document_id / "thumbnail.png").read_bytes() == b"fake png"
     assert repository.pages[0].page_no == 1
     assert "骨密度" in repository.chunks[0].content
+    assert repository.chunks[0].member_id == "mem_1"
     assert len(vector_store.records) == 1
+    assert vector_store.records[0].member_id == "mem_1"
 
 
 def test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short(tmp_path):
@@ -92,7 +95,7 @@ def test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short(tmp_path):
         upload_dir=tmp_path,
     )
 
-    result = service.upload_pdf(file_name="scan.pdf", content=b"%PDF-1.4 fake")
+    result = service.upload_pdf(file_name="scan.pdf", content=b"%PDF-1.4 fake", member_id="mem_1")
 
     assert result.status == "ready"
     assert repository.pages[0].text_content == "OCR 文本"
@@ -113,7 +116,7 @@ def test_upload_pdf_marks_document_failed_when_processing_fails(tmp_path):
         upload_dir=tmp_path,
     )
 
-    result = service.upload_pdf(file_name="broken.pdf", content=b"%PDF-1.4 fake")
+    result = service.upload_pdf(file_name="broken.pdf", content=b"%PDF-1.4 fake", member_id="mem_1")
 
     assert result.status == "failed"
     assert result.document_id == repository.documents[0].document_id
