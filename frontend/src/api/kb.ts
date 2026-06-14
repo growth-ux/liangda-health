@@ -88,13 +88,16 @@ export async function uploadPdf({
   return response.json();
 }
 
-export async function searchKb(query: string, topK: number): Promise<SearchResult[]> {
+export async function searchKb(query: string, memberId: string, topK: number): Promise<SearchResult[]> {
   const response = await fetch(`${API_BASE}/api/kb/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, top_k: topK })
+    body: JSON.stringify({ query, member_id: memberId, top_k: topK })
   });
-  if (!response.ok) throw new Error('搜索失败');
+  if (!response.ok) {
+    const detail = await response.json().catch(() => null);
+    throw new Error(detail?.detail ?? '搜索失败');
+  }
   const data = await response.json();
   return data.items;
 }
