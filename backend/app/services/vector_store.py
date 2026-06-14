@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class VectorRecord:
     chunk_id: str
     document_id: str
+    member_id: str
     embedding: list[float]
 
 
@@ -24,10 +25,13 @@ class InMemoryVectorStore:
             existing[record.chunk_id] = record
         self.records = list(existing.values())
 
-    def search(self, query_embedding: list[float], top_k: int) -> list[VectorHit]:
+    def search(self, query_embedding: list[float], top_k: int, member_id: str | None = None) -> list[VectorHit]:
+        if member_id is None:
+            raise ValueError("member_id is required for search")
         hits = [
             VectorHit(chunk_id=record.chunk_id, score=_dot(query_embedding, record.embedding))
             for record in self.records
+            if record.member_id == member_id
         ]
         return sorted(hits, key=lambda hit: hit.score, reverse=True)[:top_k]
 
@@ -53,6 +57,7 @@ class MilvusVectorStore:
             schema = MilvusClient.create_schema(auto_id=False, enable_dynamic_field=False)
             schema.add_field("chunk_id", DataType.VARCHAR, is_primary=True, max_length=64)
             schema.add_field("document_id", DataType.VARCHAR, max_length=64)
+            schema.add_field("member_id", DataType.VARCHAR, max_length=64)
             schema.add_field("embedding", DataType.FLOAT_VECTOR, dim=dimension)
 
             index_params = MilvusClient.prepare_index_params()
@@ -77,6 +82,7 @@ class MilvusVectorStore:
                 {
                     "chunk_id": record.chunk_id,
                     "document_id": record.document_id,
+                    "member_id": record.member_id,
                     "embedding": record.embedding,
                 }
                 for record in records
@@ -84,11 +90,14 @@ class MilvusVectorStore:
         )
         self.client.flush(self.collection_name)
 
-    def search(self, query_embedding: list[float], top_k: int) -> list[VectorHit]:
+    def search(self, query_embedding: list[float], top_k: int, member_id: str | None = None) -> list[VectorHit]:
+        if member_id is None:
+            raise ValueError("member_id is required for search")
         results = self.client.search(
             collection_name=self.collection_name,
             data=[query_embedding],
             limit=top_k,
+            filter=f'member_id == "{member_id}"',
             output_fields=["chunk_id"],
         )
         hits: list[VectorHit] = []
