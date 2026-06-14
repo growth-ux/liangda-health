@@ -113,6 +113,13 @@ class SqlAlchemyMemberRepository:
         member = self.get_member(member_id)
         if member is None:
             return None
+        referenced = (
+            self.db.query(KbDocument)
+            .filter(KbDocument.member_id == member_id)
+            .first()
+        )
+        if referenced is not None:
+            return None  # 拒绝删除
         self.db.delete(member)
         self.db.commit()
         return member

@@ -124,3 +124,73 @@ def test_member_delete_with_documents_rejected(db_session):
 
     assert response.status_code == 400
     assert response.json()["detail"] == "该家人已有报告，不能删除"
+
+
+def test_delete_member_rejects_when_has_kb_references(db_session):
+    """Repository 层:有 KB 引用时拒绝删除,Member 仍存在。"""
+    from app.repositories.member_repository import SqlAlchemyMemberRepository
+
+    created_response = client_factory(db_session).post(
+        "/api/members",
+        json={
+            "name": "王大爷",
+            "relation": "本人",
+            "gender": "男",
+            "birth_year": 1955,
+            "health_tags": [],
+        },
+    ).json()
+    member_id = created_response["member_id"]
+
+    db_session.execute(
+        text(
+            """
+        INSERT INTO kb_documents (
+            document_id, file_name, file_path, file_size, page_count, status, created_at, updated_at, member_id
+        ) VALUES (
+            'doc_repo_reject', 'report.pdf', '/tmp/r.pdf', 10, 1, 'ready', NOW(), NOW(), :member_id
+        )
+        """
+        ),
+        {"member_id": member_id},
+    )
+    db_session.commit()
+
+    repo = SqlAlchemyMemberRepository(db_session)
+    result = repo.delete_member(member_id)
+
+    assert result is None  # 拒绝删除
+
+    detail = client_factory(db_session).get(f"/api/members/{member_id}")
+    assert detail.status_code == 200
+
+
+def test_delete_member_succeeds_when_no_kb_references(db_session):
+    """Repository 层:无 KB 引用时正常删除。"""
+    from app.repositories.member_repository import SqlAlchemyMemberRepository
+
+    created_response = client_factory(db_session).post(
+        "/api/members",
+        json={
+            "name": "赵奶奶",
+            "relation": "母亲",
+            "gender": "女",
+            "birth_year": 1948,
+            "health_tags": [],
+        },
+    ).json()
+    member_id = created_response["member_id"]
+
+    repo = SqlAlchemyMemberRepository(db_session)
+    result = repo.delete_member(member_id)
+
+    assert result is not None
+    detail = client_factory(db_session).get(f"/api/members/{member_id}")
+    assert detail.status_code == 404
+
+
+def client_factory(db_session):
+    """辅助函数:每次返回绑定到 db_session 的新 TestClient。"""
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: db_session
+    return TestClient(app)
