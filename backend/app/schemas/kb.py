@@ -51,6 +51,7 @@ class DocumentChunksResponse(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str
+    member_id: str
     top_k: int = 5
 
 

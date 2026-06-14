@@ -1,4 +1,5 @@
 from datetime import datetime
+from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
@@ -7,6 +8,7 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.main import create_app
 from app.models.kb import KbChunk, KbDocument, KbPage
+from app.models.member import Member
 from app.services.embedding import DashScopeEmbeddingService
 
 
@@ -18,6 +20,8 @@ class FakeQuery:
         return self
 
     def filter(self, *args):
+        for condition in args:
+            self.data = [item for item in self.data if _matches_filter(item, condition)]
         return self
 
     def all(self):
@@ -25,6 +29,19 @@ class FakeQuery:
 
     def one_or_none(self):
         return self.data[0] if self.data else None
+
+
+def _matches_filter(item, condition):
+    left = getattr(condition, "left", None)
+    right = getattr(condition, "right", None)
+    if left is None or right is None:
+        return True
+    actual = getattr(item, left.key, None)
+    expected = getattr(right, "value", right)
+    from sqlalchemy.sql import operators
+    if getattr(condition, "operator", None) is operators.in_op:
+        return actual in expected
+    return actual == expected
 
 
 class FakeDb:
@@ -65,6 +82,8 @@ class FakeDb:
             return FakeQuery([self.chunk])
         if model is KbPage:
             return FakeQuery([self.page])
+        if model is Member:
+            return FakeQuery([SimpleNamespace(member_id="mem_1", name="王秀英", relation="本人")])
         return FakeQuery([])
 
     def delete(self, item):
@@ -78,7 +97,13 @@ class FakeDb:
 
 
 class FakeVectorStore:
-    def search(self, query_embedding, top_k):
+    def __init__(self):
+        self.calls = []
+
+    def search(self, query_embedding, top_k, member_id=None):
+        self.calls.append({"member_id": member_id})
+        if member_id != "mem_1":
+            return []
         return [type("Hit", (), {"chunk_id": "chunk_1", "score": 0.9})()]
 
 
@@ -140,11 +165,36 @@ def test_kb_search_endpoint_returns_chunk_content():
     app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
     client = TestClient(app)
 
-    response = client.post("/api/kb/search", json={"query": "骨密度", "top_k": 5})
+    response = client.post("/api/kb/search", json={"query": "骨密度", "member_id": "mem_1", "top_k": 5})
 
     assert response.status_code == 200
     assert response.json()["items"][0]["chunk_id"] == "chunk_1"
     assert response.json()["items"][0]["content"] == "骨密度 T 值 -2.1"
+
+
+def test_kb_search_requires_member_id():
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    app.dependency_overrides[get_vector_store] = lambda: FakeVectorStore()
+    app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
+    client = TestClient(app)
+
+    response = client.post("/api/kb/search", json={"query": "骨密度", "top_k": 5})
+
+    assert response.status_code == 422
+
+
+def test_kb_search_rejects_unknown_member_id():
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    app.dependency_overrides[get_vector_store] = lambda: FakeVectorStore()
+    app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
+    client = TestClient(app)
+
+    response = client.post("/api/kb/search", json={"query": "骨密度", "member_id": "mem_unknown", "top_k": 5})
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "家人不存在"
 
 
 def test_kb_upload_rejects_non_pdf_file():

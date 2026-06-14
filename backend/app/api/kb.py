@@ -127,8 +127,11 @@ def search(
     embedding_service: DashScopeEmbeddingService = Depends(get_embedding_service),
     vector_store=Depends(get_vector_store),
 ):
+    member_repository = SqlAlchemyMemberRepository(db)
+    if not member_repository.exists_by_member_id(request.member_id):
+        raise HTTPException(status_code=400, detail="家人不存在")
     embedding = embedding_service.embed(request.query)
-    hits = vector_store.search(embedding, request.top_k)
+    hits = vector_store.search(embedding, request.top_k, member_id=request.member_id)
     repository = SqlAlchemyKbRepository(db)
     chunks = repository.get_chunks_by_ids([hit.chunk_id for hit in hits])
     score_by_chunk = {hit.chunk_id: hit.score for hit in hits}
