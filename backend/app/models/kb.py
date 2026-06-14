@@ -20,6 +20,8 @@ class KbDocument(Base):
     patient_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     exam_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
     institution: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # NOTE: member_id 改为 NOT NULL。已有脏数据（NULL/'default'）由 Plan Task 10
+    # （backend/scripts/migrate_kb_member_binding.py）回填后再施加约束。
     member_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
 
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="processing")
@@ -51,6 +53,8 @@ class KbChunk(Base):
     chunk_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     document_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     page_no: Mapped[int] = mapped_column(Integer, nullable=False)
+    # NOTE: kb_chunks 新增 member_id。冗余存储以避免每次召回都 join kb_documents。
+    # 已有 chunk 由 Plan Task 10 迁移脚本回填。
     member_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
