@@ -1,0 +1,30 @@
+backend/tests/test_api_kb.py
+  s_1c4537c8405e3e::t_2ca1959e0e27e8 24,34-40,43-44
+  s_1c4537c8405e3e::t_6ca473ffc97054 2,11
+  s_1c4537c8405e3e::t_ba7d5687d7ad69 41-42
+  s_1c4537c8405e3e::t_e9d9b20ed1254a 23
+  s_1c4537c8405e3e::t_510c2766de5447 86
+  s_1c4537c8405e3e::t_0a04ecc5173af5 100-106
+  s_1c4537c8405e3e::t_98bd9107ba888b 168,175-197
+  s_1c4537c8405e3e::t_d25e71dd1d2277 85
+backend/app/api/kb.py
+  s_1c4537c8405e3e::t_53c74d4a619dfd 130-132,134
+backend/app/schemas/kb.py
+  s_1c4537c8405e3e::t_8a78d8cfa68d65 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "7a75524f3b438f3a3b5090fe5d2ef61ae6b957fb",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
