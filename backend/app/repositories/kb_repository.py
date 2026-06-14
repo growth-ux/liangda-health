@@ -42,6 +42,7 @@ class SqlAlchemyKbRepository:
                 KbChunk(
                     chunk_id=chunk.chunk_id,
                     document_id=chunk.document_id,
+                    member_id=chunk.member_id,
                     page_no=chunk.page_no,
                     content=chunk.content,
                 )
@@ -70,6 +71,16 @@ class SqlAlchemyKbRepository:
 
     def list_documents(self) -> list[KbDocument]:
         documents = self.db.query(KbDocument).order_by(KbDocument.created_at.desc()).all()
+        self._attach_member_info(documents)
+        return documents
+
+    def list_documents_by_member(self, member_id: str) -> list[KbDocument]:
+        documents = (
+            self.db.query(KbDocument)
+            .filter(KbDocument.member_id == member_id)
+            .order_by(KbDocument.created_at.desc())
+            .all()
+        )
         self._attach_member_info(documents)
         return documents
 
@@ -107,6 +118,14 @@ class SqlAlchemyKbRepository:
         chunks = self.db.query(KbChunk).filter(KbChunk.chunk_id.in_(chunk_ids)).all()
         order = {chunk_id: index for index, chunk_id in enumerate(chunk_ids)}
         return sorted(chunks, key=lambda chunk: order.get(chunk.chunk_id, len(order)))
+
+    def get_chunks_by_member(self, member_id: str) -> list[KbChunk]:
+        return (
+            self.db.query(KbChunk)
+            .filter(KbChunk.member_id == member_id)
+            .order_by(KbChunk.document_id.asc(), KbChunk.page_no.asc(), KbChunk.id.asc())
+            .all()
+        )
 
     def _attach_member_info(self, documents: list[KbDocument]) -> None:
         member_ids = sorted({document.member_id for document in documents if document.member_id})
