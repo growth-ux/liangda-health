@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -5,15 +8,19 @@ from sqlalchemy import inspect, text
 from pathlib import Path
 
 from app.api.agent import router as agent_router
+from app.api.device import router as device_router
 from app.api.kb import router as kb_router
 from app.api.mall import router as mall_router
 from app.api.members import router as members_router
 from app.core.config import settings
-from app.db.session import Base, engine
+from app.db.session import Base, SessionLocal, engine
 from app.models import agent as _agent_models
+from app.models import device as _device_models
 from app.models import kb as _kb_models
 from app.models import mall as _mall_models
 from app.models import member as _member_models
+from app.repositories.member_repository import SqlAlchemyMemberRepository
+from app.services.device_service import DeviceService
 
 
 def ensure_schema_updates() -> None:
@@ -35,13 +42,35 @@ def ensure_schema_updates() -> None:
                 connection.execute(text("ALTER TABLE mall_products ADD COLUMN image_url VARCHAR(255) NULL"))
 
 
-def create_app() -> FastAPI:
+def ensure_device_seed_data(session_factory: Callable[[], object] = SessionLocal) -> None:
+    db = session_factory()
+    try:
+        members = SqlAlchemyMemberRepository(db).list_members()
+        service = DeviceService(db)
+        for member in members:
+            service.ensure_recent_7_days(member.member_id)
+    finally:
+        db.close()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI, session_factory: Callable[[], object]):
+    ensure_device_seed_data(session_factory)
+    yield
+
+
+def create_app(session_factory: Callable[[], object] = SessionLocal) -> FastAPI:
     Base.metadata.create_all(bind=engine)
     ensure_schema_updates()
     settings.upload_dir.mkdir(parents=True, exist_ok=True)
     mall_products_dir = Path(__file__).resolve().parents[2] / "frontend" / "public" / "mall-products"
 
-    app = FastAPI(title=settings.app_name)
+    @asynccontextmanager
+    async def app_lifespan(app: FastAPI):
+        async with lifespan(app, session_factory):
+            yield
+
+    app = FastAPI(title=settings.app_name, lifespan=app_lifespan)
     origins = [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
     app.add_middleware(
         CORSMiddleware,
@@ -51,6 +80,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(agent_router)
+    app.include_router(device_router)
     app.include_router(kb_router)
     app.include_router(mall_router)
     app.include_router(members_router)

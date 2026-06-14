@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     milvus_token: str | None = None
     milvus_collection: str = "kb_chunks_vector"
 
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"
     cloud_ocr_endpoint: str | None = None
     cloud_ocr_api_key: str | None = None
 

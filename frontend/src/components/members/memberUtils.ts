@@ -4,6 +4,7 @@ export const HEALTH_TAG_OPTIONS = [
   '高血脂',
   '骨质疏松',
   '痛风',
+  '超重',
   '心血管疾病',
   '胃肠疾病'
 ];

@@ -22,7 +22,7 @@ const navItems = [
   { id: 'report', icon: BarChart3, label: '健康分析', href: '' },
   { id: 'mall', icon: ShoppingBag, label: '商城', href: '/mall' },
   { id: 'members', icon: Users, label: '家人', href: '/members' },
-  { id: 'device', icon: Cpu, label: '手环', href: '' },
+  { id: 'device', icon: Cpu, label: '手环', href: '/devices' },
   { id: 'notice', icon: Bell, label: '通知', href: '' }
 ];
 

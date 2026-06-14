@@ -16,6 +16,7 @@ from app.schemas.mall import (
     MallZone as MallZoneSchema,
 )
 from app.services.mall_recommendation import (
+    build_daily_recommendations,
     build_family_recommendation,
     build_member_recommendations,
     find_best_member_for_product,
@@ -41,24 +42,7 @@ def get_mall_home(db: Session = Depends(get_db)):
     family_recommendations = build_member_recommendations(members, products)
     family_universal = build_family_recommendation(members, products)
 
-    daily_products: list[MallProductSummary] = []
-    for product in products[:8]:
-        daily_products.append(
-            MallProductSummary(
-                product_id=product.product_id,
-                name=product.name,
-                brand=product.brand,
-                category_code=product.category_code,
-                category_name=product.category_name,
-                price_cents=product.price_cents,
-                original_price_cents=product.original_price_cents,
-                spec=product.spec,
-                sales_text=product.sales_text,
-                image_emoji=product.image_emoji,
-                image_url=product.image_url,
-                health_tags_raw=product.health_tags,
-            )
-        )
+    daily_products = build_daily_recommendations(members, products)
 
     return MallHomeResponse(
         family_recommendations=family_recommendations,

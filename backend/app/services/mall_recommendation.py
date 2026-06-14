@@ -1,4 +1,5 @@
 import json
+import random
 from datetime import datetime
 
 from app.models.mall import MallProduct
@@ -373,3 +374,61 @@ def build_family_recommendation(
         summary=_summarize_for_family(members, [p for _, p in top_products]),
         products=summaries,
     )
+
+
+def build_daily_recommendations(
+    members: list[Member],
+    products: list[MallProduct],
+) -> list[MallProductSummary]:
+    """全量"今日猜你想买"列表：
+    1) 硬过滤：与任何一位成员过敏原冲突的商品直接出局
+    2) 同一类目内，按"家人聚合分 + 随机扰动"降序
+    3) **类目间按 round-robin 轮询输出**——避免排序被一两个高分类目锁死，
+       让"换一批"时每个类目都有机会出现在前几个槽位
+    4) 仍然全量返回，让前端分页/换一批
+    """
+    safe_products = [
+        product
+        for product in products
+        if not any(_check_allergy_conflict(m, product) for m in members)
+    ]
+
+    # 按类目分组并打分排序
+    by_category: dict[str, list[tuple[float, MallProduct]]] = {}
+    for product in safe_products:
+        family_score = (
+            sum(score_product_for_member(m, product) for m in members) if members else 0
+        )
+        jitter = random.random() * max(80.0, family_score)
+        by_category.setdefault(product.category_code, []).append((family_score + jitter, product))
+    for items in by_category.values():
+        items.sort(key=lambda item: item[0], reverse=True)
+
+    # 类目间按 sort_order 稳定轮询；空位跳过
+    category_codes = sorted(by_category.keys())
+    interleaved: list[MallProduct] = []
+    max_len = max((len(items) for items in by_category.values()), default=0)
+    for index in range(max_len):
+        for code in category_codes:
+            items = by_category[code]
+            if index < len(items):
+                interleaved.append(items[index][1])
+
+    return [
+        MallProductSummary(
+            product_id=product.product_id,
+            name=product.name,
+            brand=product.brand,
+            category_code=product.category_code,
+            category_name=product.category_name,
+            price_cents=product.price_cents,
+            original_price_cents=product.original_price_cents,
+            spec=product.spec,
+            sales_text=product.sales_text,
+            image_emoji=product.image_emoji,
+            image_url=product.image_url,
+            health_tags_raw=product.health_tags,
+            recommend_reason=None,
+        )
+        for product in interleaved
+    ]

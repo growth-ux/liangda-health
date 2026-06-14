@@ -2,7 +2,7 @@ import { Upload } from 'lucide-react';
 
 type Props = {
   activeFamily: string;
-  filters: Array<{ value: string; label: string; count: number }>;
+  filters: Array<{ value: string; label: string; relation?: string; count: number }>;
   sortMode: string;
   onFamilyChange: (family: string) => void;
   onSortModeChange: (mode: 'uploaded' | 'exam' | 'family') => void;
@@ -26,7 +26,14 @@ export function ReportToolbar({
             className={`filter-btn ${activeFamily === filter.value ? 'active' : ''}`}
             onClick={() => onFamilyChange(filter.value)}
           >
-            {filter.label} ({filter.count})
+            {filter.value === 'all' ? (
+              `${filter.label} (${filter.count})`
+            ) : (
+              <>
+                <span className="filter-name">{filter.label}</span>
+                {filter.relation && <span className="filter-relation">{filter.relation}</span>}
+              </>
+            )}
           </button>
         ))}
       </div>

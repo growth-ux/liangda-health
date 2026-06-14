@@ -46,6 +46,7 @@ export function ReportsPage() {
       ...(membersQuery.data ?? []).map((member) => ({
         value: member.member_id,
         label: member.name,
+        relation: member.relation,
         count: items.filter((item) => item.member_id === member.member_id).length
       }))
     ];

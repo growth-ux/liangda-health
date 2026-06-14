@@ -52,7 +52,9 @@ export function MallPage() {
   );
 
   const handleNextDaily = () => {
-    setDailyPage((p) => (p + 1) % dailyTotalPages);
+    // 触发重新拉取，拿到后端新一轮"家人聚合分 + 随机扰动"排序结果
+    void homeQuery.refetch();
+    setDailyPage(0);
   };
 
   return (
