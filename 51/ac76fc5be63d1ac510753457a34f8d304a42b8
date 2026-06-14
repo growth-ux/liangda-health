@@ -1,0 +1,27 @@
+docs/superpowers/specs/2026-06-14-kb-member-isolation-design.md
+  s_1c4537c8405e3e::t_1b637c0fad2056 210-216
+  s_1c4537c8405e3e::t_9df124f5ff4cb6 133-136
+  s_1c4537c8405e3e::t_ea36abef9128df 325-326
+  s_1c4537c8405e3e::t_01315f32845529 193-196
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "51ac76fc5be63d1ac510753457a34f8d304a42b8",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
