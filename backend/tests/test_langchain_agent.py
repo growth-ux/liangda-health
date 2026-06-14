@@ -1,16 +1,27 @@
 import pytest
 
 from app.core.config import settings
-from app.services.langchain_agent import LangChainAgentRunner, LlmConfigError
+from app.services.langchain_agent import (
+    LangChainAgentRunner,
+    LlmConfigError,
+    _build_members_block,
+)
 
 
 class FakeKbTool:
     def __init__(self):
         self.queries = []
 
-    def search(self, query, top_k=5):
-        self.queries.append(query)
+    def search(self, query, member_id=None, top_k=5):
+        self.queries.append((query, member_id, top_k))
         return "[报告片段 1]\n文档：体检报告\n页码：1\n内容：血压偏高"
+
+
+class FakeMember:
+    def __init__(self, member_id, name, relation):
+        self.member_id = member_id
+        self.name = name
+        self.relation = relation
 
 
 def test_langchain_agent_registers_kb_search_tool(monkeypatch):
@@ -19,9 +30,9 @@ def test_langchain_agent_registers_kb_search_tool(monkeypatch):
     runner = LangChainAgentRunner(kb_tool=kb_tool)
 
     tools = runner._tools()
-    result = tools[0]("这份报告有什么异常？", top_k=3)
+    result = tools[0]("这份报告有什么异常？", member_id="mem_1", top_k=3)
 
-    assert kb_tool.queries == ["这份报告有什么异常？"]
+    assert kb_tool.queries == [("这份报告有什么异常？", "mem_1", 3)]
     assert "血压偏高" in result
 
 
@@ -42,7 +53,8 @@ def test_langchain_agent_does_not_duplicate_system_prompt():
     assert messages[0].content == "报告怎么看？"
 
 
-def test_langchain_agent_appends_kb_context_to_latest_user_message():
+def test_langchain_agent_kb_context_is_noop_now_that_llm_drives_search():
+    """_append_kb_context is a no-op; the LLM now calls kb_search as a tool with member_id."""
     kb_tool = FakeKbTool()
     runner = LangChainAgentRunner(kb_tool=kb_tool)
 
@@ -55,5 +67,45 @@ def test_langchain_agent_appends_kb_context_to_latest_user_message():
     )
 
     assert messages[0]["content"] == "你好"
-    assert "可参考的报告上下文" in messages[-1]["content"]
-    assert "血压偏高" in messages[-1]["content"]
+    assert "可参考的报告上下文" not in messages[-1]["content"]
+    assert kb_tool.queries == []
+
+
+def test_build_members_block_with_members():
+    members = [
+        FakeMember("mem_1", "张三", "本人"),
+        FakeMember("mem_2", "张三爸", "父亲"),
+    ]
+    block = _build_members_block(members)
+
+    assert "mem_1" in block
+    assert "张三" in block
+    assert "本人" in block
+    assert "mem_2" in block
+    assert "父亲" in block
+
+
+def test_build_members_block_empty():
+    block = _build_members_block([])
+
+    assert "当前没有可用家人" in block
+
+
+def test_runner_system_prompt_includes_member_list():
+    runner = LangChainAgentRunner(
+        member_provider=lambda: [FakeMember("mem_1", "张三", "本人")],
+    )
+
+    prompt = runner._system_prompt()
+
+    assert "张三" in prompt
+    assert "mem_1" in prompt
+    assert "必须先反问" in prompt
+
+
+def test_runner_system_prompt_empty_when_no_members():
+    runner = LangChainAgentRunner(member_provider=lambda: [])
+
+    prompt = runner._system_prompt()
+
+    assert "当前没有可用家人" in prompt

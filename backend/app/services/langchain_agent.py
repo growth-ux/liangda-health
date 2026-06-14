@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from app.core.config import settings
 
 
-SYSTEM_PROMPT = """你是粮达健康的家庭健康 Agent 管家。
+SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康 Agent 管家。
 你可以基于用户上传的健康报告和用户当前问题提供健康建议。
 
 要求：
@@ -13,7 +13,25 @@ SYSTEM_PROMPT = """你是粮达健康的家庭健康 Agent 管家。
 4. 如果引用报告内容，说明来自哪份报告或页码。
 5. 回答要像管家，简洁、具体、可执行。
 6. 当信息不足时，直接说明还缺什么信息。
+7. 检索用户报告时必须调用 kb_search 工具，并显式传入 member_id。
+   不要在不知道是哪位家人的情况下盲猜。
+{members_block}
+9. 跨家人对比问题（"全家血脂怎么样"）需要分别对每位家人调用 kb_search，然后合成答案。
 """
+
+
+def _build_members_block(members: list) -> str:
+    if not members:
+        return "8. 当前没有可用家人，无法检索报告。\n"
+    lines = ["8. 当前可用家人列表："]
+    for index, member in enumerate(members, start=1):
+        member_id = member.member_id if hasattr(member, "member_id") else member["member_id"]
+        name = member.name if hasattr(member, "name") else member["name"]
+        relation = member.relation if hasattr(member, "relation") else member.get("relation", "")
+        lines.append(f"   {index}. {name}（member_id={member_id}，{relation}）")
+    lines.append('   如果用户问"爸爸"对应到相应的家人，以此类推。')
+    lines.append('   如果指代不明（如"他/她"无上下文），必须先反问"您说的\'他/她\'是指哪位家人？"，不要主动猜测。')
+    return "\n".join(lines) + "\n"
 
 
 class LlmConfigError(Exception):
@@ -21,31 +39,22 @@ class LlmConfigError(Exception):
 
 
 class LangChainAgentRunner:
-    def __init__(self, kb_tool=None):
+    def __init__(self, kb_tool=None, member_provider=None):
         self.kb_tool = kb_tool
+        self.member_provider = member_provider or (lambda: [])
+
+    def _system_prompt(self) -> str:
+        members = self.member_provider()
+        return SYSTEM_PROMPT_TEMPLATE.format(members_block=_build_members_block(members))
 
     def _ensure_api_key(self) -> None:
         if not settings.llm_api_key:
             raise LlmConfigError("未配置模型 API Key")
 
     def _append_kb_context(self, messages: list[dict[str, str]]) -> list[dict[str, str]]:
-        if self.kb_tool is None or not messages:
-            return messages
-        latest_index = next(
-            (index for index in range(len(messages) - 1, -1, -1) if messages[index]["role"] == "user"),
-            None,
-        )
-        if latest_index is None:
-            return messages
-        context = self.kb_tool.search(messages[latest_index]["content"])
-        if not context:
-            return messages
-        prepared = [*messages]
-        prepared[latest_index] = {
-            "role": "user",
-            "content": f"{messages[latest_index]['content']}\n\n可参考的报告上下文：\n{context}",
-        }
-        return prepared
+        # LLM now drives KB search via the kb_search tool (with explicit member_id).
+        # This auto-injection path is retained as a no-op for backward compatibility.
+        return messages
 
     def run(self, messages: list[dict[str, str]]) -> dict[str, object]:
         self._ensure_api_key()
@@ -84,16 +93,16 @@ class LangChainAgentRunner:
         return create_agent(
             model=self._model(),
             tools=self._tools(),
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=self._system_prompt(),
         )
 
     def _tools(self):
         if self.kb_tool is None:
             return []
 
-        def kb_search(query: str, top_k: int = 5) -> str:
-            """检索用户已上传 PDF 健康报告片段。"""
-            return self.kb_tool.search(query=query, top_k=top_k)
+        def kb_search(query: str, member_id: str, top_k: int = 5) -> str:
+            """检索指定家人的健康报告片段。"""
+            return self.kb_tool.search(query=query, member_id=member_id, top_k=top_k)
 
         return [kb_search]
 
