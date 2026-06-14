@@ -1,0 +1,20 @@
+frontend/src/pages/ReportsPage.tsx
+  s_1c4537c8405e3e::t_0fdc113afdc334 84-90
+  s_1c4537c8405e3e::t_eeda631c53370a 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6d1542a401986fdf91c525ec014605efbbdfd28a",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
