@@ -3,11 +3,15 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { searchKb, type SearchResult } from '../api/kb';
 
-export function KbSearchPanel() {
+type Props = {
+  memberId: string;
+};
+
+export function KbSearchPanel({ memberId }: Props) {
   const [query, setQuery] = useState('');
   const [topK, setTopK] = useState(5);
   const searchMutation = useMutation<SearchResult[], Error>({
-    mutationFn: () => searchKb(query, topK)
+    mutationFn: () => searchKb(query, memberId, topK)
   });
 
   return (
@@ -25,7 +29,7 @@ export function KbSearchPanel() {
           <option value={5}>Top 5</option>
           <option value={10}>Top 10</option>
         </select>
-        <button className="btn-primary" onClick={() => searchMutation.mutate()} disabled={!query || searchMutation.isPending}>
+        <button className="btn-primary" onClick={() => searchMutation.mutate()} disabled={!query || !memberId || searchMutation.isPending}>
           搜索
         </button>
       </div>
