@@ -9,9 +9,11 @@ from pathlib import Path
 
 from app.api.agent import router as agent_router
 from app.api.device import router as device_router
+from app.api.health_analysis import router as health_analysis_router
 from app.api.kb import router as kb_router
 from app.api.mall import router as mall_router
 from app.api.members import router as members_router
+from app.api.notice import router as notice_router
 from app.core.config import settings
 from app.db.session import Base, SessionLocal, engine
 from app.models import agent as _agent_models
@@ -19,6 +21,7 @@ from app.models import device as _device_models
 from app.models import kb as _kb_models
 from app.models import mall as _mall_models
 from app.models import member as _member_models
+from app.models import notice as _notice_models
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.services.device_service import DeviceService
 
@@ -81,9 +84,11 @@ def create_app(session_factory: Callable[[], object] = SessionLocal) -> FastAPI:
     )
     app.include_router(agent_router)
     app.include_router(device_router)
+    app.include_router(health_analysis_router)
     app.include_router(kb_router)
     app.include_router(mall_router)
     app.include_router(members_router)
+    app.include_router(notice_router)
     app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
     app.mount("/mall-products", StaticFiles(directory=mall_products_dir), name="mall-products")
 

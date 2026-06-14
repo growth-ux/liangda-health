@@ -123,3 +123,37 @@ def test_health_analysis_no_members_returns_empty_overview(db_session):
     assert payload["summary"] == []
     assert payload["abnormal_items"] == []
     assert payload["member_cards"] == []
+
+
+def test_member_health_analysis_returns_indicators_trend_and_advice(db_session):
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: db_session
+    with TestClient(app) as client:
+        member_id = create_member(
+            client,
+            {
+                "name": "王秀英",
+                "relation": "母亲",
+                "gender": "女",
+                "birth_year": 1961,
+                "height_cm": 158,
+                "weight_kg": 70,
+                "health_tags": ["高血压"],
+            },
+        )
+        insert_ready_document(db_session, member_id)
+
+        response = client.get(f"/api/health-analysis/members/{member_id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["member_card"]["member_id"] == member_id
+    assert payload["member_card"]["health_score"] < 100
+    labels = {item["label"] for item in payload["indicators"]}
+    assert {"收缩压", "舒张压", "心率", "睡眠", "血氧", "BMI", "报告数量"} <= labels
+    assert len(payload["blood_pressure_7d"]) == 7
+    assert {"date", "systolic", "diastolic"} <= set(payload["blood_pressure_7d"][0])
+    assert payload["abnormalities"]
+    assert payload["advice"]["title"]
+    assert payload["advice"]["lines"]
+    assert member_id in payload["advice"]["prompt"]

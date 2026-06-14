@@ -8,7 +8,9 @@ import {
   Upload,
   Users
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { getNoticeSummary } from '../api/notices';
 
 type Props = {
   title: string;
@@ -19,14 +21,21 @@ type Props = {
 const navItems = [
   { id: 'chat', icon: MessageCircle, label: ' Agent', href: '/chat' },
   { id: 'reports', icon: Upload, label: '上传报告', href: '/reports' },
-  { id: 'report', icon: BarChart3, label: '健康分析', href: '' },
+  { id: 'report', icon: BarChart3, label: '健康分析', href: '/report' },
   { id: 'mall', icon: ShoppingBag, label: '商城', href: '/mall' },
   { id: 'members', icon: Users, label: '家人', href: '/members' },
   { id: 'device', icon: Cpu, label: '手环', href: '/devices' },
-  { id: 'notice', icon: Bell, label: '通知', href: '' }
+  { id: 'notice', icon: Bell, label: '通知', href: '/notice' }
 ];
 
 export function AppShell({ title, activeId, children }: Props) {
+  const noticeSummaryQuery = useQuery({
+    queryKey: ['notice-summary'],
+    queryFn: getNoticeSummary,
+    staleTime: 30_000
+  });
+  const unreadCount = noticeSummaryQuery.data?.unread ?? 0;
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -74,10 +83,10 @@ export function AppShell({ title, activeId, children }: Props) {
           <div className="topbar-icon">
             <Search size={18} strokeWidth={1.8} />
           </div>
-          <div className="topbar-icon">
+          <Link className="topbar-icon" to="/notice" aria-label="通知中心">
             <Bell size={18} strokeWidth={1.8} />
-            <span className="badge">3</span>
-          </div>
+            {unreadCount > 0 && <span className="badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+          </Link>
           <div className="user-chip">
             <div className="user-avatar">雨</div>
             <span>张雨微</span>

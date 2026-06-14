@@ -8,11 +8,13 @@ import { ChatPage } from './pages/ChatPage';
 import { MembersPage } from './pages/MembersPage';
 import { MemberFormPage } from './pages/MemberFormPage';
 import { MemberDetailPage } from './pages/MemberDetailPage';
+import { HealthAnalysisPage } from './pages/HealthAnalysisPage';
 import { MallPage } from './pages/MallPage';
 import { MallProductListPage } from './pages/MallProductListPage';
 import { MallProductDetailPage } from './pages/MallProductDetailPage';
 import { MallCartPage } from './pages/MallCartPage';
 import { DevicePage } from './pages/DevicePage';
+import { NoticePage } from './pages/NoticePage';
 import './styles.css';
 
 const queryClient = new QueryClient();
@@ -26,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/reports/:documentId" element={<DocumentDetailPage />} />
+          <Route path="/report" element={<HealthAnalysisPage />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/members/new" element={<MemberFormPage />} />
           <Route path="/members/:memberId" element={<MemberDetailPage />} />
@@ -35,6 +38,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/mall/products/:productId" element={<MallProductDetailPage />} />
           <Route path="/mall/cart" element={<MallCartPage />} />
           <Route path="/devices" element={<DevicePage />} />
+          <Route path="/notice" element={<NoticePage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
