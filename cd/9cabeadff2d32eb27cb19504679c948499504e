@@ -1,0 +1,23 @@
+frontend/src/pages/ChatPage.tsx
+  s_1c4537c8405e3e::t_d70e64e33ddb01 17
+  s_1c4537c8405e3e::t_c09a53b68ba160 138-139
+  s_1c4537c8405e3e::t_d2c69f975bd462 31
+  s_1c4537c8405e3e::t_143b96cc1431ef 160-161
+  s_1c4537c8405e3e::t_5b3988883d6616 209-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "cd9cabeadff2d32eb27cb19504679c948499504e",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
