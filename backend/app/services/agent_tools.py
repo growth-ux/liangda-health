@@ -1,27 +1,30 @@
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 
 
-REPORT_KEYWORDS = ("报告", "体检", "指标", "血压", "血糖", "骨密度", "检验", "异常")
-
-
 class KbSearchTool:
-    def __init__(self, repository: SqlAlchemyKbRepository, embedding_service, vector_store):
+    def __init__(
+        self,
+        repository: SqlAlchemyKbRepository,
+        embedding_service,
+        vector_store,
+        allowed_member_ids: list[str],
+    ):
         self.repository = repository
         self.embedding_service = embedding_service
         self.vector_store = vector_store
+        self.allowed_member_ids = set(allowed_member_ids)
 
-    def should_search(self, query: str) -> bool:
-        return any(keyword in query for keyword in REPORT_KEYWORDS)
-
-    def search(self, query: str, top_k: int = 5) -> str:
-        if not self.should_search(query):
-            return ""
+    def search(self, query: str, member_id: str, top_k: int = 5) -> str:
+        if not member_id:
+            return "Error: 必须传入 member_id"
+        if member_id not in self.allowed_member_ids:
+            return f"Error: member_id={member_id} 不在可用家人列表中，可用：{sorted(self.allowed_member_ids)}"
         try:
             embedding = self.embedding_service.embed(query)
-            hits = self.vector_store.search(embedding, top_k)
+            hits = self.vector_store.search(embedding, top_k, member_id=member_id)
             chunks = self.repository.get_chunks_by_ids([hit.chunk_id for hit in hits])
-        except Exception:
-            return ""
+        except Exception as exc:
+            return f"Error: 检索失败 {exc}"
 
         parts = []
         for index, chunk in enumerate(chunks, start=1):

@@ -10,8 +10,14 @@ class FakeEmbeddingService:
 
 
 class FakeVectorStore:
-    def search(self, query_embedding, top_k):
-        return [type("Hit", (), {"chunk_id": "chunk_1", "score": 0.9})()]
+    def __init__(self):
+        self.calls = []
+
+    def search(self, query_embedding, top_k, member_id=None):
+        self.calls.append(member_id)
+        if member_id == "mem_1":
+            return [type("Hit", (), {"chunk_id": "chunk_1", "score": 0.9})()]
+        return []
 
 
 class FakeKbRepository:
@@ -24,6 +30,7 @@ class FakeKbRepository:
             KbChunk(
                 chunk_id="chunk_1",
                 document_id="doc_1",
+                member_id="mem_1",
                 page_no=2,
                 content="血压 152，偏高",
                 created_at=datetime(2026, 6, 13, 10, 0, 0),
@@ -44,11 +51,11 @@ class FakeKbRepository:
         )
 
 
-def test_kb_search_tool_searches_report_keywords():
+def test_kb_search_tool_searches_with_member_id():
     repository = FakeKbRepository()
-    tool = KbSearchTool(repository, FakeEmbeddingService(), FakeVectorStore())
+    tool = KbSearchTool(repository, FakeEmbeddingService(), FakeVectorStore(), allowed_member_ids=["mem_1"])
 
-    result = tool.search("这份报告有什么异常？")
+    result = tool.search(query="爸爸血糖", member_id="mem_1")
 
     assert repository.requested_ids == ["chunk_1"]
     assert "文档：妈妈体检报告" in result
@@ -56,11 +63,21 @@ def test_kb_search_tool_searches_report_keywords():
     assert "血压 152，偏高" in result
 
 
-def test_kb_search_tool_skips_unrelated_questions():
-    repository = FakeKbRepository()
-    tool = KbSearchTool(repository, FakeEmbeddingService(), FakeVectorStore())
+def test_kb_search_tool_rejects_unknown_member_id():
+    vector_store = FakeVectorStore()
+    tool = KbSearchTool(FakeKbRepository(), FakeEmbeddingService(), vector_store, allowed_member_ids=["mem_1"])
 
-    result = tool.search("今天吃什么？")
+    result = tool.search(query="爸爸血糖", member_id="mem_unknown")
 
-    assert result == ""
-    assert repository.requested_ids == []
+    assert "Error" in result
+    assert "不在可用家人列表中" in result
+    assert vector_store.calls == []  # 没调用 vector store
+
+
+def test_kb_search_tool_filters_by_member_id_in_vector_store():
+    vector_store = FakeVectorStore()
+    tool = KbSearchTool(FakeKbRepository(), FakeEmbeddingService(), vector_store, allowed_member_ids=["mem_1", "mem_2"])
+
+    tool.search(query="爸爸血糖", member_id="mem_2")
+
+    assert vector_store.calls == ["mem_2"]
