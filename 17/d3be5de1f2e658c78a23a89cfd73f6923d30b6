@@ -1,0 +1,19 @@
+docs/superpowers/plans/2026-06-14-kb-member-isolation.md
+  s_1c4537c8405e3e::t_c46f95ed25904e 1-1699
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "17d3be5de1f2e658c78a23a89cfd73f6923d30b6",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
