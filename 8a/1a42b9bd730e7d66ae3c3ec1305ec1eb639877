@@ -1,0 +1,20 @@
+frontend/src/components/KbSearchPanel.tsx
+  s_1c4537c8405e3e::t_2083309df04dc6 14
+  s_1c4537c8405e3e::t_5080e50bc9e6be 6-10,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "8a1a42b9bd730e7d66ae3c3ec1305ec1eb639877",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
