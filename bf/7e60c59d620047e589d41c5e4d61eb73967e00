@@ -1,0 +1,28 @@
+frontend/src/pages/HealthAnalysisPage.tsx
+  s_a1de8fc06c4169::t_0a654629aaff6e 30-31
+  s_a1de8fc06c4169::t_69d349340fa49b 1
+  s_a1de8fc06c4169::t_97f7c64df3385e 7
+  s_a1de8fc06c4169::t_f58d65d40d34a0 3
+  s_a1de8fc06c4169::t_1bb6c59f0df74d 49-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "bf7e60c59d620047e589d41c5e4d61eb73967e00",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_a1de8fc06c4169": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ea68aa8d-c17a-4b0e-91a5-2401c61fc84f",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
