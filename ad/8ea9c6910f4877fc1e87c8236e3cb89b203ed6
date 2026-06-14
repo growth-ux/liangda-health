@@ -1,0 +1,26 @@
+backend/app/services/kb_service.py
+  s_1c4537c8405e3e::t_9463f40f364b70 94-101,110
+backend/tests/test_kb_service.py
+  s_1c4537c8405e3e::t_b117f130501b60 67,77,79
+  s_1c4537c8405e3e::t_aba8947d540a08 98
+  s_1c4537c8405e3e::t_77836ea9dc3268 119
+backend/app/services/chunker.py
+  s_1c4537c8405e3e::t_ba725c781ffd0f 60
+  s_1c4537c8405e3e::t_edfebacd72d09a 11,18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "ad8ea9c6910f4877fc1e87c8236e3cb89b203ed6",
+  "prompts": {},
+  "sessions": {
+    "s_1c4537c8405e3e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e683887c-5ac0-46e2-a3ad-8ec0dcab46e0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
