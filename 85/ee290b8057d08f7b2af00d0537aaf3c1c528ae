@@ -1,0 +1,52 @@
+frontend/src/components/chat/MessageList.tsx
+  h_7549b7dc6a6921 43
+backend/tests/test_agent_api.py
+  s_139b11a0732188::t_a7bfe429d12a70 128-138
+backend/app/services/agent_tools.py
+  s_139b11a0732188::t_04b4fe0087bafc 2,46,57-79
+  s_139b11a0732188::t_0dab6cbe08ee2e 11,18
+  s_139b11a0732188::t_26deb5c8f2ea61 9-10,12-13,19-20,28-31,47-56
+docs/superpowers/specs/2026-06-15-meal-plan-agent-design.md
+  s_139b11a0732188::t_c6066d431cbc5e 330-331,341
+  s_139b11a0732188::t_460202ab64dd94 1-329,332-340,342-384
+backend/tests/test_health_profile_service.py
+  s_139b11a0732188::t_56f62d420d69da 1-14,16-26,28-98,100-109
+  s_139b11a0732188::t_45766cc4a27af7 15,27,99
+backend/tests/test_langchain_agent.py
+  s_139b11a0732188::t_dd8548626d3989 20-28,48-59,125
+backend/app/services/health_profile_service.py
+  s_139b11a0732188::t_f09893de401bae 13,49,76
+  s_139b11a0732188::t_e3b77891b52df9 1-12,14-48,50-75,77-228
+backend/app/services/meal_plan_service.py
+  s_139b11a0732188::t_bc46b656fedc32 1-150
+backend/app/services/langchain_agent.py
+  s_139b11a0732188::t_542eb8c7c84c3f 6-7,12-19,21,44,46,103,105-108,110-119
+backend/tests/test_meal_plan_service.py
+  s_139b11a0732188::t_69681942e7d742 1-77
+frontend/src/pages/ChatPage.tsx
+  s_139b11a0732188::t_47b42a01ada9c9 206
+backend/app/api/agent.py
+  s_139b11a0732188::t_89a7b67e9dd1de 20,22,50-51,113-118
+  s_139b11a0732188::t_55a369783558ce 47-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "85ee290b8057d08f7b2af00d0537aaf3c1c528ae",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_139b11a0732188": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ec909-0eb2-7c50-a98c-3e0e384b9085",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
