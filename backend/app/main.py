@@ -35,9 +35,29 @@ def ensure_schema_updates() -> None:
             columns = {column["name"] for column in inspector.get_columns("kb_documents")}
             if "member_id" not in columns:
                 connection.execute(text("ALTER TABLE kb_documents ADD COLUMN member_id VARCHAR(64) NULL"))
+            if "fact_extract_status" not in columns:
+                connection.execute(
+                    text(
+                        "ALTER TABLE kb_documents "
+                        "ADD COLUMN fact_extract_status VARCHAR(32) NOT NULL DEFAULT 'pending'"
+                    )
+                )
+            else:
+                connection.execute(
+                    text(
+                        "ALTER TABLE kb_documents "
+                        "MODIFY COLUMN fact_extract_status VARCHAR(32) NOT NULL DEFAULT 'pending'"
+                    )
+                )
+            if "fact_extract_error" not in columns:
+                connection.execute(text("ALTER TABLE kb_documents ADD COLUMN fact_extract_error TEXT NULL"))
             indexes = {index["name"] for index in inspector.get_indexes("kb_documents")}
             if "ix_kb_documents_member_id" not in indexes:
                 connection.execute(text("CREATE INDEX ix_kb_documents_member_id ON kb_documents (member_id)"))
+            if "ix_kb_documents_fact_extract_status" not in indexes:
+                connection.execute(
+                    text("CREATE INDEX ix_kb_documents_fact_extract_status ON kb_documents (fact_extract_status)")
+                )
 
         if "mall_products" in table_names:
             columns = {column["name"] for column in inspector.get_columns("mall_products")}

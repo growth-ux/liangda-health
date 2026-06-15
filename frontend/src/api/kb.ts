@@ -9,6 +9,8 @@ export type KbDocument = {
   member_name?: string | null;
   member_relation?: string | null;
   status: 'processing' | 'ready' | 'failed';
+  fact_extract_status: 'pending' | 'processing' | 'ready' | 'failed';
+  fact_extract_error?: string | null;
   page_count: number;
   created_at: string;
   thumbnail_url: string;
@@ -22,6 +24,7 @@ export type UploadResponse = {
   status: string;
   page_count: number;
   chunk_count: number;
+  fact_extract_status: 'pending' | 'processing' | 'ready' | 'failed';
   error_message?: string | null;
 };
 

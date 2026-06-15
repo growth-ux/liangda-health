@@ -26,6 +26,14 @@ class KbDocument(Base):
 
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="processing")
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    fact_extract_status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="pending",
+        server_default="pending",
+        index=True,
+    )
+    fact_extract_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(

@@ -7,9 +7,11 @@ from app.api.kb import get_embedding_service, get_vector_store
 from app.core.config import settings
 from app.db.session import get_db
 from app.main import create_app
+from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.models.member import Member
 from app.services.embedding import DashScopeEmbeddingService
+from app.services.kb_service import UploadResult
 
 
 class FakeQuery:
@@ -26,6 +28,11 @@ class FakeQuery:
 
     def all(self):
         return self.data
+
+    def one(self):
+        if not self.data:
+            raise AssertionError("Expected one row")
+        return self.data[0]
 
     def one_or_none(self):
         return self.data[0] if self.data else None
@@ -58,6 +65,8 @@ class FakeDb:
             institution="市立医院",
             member_id="mem_1",
             status="ready",
+            fact_extract_status="ready",
+            fact_extract_error=None,
             created_at=datetime(2026, 6, 12, 10, 0, 0),
             updated_at=datetime(2026, 6, 12, 10, 0, 0),
         )
@@ -65,6 +74,7 @@ class FakeDb:
             chunk_id="chunk_1",
             document_id="doc_1",
             page_no=1,
+            member_id="mem_1",
             content="骨密度 T 值 -2.1",
             created_at=datetime(2026, 6, 12, 10, 0, 0),
         )
@@ -72,6 +82,21 @@ class FakeDb:
             document_id="doc_1",
             page_no=1,
             text_content="骨密度 T 值 -2.1",
+            created_at=datetime(2026, 6, 12, 10, 0, 0),
+        )
+        self.fact = HealthFact(
+            fact_id="fact_1",
+            member_id="mem_1",
+            fact_type="risk",
+            name="骨密度低",
+            value=None,
+            unit=None,
+            reference_range=None,
+            status="warning",
+            source_document_id="doc_1",
+            source_page_no=1,
+            source_chunk_id=None,
+            evidence_text="骨密度 T 值 -2.1",
             created_at=datetime(2026, 6, 12, 10, 0, 0),
         )
 
@@ -82,6 +107,8 @@ class FakeDb:
             return FakeQuery([self.chunk])
         if model is KbPage:
             return FakeQuery([self.page])
+        if model is HealthFact:
+            return FakeQuery([self.fact])
         if model is Member:
             return FakeQuery([SimpleNamespace(member_id="mem_1", name="王秀英", relation="本人")])
         return FakeQuery([])
@@ -144,6 +171,77 @@ def test_kb_document_chunks_endpoint_returns_document_chunks():
     assert response.json()["items"][0]["content"] == "骨密度 T 值 -2.1"
 
 
+def test_kb_document_facts_endpoint_returns_health_facts():
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    client = TestClient(app)
+
+    response = client.get("/api/kb/documents/doc_1/facts")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["fact_extract_status"] == "ready"
+    assert body["fact_extract_error"] is None
+    item = body["items"][0]
+    assert item["fact_id"] == "fact_1"
+    assert item["member_id"] == "mem_1"
+    assert item["fact_type"] == "risk"
+    assert item["name"] == "骨密度低"
+    assert item["reference_range"] is None
+    assert item["status"] == "warning"
+    assert item["source_document_id"] == "doc_1"
+    assert item["source_page_no"] == 1
+    assert item["source_chunk_id"] is None
+    assert item["evidence_text"] == "骨密度 T 值 -2.1"
+
+
+def test_kb_member_facts_endpoint_requires_existing_member():
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    client = TestClient(app)
+
+    response = client.get("/api/kb/members/mem_unknown/facts")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "家人不存在"
+
+
+def test_kb_upload_schedules_health_fact_extraction(monkeypatch):
+    scheduled = []
+
+    def fake_upload_pdf(self, file_name, content, member_id=None):
+        return UploadResult(
+            document_id="doc_uploaded",
+            status="ready",
+            page_count=1,
+            chunk_count=1,
+            fact_extract_status="pending",
+        )
+
+    def fake_task(document_id: str):
+        scheduled.append(document_id)
+
+    monkeypatch.setattr("app.api.kb.KbService.upload_pdf", fake_upload_pdf)
+    monkeypatch.setattr("app.api.kb.extract_health_facts_for_document", fake_task)
+
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: FakeDb()
+    app.dependency_overrides[get_vector_store] = lambda: FakeVectorStore()
+    app.dependency_overrides[get_embedding_service] = lambda: FakeEmbeddingService()
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/kb/upload",
+        files={"file": ("report.pdf", b"%PDF-1.4 fake", "application/pdf")},
+        data={"member_id": "mem_1"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ready"
+    assert response.json()["fact_extract_status"] == "pending"
+    assert scheduled == ["doc_uploaded"]
+
+
 def test_kb_delete_document_removes_document_pages_and_chunks():
     db = FakeDb()
     app = create_app()
@@ -156,6 +254,7 @@ def test_kb_delete_document_removes_document_pages_and_chunks():
     assert any(isinstance(item, KbDocument) for item in db.deleted)
     assert any(isinstance(item, KbPage) for item in db.deleted)
     assert any(isinstance(item, KbChunk) for item in db.deleted)
+    assert any(isinstance(item, HealthFact) for item in db.deleted)
 
 
 def test_kb_search_endpoint_returns_chunk_content():

@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 
+from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.models.member import Member
+from app.repositories.health_fact_repository import HealthFactCreate
 from app.services.kb_service import DocumentCreate, PageCreate
 from app.services.metadata import BasicMetadata
 
@@ -51,6 +53,30 @@ class SqlAlchemyKbRepository:
         )
         self.db.commit()
 
+    def save_facts(self, facts: list[HealthFactCreate]) -> None:
+        if not facts:
+            return
+        self.db.add_all(
+            [
+                HealthFact(
+                    fact_id=fact.fact_id,
+                    member_id=fact.member_id,
+                    fact_type=fact.fact_type,
+                    name=fact.name,
+                    value=fact.value,
+                    unit=fact.unit,
+                    reference_range=fact.reference_range,
+                    status=fact.status,
+                    source_document_id=fact.source_document_id,
+                    source_page_no=fact.source_page_no,
+                    source_chunk_id=fact.source_chunk_id,
+                    evidence_text=fact.evidence_text,
+                )
+                for fact in facts
+            ]
+        )
+        self.db.commit()
+
     def mark_ready(self, document_id: str, page_count: int, metadata: BasicMetadata) -> None:
         document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one()
         document.status = "ready"
@@ -59,6 +85,32 @@ class SqlAlchemyKbRepository:
         document.patient_name = metadata.patient_name
         document.exam_date = metadata.exam_date
         document.institution = metadata.institution
+        self.db.commit()
+
+    def mark_fact_extract_pending(self, document_id: str) -> None:
+        document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one()
+        document.fact_extract_status = "pending"
+        document.fact_extract_error = None
+        self.db.commit()
+
+    def mark_fact_extract_processing(self, document_id: str) -> None:
+        document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one()
+        document.fact_extract_status = "processing"
+        document.fact_extract_error = None
+        self.db.commit()
+
+    def mark_fact_extract_ready(self, document_id: str) -> None:
+        document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one()
+        document.fact_extract_status = "ready"
+        document.fact_extract_error = None
+        self.db.commit()
+
+    def mark_fact_extract_failed(self, document_id: str, error_message: str) -> None:
+        document = self.db.query(KbDocument).filter(KbDocument.document_id == document_id).one_or_none()
+        if document is None:
+            return
+        document.fact_extract_status = "failed"
+        document.fact_extract_error = error_message[:1000]
         self.db.commit()
 
     def mark_failed(self, document_id: str, error_message: str) -> None:
@@ -96,6 +148,7 @@ class SqlAlchemyKbRepository:
         if document is None:
             return None
 
+        self.delete_facts_by_document(document_id)
         for chunk in self.db.query(KbChunk).filter(KbChunk.document_id == document_id).all():
             self.db.delete(chunk)
         for page in self.db.query(KbPage).filter(KbPage.document_id == document_id).all():
@@ -103,6 +156,27 @@ class SqlAlchemyKbRepository:
         self.db.delete(document)
         self.db.commit()
         return document
+
+    def list_pages(self, document_id: str) -> list[KbPage]:
+        return (
+            self.db.query(KbPage)
+            .filter(KbPage.document_id == document_id)
+            .order_by(KbPage.page_no.asc())
+            .all()
+        )
+
+    def list_chunks(self, document_id: str) -> list[KbChunk]:
+        return (
+            self.db.query(KbChunk)
+            .filter(KbChunk.document_id == document_id)
+            .order_by(KbChunk.page_no.asc(), KbChunk.id.asc())
+            .all()
+        )
+
+    def delete_facts_by_document(self, document_id: str) -> None:
+        for fact in self.db.query(HealthFact).filter(HealthFact.source_document_id == document_id).all():
+            self.db.delete(fact)
+        self.db.commit()
 
     def list_chunks_by_document(self, document_id: str) -> list[KbChunk]:
         return (

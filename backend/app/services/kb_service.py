@@ -31,6 +31,7 @@ class UploadResult:
     status: str
     page_count: int
     chunk_count: int
+    fact_extract_status: str = "pending"
     error_message: str | None = None
 
 
@@ -120,6 +121,7 @@ class KbService:
                 status="ready",
                 page_count=len(pages),
                 chunk_count=len(chunks),
+                fact_extract_status="pending",
             )
         except Exception as exc:
             error_message = str(exc)
@@ -129,5 +131,6 @@ class KbService:
                 status="failed",
                 page_count=0,
                 chunk_count=0,
+                fact_extract_status="pending",
                 error_message=error_message,
             )

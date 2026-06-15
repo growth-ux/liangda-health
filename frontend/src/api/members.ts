@@ -14,6 +14,8 @@ export type MemberDocument = {
   member_id?: string | null;
   member_name?: string | null;
   member_relation?: string | null;
+  fact_extract_status: 'pending' | 'processing' | 'ready' | 'failed';
+  fact_extract_error?: string | null;
 };
 
 export type Member = {

@@ -16,6 +16,7 @@ class FakeRepository:
         self.documents = []
         self.pages = []
         self.chunks = []
+        self.facts = []
         self.updated = []
         self.failed = []
 
@@ -27,6 +28,9 @@ class FakeRepository:
 
     def save_chunks(self, chunks):
         self.chunks.extend(chunks)
+
+    def save_facts(self, facts):
+        self.facts.extend(facts)
 
     def mark_ready(self, document_id, page_count, metadata):
         self.updated.append((document_id, page_count, metadata))
@@ -56,7 +60,7 @@ class FakeEmbeddingService:
         return [[1.0, 0.0] for _ in texts]
 
 
-def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
+def test_upload_pdf_builds_pages_chunks_vectors_without_health_fact_extraction(tmp_path):
     repository = FakeRepository()
     vector_store = FakeVectorStore()
     service = KbService(
@@ -84,6 +88,8 @@ def test_upload_pdf_builds_pages_chunks_and_vectors(tmp_path):
     assert repository.chunks[0].member_id == "mem_1"
     assert len(vector_store.records) == 1
     assert vector_store.records[0].member_id == "mem_1"
+    assert repository.facts == []
+    assert result.fact_extract_status == "pending"
 
 
 def test_upload_pdf_uses_cloud_ocr_when_pdf_text_is_too_short(tmp_path):

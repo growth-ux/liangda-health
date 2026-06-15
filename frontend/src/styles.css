@@ -1198,6 +1198,29 @@ select {
   gap: 12px;
 }
 
+.detail-status-strip {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 4px 8px 4px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.status-pill > span {
+  color: #6b7280;
+  font-size: 12px;
+}
+
 .info-item {
   border: 1px solid #e5e7eb;
   border-radius: 8px;

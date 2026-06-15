@@ -3,6 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getDocument, listDocumentChunks } from '../api/kb';
+import { factStatusLabel, factStatusTagClass, shouldPollFactStatus } from '../components/reportStatus';
+
+const documentStatusLabel = {
+  processing: '解析中',
+  ready: '已入库',
+  failed: '解析失败'
+} as const;
 
 export function DocumentDetailPage() {
   const { documentId } = useParams();
@@ -10,7 +17,11 @@ export function DocumentDetailPage() {
   const documentQuery = useQuery({
     queryKey: ['document', documentId],
     queryFn: () => getDocument(documentId!),
-    enabled: Boolean(documentId)
+    enabled: Boolean(documentId),
+    refetchInterval: (query) => {
+      const document = query.state.data;
+      return document && shouldPollFactStatus([document]) ? 3000 : false;
+    }
   });
   const chunksQuery = useQuery({
     queryKey: ['document-chunks', documentId],
@@ -37,12 +48,34 @@ export function DocumentDetailPage() {
             <div className="detail-content">
               <div className="eyebrow">PDF 报告</div>
               <h1>{documentQuery.data.title || documentQuery.data.file_name}</h1>
+              <div className="detail-status-strip">
+                <StatusPill
+                  label="知识库"
+                  value={documentStatusLabel[documentQuery.data.status]}
+                  className={
+                    documentQuery.data.status === 'ready'
+                      ? 'tag-success'
+                      : documentQuery.data.status === 'failed'
+                        ? 'tag-danger'
+                        : 'tag-warning'
+                  }
+                />
+                <StatusPill
+                  label="健康事实"
+                  value={factStatusLabel[documentQuery.data.fact_extract_status]}
+                  className={factStatusTagClass[documentQuery.data.fact_extract_status]}
+                />
+              </div>
+              {documentQuery.data.fact_extract_status === 'failed' && documentQuery.data.fact_extract_error && (
+                <div className="error-box">{documentQuery.data.fact_extract_error}</div>
+              )}
               <div className="detail-grid">
                 <Info label="文件名" value={documentQuery.data.file_name} />
                 <Info label="检查日期" value={documentQuery.data.exam_date || '-'} />
                 <Info label="机构" value={documentQuery.data.institution || '-'} />
                 <Info label="页数" value={`${documentQuery.data.page_count} 页`} />
-                <Info label="状态" value={documentQuery.data.status} />
+                <Info label="知识库状态" value={documentStatusLabel[documentQuery.data.status]} />
+                <Info label="健康事实状态" value={factStatusLabel[documentQuery.data.fact_extract_status]} />
                 <Info label="文件大小" value={formatSize(documentQuery.data.file_size ?? 0)} />
                 <Info label="文件路径" value={documentQuery.data.file_path || '-'} />
               </div>
@@ -100,6 +133,15 @@ export function DocumentDetailPage() {
         </>
       )}
     </main>
+  );
+}
+
+function StatusPill({ label, value, className }: { label: string; value: string; className: string }) {
+  return (
+    <div className="status-pill">
+      <span>{label}</span>
+      <strong className={`tag ${className}`}>{value}</strong>
+    </div>
   );
 }
 

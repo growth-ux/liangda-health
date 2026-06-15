@@ -1,12 +1,13 @@
 import shutil
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 from fastapi import Response
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.session import get_db
+from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.kb import (
@@ -14,6 +15,7 @@ from app.schemas.kb import (
     DocumentChunksResponse,
     DocumentDetail,
     DocumentListItem,
+    HealthFactsResponse,
     SearchRequest,
     SearchResponse,
     SearchResultItem,
@@ -23,6 +25,7 @@ from app.services.embedding import DashScopeEmbeddingService
 from app.services.kb_service import KbService
 from app.services.ocr import CloudOcrClient
 from app.services.pdf_extractor import PdfExtractor
+from app.services.health_fact_tasks import extract_health_facts_for_document
 from app.services.vector_store import MilvusVectorStore
 
 router = APIRouter(prefix="/api/kb", tags=["knowledge-base"])
@@ -46,6 +49,7 @@ def get_embedding_service():
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_pdf(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     member_id: str = Form(""),
     db: Session = Depends(get_db),
@@ -71,7 +75,10 @@ async def upload_pdf(
         upload_dir=settings.upload_dir,
     )
     content = await file.read()
-    return service.upload_pdf(file_name=file.filename, content=content, member_id=member_id)
+    result = service.upload_pdf(file_name=file.filename, content=content, member_id=member_id)
+    if result.status == "ready":
+        background_tasks.add_task(extract_health_facts_for_document, result.document_id)
+    return result
 
 
 @router.get("/documents", response_model=list[DocumentListItem])
@@ -95,6 +102,33 @@ def list_document_chunks(document_id: str, db: Session = Depends(get_db)):
             )
             for chunk in chunks
         ]
+    )
+
+
+@router.get("/documents/{document_id}/facts", response_model=HealthFactsResponse)
+def list_document_health_facts(document_id: str, db: Session = Depends(get_db)):
+    kb_repository = SqlAlchemyKbRepository(db)
+    document = kb_repository.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="文档不存在")
+    fact_repository = SqlAlchemyHealthFactRepository(db)
+    return HealthFactsResponse(
+        fact_extract_status=document.fact_extract_status,
+        fact_extract_error=document.fact_extract_error,
+        items=fact_repository.list_by_document(document_id),
+    )
+
+
+@router.get("/members/{member_id}/facts", response_model=HealthFactsResponse)
+def list_member_health_facts(member_id: str, db: Session = Depends(get_db)):
+    member_repository = SqlAlchemyMemberRepository(db)
+    if not member_repository.exists_by_member_id(member_id):
+        raise HTTPException(status_code=404, detail="家人不存在")
+    fact_repository = SqlAlchemyHealthFactRepository(db)
+    return HealthFactsResponse(
+        fact_extract_status="ready",
+        fact_extract_error=None,
+        items=fact_repository.list_by_member(member_id),
     )
 
 
