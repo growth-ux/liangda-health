@@ -185,7 +185,7 @@ export function ChatPage() {
             <div className="chat-agent-avatar">家</div>
             <div>
               <div className="chat-agent-name">Agent 管家</div>
-              <div className="chat-agent-status">在线 · 已连接家庭健康档案</div>
+              <div className="chat-agent-status">在线 · 已连接家庭健康档案、报告和商城推荐</div>
             </div>
           </div>
           {sessionsQuery.isError && <div className="chat-inline-error">会话列表加载失败</div>}

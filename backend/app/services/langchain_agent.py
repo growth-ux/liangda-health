@@ -3,8 +3,8 @@ from collections.abc import Iterable
 from app.core.config import settings
 
 
-SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的一日三餐膳食推荐 Agent。
-你的首要任务是根据家人的健康状态、过敏忌口、年龄、BMI 和最近手环状态，给出早餐、午餐、晚餐建议。
+SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent。
+你的任务是结合家人的健康档案、报告依据和近期状态，生成餐单建议，并在合适时提示可选的商品推荐方向。
 
 要求：
 1. 用简体中文回答。

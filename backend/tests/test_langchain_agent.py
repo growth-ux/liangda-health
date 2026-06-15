@@ -122,7 +122,9 @@ def test_runner_system_prompt_includes_member_list():
     assert "张三" in prompt
     assert "mem_1" in prompt
     assert "必须先反问" in prompt
-    assert "一日三餐膳食推荐 Agent" in prompt
+    assert "家庭健康智能营销 Agent" in prompt
+    assert "餐单建议" in prompt
+    assert "商品推荐" in prompt
 
 
 def test_runner_system_prompt_empty_when_no_members():

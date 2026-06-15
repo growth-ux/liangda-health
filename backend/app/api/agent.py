@@ -112,8 +112,8 @@ def stream_message(
 def list_quick_actions():
     return [
         QuickActionItem(label="给全家安排今天一日三餐", action="meal_plan_family_day"),
-        QuickActionItem(label="妈妈高血压今天怎么吃", action="meal_plan_hypertension"),
-        QuickActionItem(label="爸爸控糖早餐吃什么", action="meal_plan_diabetes_breakfast"),
+        QuickActionItem(label="给爸爸出点生活习惯建议", action="father_lifestyle_advice"),
+        QuickActionItem(label="推荐一款适合全家人的油", action="family_oil_recommendation"),
         QuickActionItem(label="今晚做什么适合全家", action="meal_plan_family_dinner"),
     ]
 

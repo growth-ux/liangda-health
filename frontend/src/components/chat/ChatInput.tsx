@@ -79,7 +79,7 @@ export function ChatInput({
           <div className="chat-input-main">
             <input
               type="text"
-              placeholder="问问管家..."
+              placeholder="问饮食、报告依据或适合家人的商品..."
               value={value}
               disabled={isDisabled}
               onChange={(event) => onChange(event.target.value)}
