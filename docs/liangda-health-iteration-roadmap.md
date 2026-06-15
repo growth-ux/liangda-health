@@ -307,7 +307,7 @@ Agent：
 健康事实 → 来自 health_facts
 原文依据 → 通过 source_chunk_id 或 RAG/chunk 查证
 手环状态 → 来自 device_daily_metrics
-互动记忆 → 来自 MemoryService
+互动记忆 → 来自 Mem0
 商品匹配 → 来自商城商品标签
 ```
 
@@ -339,7 +339,7 @@ Agent：
 
 目标：
 
-- 新增 `MemoryService`
+- 新增 mem0 记忆框架
 - 支持偏好、排斥、阶段目标、营销反馈
 - Agent 推荐前读取相关记忆
 
