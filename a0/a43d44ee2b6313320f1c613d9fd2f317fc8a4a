@@ -1,0 +1,16 @@
+AGENTS.md
+  h_7549b7dc6a6921 4
+docs/liangda-health-iteration-roadmap.md
+  h_7549b7dc6a6921 310,342
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "a0a43d44ee2b6313320f1c613d9fd2f317fc8a4a",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
