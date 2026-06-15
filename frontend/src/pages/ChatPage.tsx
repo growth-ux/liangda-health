@@ -203,6 +203,7 @@ export function ChatPage() {
             onSend={handleSend}
             onUpload={handleUpload}
             onRemoveAttachment={handleRemoveAttachment}
+            onQuickAction={(action) => setDraft(action.label)}
           />
         </section>
       </div>

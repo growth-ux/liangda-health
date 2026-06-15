@@ -17,6 +17,15 @@ class FakeKbTool:
         return "[报告片段 1]\n文档：体检报告\n页码：1\n内容：血压偏高"
 
 
+class FakeMealPlanTool:
+    def __init__(self):
+        self.calls = []
+
+    def build(self, scope, member_id=None, goal=None, meal_type="day"):
+        self.calls.append((scope, member_id, goal, meal_type))
+        return "早餐：燕麦牛奶\n午餐：杂粮饭\n晚餐：豆腐青菜"
+
+
 class FakeMember:
     def __init__(self, member_id, name, relation):
         self.member_id = member_id
@@ -34,6 +43,18 @@ def test_langchain_agent_registers_kb_search_tool(monkeypatch):
 
     assert kb_tool.queries == [("这份报告有什么异常？", "mem_1", 3)]
     assert "血压偏高" in result
+
+
+def test_langchain_agent_registers_meal_plan_tool(monkeypatch):
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    meal_plan_tool = FakeMealPlanTool()
+    runner = LangChainAgentRunner(meal_plan_tool=meal_plan_tool)
+
+    tools = runner._tools()
+    result = tools[0](scope="family", member_id=None, goal="清淡", meal_type="day")
+
+    assert meal_plan_tool.calls == [("family", None, "清淡", "day")]
+    assert "早餐" in result
 
 
 def test_langchain_agent_requires_api_key(monkeypatch):
@@ -101,6 +122,7 @@ def test_runner_system_prompt_includes_member_list():
     assert "张三" in prompt
     assert "mem_1" in prompt
     assert "必须先反问" in prompt
+    assert "一日三餐膳食推荐 Agent" in prompt
 
 
 def test_runner_system_prompt_empty_when_no_members():

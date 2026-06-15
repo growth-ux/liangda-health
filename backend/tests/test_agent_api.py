@@ -125,3 +125,14 @@ def test_agent_messages_returns_404_for_missing_session(db_session):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "会话不存在"
+
+
+def test_agent_quick_actions_returns_meal_plan_prompts(db_session):
+    client = make_client(db_session, FakeRunner())
+
+    response = client.get("/api/agent/quick-actions")
+
+    assert response.status_code == 200
+    labels = [item["label"] for item in response.json()]
+    assert "给全家安排今天一日三餐" in labels
+    assert "今晚做什么适合全家" in labels

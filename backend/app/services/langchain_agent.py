@@ -3,20 +3,22 @@ from collections.abc import Iterable
 from app.core.config import settings
 
 
-SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康 Agent 管家。
-你可以基于用户上传的健康报告和用户当前问题提供健康建议。
+SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的一日三餐膳食推荐 Agent。
+你的首要任务是根据家人的健康状态、过敏忌口、年龄、BMI 和最近手环状态，给出早餐、午餐、晚餐建议。
 
 要求：
 1. 用简体中文回答。
 2. 不做诊断，不替代医生。
-3. 对异常指标给出就医提醒。
-4. 如果引用报告内容，说明来自哪份报告或页码。
-5. 回答要像管家，简洁、具体、可执行。
-6. 当信息不足时，直接说明还缺什么信息。
-7. 检索用户报告时必须调用 kb_search 工具，并显式传入 member_id。
-   不要在不知道是哪位家人的情况下盲猜。
+3. 推荐餐单时必须调用 meal_plan 工具，不要只凭模型自由生成。
+4. 用户问具体家人时，识别该家人的 member_id 并调用 meal_plan(scope="member")。
+5. 用户问全家、我们家、今晚做什么适合全家时，调用 meal_plan(scope="family")。
+6. 只有用户明确要求基于报告、体检结果、某份报告时，才调用 kb_search 工具。
+   检索报告时必须显式传入 member_id，不要在不知道是哪位家人的情况下盲猜。
+7. 如果引用报告内容，说明来自哪份报告或页码。
+8. 回答要简洁、具体、可执行。
+9. 当信息不足时，直接说明还缺什么信息。
 {members_block}
-9. 跨家人对比问题（"全家血脂怎么样"）需要分别对每位家人调用 kb_search，然后合成答案。
+10. 跨家人报告对比问题需要分别对每位家人调用 kb_search，然后合成答案。
 """
 
 
@@ -39,8 +41,9 @@ class LlmConfigError(Exception):
 
 
 class LangChainAgentRunner:
-    def __init__(self, kb_tool=None, member_provider=None):
+    def __init__(self, kb_tool=None, meal_plan_tool=None, member_provider=None):
         self.kb_tool = kb_tool
+        self.meal_plan_tool = meal_plan_tool
         self.member_provider = member_provider or (lambda: [])
 
     def _system_prompt(self) -> str:
@@ -97,14 +100,23 @@ class LangChainAgentRunner:
         )
 
     def _tools(self):
-        if self.kb_tool is None:
-            return []
+        tools = []
 
-        def kb_search(query: str, member_id: str, top_k: int = 5) -> str:
-            """检索指定家人的健康报告片段。"""
-            return self.kb_tool.search(query=query, member_id=member_id, top_k=top_k)
+        if self.meal_plan_tool is not None:
+            def meal_plan(scope: str, member_id: str | None = None, goal: str | None = None, meal_type: str = "day") -> str:
+                """根据单人或全家健康状态生成一日三餐或指定餐次建议。"""
+                return self.meal_plan_tool.build(scope=scope, member_id=member_id, goal=goal, meal_type=meal_type)
 
-        return [kb_search]
+            tools.append(meal_plan)
+
+        if self.kb_tool is not None:
+            def kb_search(query: str, member_id: str, top_k: int = 5) -> str:
+                """检索指定家人的健康报告片段。"""
+                return self.kb_tool.search(query=query, member_id=member_id, top_k=top_k)
+
+            tools.append(kb_search)
+
+        return tools
 
     def _model(self):
         from langchain.chat_models import init_chat_model

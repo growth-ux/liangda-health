@@ -17,16 +17,15 @@ from app.schemas.agent import (
     QuickActionItem,
 )
 from app.services.agent_service import AgentService
-from app.services.agent_tools import KbSearchTool
+from app.services.agent_tools import KbSearchTool, MealPlanTool
 from app.services.langchain_agent import LangChainAgentRunner
+from app.services.meal_plan_service import MealPlanService
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
 def get_agent_runner(
     db: Session = Depends(get_db),
-    embedding_service=Depends(get_embedding_service),
-    vector_store=Depends(get_vector_store),
 ):
     member_repository = SqlAlchemyMemberRepository(db)
 
@@ -44,8 +43,12 @@ def get_agent_runner(
     return LangChainAgentRunner(
         kb_tool=KbSearchTool(
             repository=SqlAlchemyKbRepository(db),
-            embedding_service=embedding_service,
-            vector_store=vector_store,
+            allowed_member_ids=[m.member_id for m in member_provider()],
+            embedding_service_factory=get_embedding_service,
+            vector_store_factory=get_vector_store,
+        ),
+        meal_plan_tool=MealPlanTool(
+            service=MealPlanService(db),
             allowed_member_ids=[m.member_id for m in member_provider()],
         ),
         member_provider=member_provider,
@@ -107,7 +110,12 @@ def stream_message(
 
 @router.get("/quick-actions", response_model=list[QuickActionItem])
 def list_quick_actions():
-    return []
+    return [
+        QuickActionItem(label="给全家安排今天一日三餐", action="meal_plan_family_day"),
+        QuickActionItem(label="妈妈高血压今天怎么吃", action="meal_plan_hypertension"),
+        QuickActionItem(label="爸爸控糖早餐吃什么", action="meal_plan_diabetes_breakfast"),
+        QuickActionItem(label="今晚做什么适合全家", action="meal_plan_family_dinner"),
+    ]
 
 
 def _message_content(request: AgentMessageSendRequest) -> str:
