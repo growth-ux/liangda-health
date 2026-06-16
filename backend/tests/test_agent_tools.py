@@ -114,3 +114,61 @@ def test_memory_search_tool_rejects_empty_query():
 
     assert result == "Error: query 不能为空"
     assert service.calls == []
+
+
+class FakeMallRecommendService:
+    def __init__(self):
+        self.calls = []
+
+    def recommend(self, *, scope, meal_plan_text, member_id=None, limit=5):
+        self.calls.append((scope, meal_plan_text, member_id, limit))
+        return {
+            "items": [
+                {
+                    "product_id": "p_salt",
+                    "name": "低钠盐",
+                    "reason": "契合低钠方向",
+                    "price_text": "¥15.9",
+                    "image_url": None,
+                    "image_emoji": "🧂",
+                    "score": 80,
+                }
+            ],
+            "is_error": False,
+            "error": None,
+        }
+
+
+def test_mall_recommend_tool_returns_structured_json():
+    """工具把 service 的 dict JSON 序列化后返回，runner 后续按结构解析。"""
+    from app.services.agent_tools import MallRecommendTool
+
+    service = FakeMallRecommendService()
+    tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
+
+    result = tool.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：低钠杂粮饭",
+        limit=2,
+    )
+
+    assert service.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", 2)]
+    import json
+
+    payload = json.loads(result)
+    assert payload["items"][0]["name"] == "低钠盐"
+    # 不再是 "可选商品：" markdown
+    assert "可选商品" not in result
+
+
+def test_mall_recommend_tool_rejects_unknown_member():
+    from app.services.agent_tools import MallRecommendTool
+
+    service = FakeMallRecommendService()
+    tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
+
+    result = tool.recommend(scope="member", member_id="mem_unknown", meal_plan_text="晚餐：低钠杂粮饭")
+
+    assert "Error" in result
+    assert service.calls == []

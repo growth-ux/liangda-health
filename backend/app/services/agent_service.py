@@ -55,6 +55,11 @@ class AgentService:
             session_id=session_id,
             role="assistant",
             content=str(result["content"]),
+            product_recommendations=(
+                json.dumps((result.get("product_recommendations") or {}).get("items") or [], ensure_ascii=False)
+                if result.get("product_recommendations") and (result["product_recommendations"].get("items") or [])
+                else None
+            ),
             token_prompt=result.get("token_prompt"),
             token_completion=result.get("token_completion"),
             model_name=result.get("model_name"),
@@ -85,11 +90,23 @@ class AgentService:
         )
         yield self._event("assistant_start", {"message_id": assistant_id, "role": "assistant"})
 
-        chunks = []
+        delta_chunks: list[str] = []
+        product_recs_items: list[dict] | None = None
         try:
-            for delta in self.runner.stream(self._history(session_id)):
-                chunks.append(delta)
-                yield self._event("delta", {"content": delta})
+            for event_type, payload in self.runner.stream(self._history(session_id)):
+                if event_type == "delta":
+                    text = str(payload) if payload is not None else ""
+                    if text:
+                        delta_chunks.append(text)
+                        yield self._event("delta", {"content": text})
+                elif event_type == "product_recommendations":
+                    items = (payload or {}).get("items") if isinstance(payload, dict) else None
+                    if items:
+                        product_recs_items = items
+                        yield self._event(
+                            "product_recommendations",
+                            {"message_id": assistant_id, "items": items},
+                        )
         except LlmConfigError as exc:
             yield self._event("error", {"message": str(exc)})
             return
@@ -98,20 +115,27 @@ class AgentService:
             yield self._event("error", {"message": "模型调用失败"})
             return
 
-        content_done = "".join(chunks)
+        content_done = "".join(delta_chunks)
+        product_recs_json = (
+            json.dumps(product_recs_items, ensure_ascii=False)
+            if product_recs_items is not None
+            else None
+        )
         assistant_message = self.repository.save_message(
             message_id=assistant_id,
             session_id=session_id,
             role="assistant",
             content=content_done,
+            product_recommendations=product_recs_json,
         )
         self._refresh_title(session.session_id, session.title, content)
         logger.info(
-            "agent stream request done session_id=%s assistant_message_id=%s output_chars=%s delta_count=%s",
+            "agent stream request done session_id=%s assistant_message_id=%s output_chars=%s delta_count=%s product_items=%s",
             session_id,
             assistant_message.message_id,
             len(assistant_message.content),
-            len(chunks),
+            len(delta_chunks),
+            len(product_recs_items or []),
         )
         yield self._event(
             "assistant_done",
@@ -120,6 +144,7 @@ class AgentService:
                 "session_id": assistant_message.session_id,
                 "role": assistant_message.role,
                 "content": assistant_message.content,
+                "product_recommendations": product_recs_items,
             },
         )
         yield self._event("done", {})

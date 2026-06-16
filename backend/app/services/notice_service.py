@@ -10,6 +10,7 @@ from app.models.device import DeviceDailyMetric
 from app.models.kb import KbDocument
 from app.models.member import Member
 from app.repositories.notice_repository import SqlAlchemyNoticeRepository
+from app.core.time import utc_now
 from app.schemas.notice import NoticeCounts, NoticeGroup, NoticeItem, NoticeListResponse, NoticeSummaryResponse
 
 
@@ -253,7 +254,7 @@ class NoticeService:
 
     @staticmethod
     def _time_text(created_at: datetime) -> str:
-        now = datetime.utcnow()
+        now = utc_now()
         if created_at.date() == now.date():
             delta_seconds = max(0, int((now - created_at).total_seconds()))
             if delta_seconds < 3600:

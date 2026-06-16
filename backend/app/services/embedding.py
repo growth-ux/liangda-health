@@ -1,7 +1,10 @@
 from collections.abc import Callable
 from http import HTTPStatus
+import logging
 
 import dashscope
+
+logger = logging.getLogger(__name__)
 
 
 class DashScopeEmbeddingService:
@@ -24,6 +27,13 @@ class DashScopeEmbeddingService:
         if not self.api_key:
             raise RuntimeError("未配置 DashScope Embedding API Key")
 
+        total_chars = sum(len(text) for text in texts)
+        logger.info(
+            "embedding request start provider=dashscope model=%s text_count=%s total_chars=%s",
+            self.model,
+            len(texts),
+            total_chars,
+        )
         dashscope.api_key = self.api_key
         response = self.call(model=self.model, input=texts)
         status_code = _get_value(response, "status_code")
@@ -57,6 +67,12 @@ class DashScopeEmbeddingService:
             if index not in vectors_by_index:
                 raise RuntimeError("DashScope Embedding 响应数量与请求文本不一致")
             vectors.append(vectors_by_index[index])
+        logger.info(
+            "embedding request done provider=dashscope model=%s text_count=%s vector_count=%s",
+            self.model,
+            len(texts),
+            len(vectors),
+        )
         return vectors
 
 

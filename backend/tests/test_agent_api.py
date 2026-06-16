@@ -23,9 +23,9 @@ class FakeRunner:
 
     def stream(self, messages):
         self.calls.append(messages)
-        yield "建议"
-        yield "先查看"
-        yield "报告"
+        yield ("delta", "建议")
+        yield ("delta", "先查看")
+        yield ("delta", "报告")
 
 
 def make_client(db_session, runner=None):

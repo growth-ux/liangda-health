@@ -6,6 +6,7 @@ from app.api.kb import get_embedding_service, get_vector_store
 from app.db.session import get_db
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
+from app.repositories.mall_repository import SqlAlchemyMallRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.agent import (
     AgentMessageSendRequest,
@@ -17,8 +18,9 @@ from app.schemas.agent import (
     QuickActionItem,
 )
 from app.services.agent_service import AgentService
-from app.services.agent_tools import KbSearchTool, MealPlanTool, MemorySearchTool
+from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool
 from app.services.langchain_agent import LangChainAgentRunner
+from app.services.meal_product_recommendation_service import MealProductRecommendationService
 from app.services.meal_plan_service import MealPlanService
 from app.services.memory_service import MemoryService
 
@@ -47,16 +49,25 @@ def get_agent_runner(
             for m in members
         ]
 
+    allowed_member_ids = [m.member_id for m in member_provider()]
+
     return LangChainAgentRunner(
         kb_tool=KbSearchTool(
             repository=SqlAlchemyKbRepository(db),
-            allowed_member_ids=[m.member_id for m in member_provider()],
+            allowed_member_ids=allowed_member_ids,
             embedding_service_factory=get_embedding_service,
             vector_store_factory=get_vector_store,
         ),
         meal_plan_tool=MealPlanTool(
             service=MealPlanService(db, memory_service=memory_service),
-            allowed_member_ids=[m.member_id for m in member_provider()],
+            allowed_member_ids=allowed_member_ids,
+        ),
+        mall_recommend_tool=MallRecommendTool(
+            service=MealProductRecommendationService(
+                db,
+                mall_repository=SqlAlchemyMallRepository(db),
+            ),
+            allowed_member_ids=allowed_member_ids,
         ),
         memory_tool=MemorySearchTool(memory_service),
         member_provider=member_provider,

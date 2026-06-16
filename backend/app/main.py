@@ -26,8 +26,17 @@ from app.models import notice as _notice_models
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.services.device_service import DeviceService
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s - %(message)s")
-logging.getLogger("app").setLevel(logging.INFO)
+
+def configure_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logging.getLogger("app").setLevel(logging.INFO)
+
+
+configure_logging()
 
 
 def ensure_schema_updates() -> None:

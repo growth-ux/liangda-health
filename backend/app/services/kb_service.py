@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import logging
 from pathlib import Path
 from uuid import uuid4
 
@@ -6,6 +7,8 @@ from app.services.chunker import TextChunk, chunk_page_text
 from app.services.embedding import DashScopeEmbeddingService
 from app.services.metadata import BasicMetadata, extract_basic_metadata
 from app.services.vector_store import VectorRecord
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -102,7 +105,19 @@ class KbService:
                 )
             self.repository.save_chunks(chunks)
 
+            logger.info(
+                "kb_upload embedding start document_id=%s member_id=%s chunk_count=%s",
+                document_id,
+                member_id,
+                len(chunks),
+            )
             embeddings = self.embedding_service.embed_many([chunk.content for chunk in chunks])
+            logger.info(
+                "kb_upload embedding done document_id=%s member_id=%s vector_count=%s",
+                document_id,
+                member_id,
+                len(embeddings),
+            )
             self.vector_store.upsert(
                 [
                     VectorRecord(

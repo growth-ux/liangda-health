@@ -13,6 +13,9 @@ import type { ReactNode } from 'react';
  *
  * 不做 HTML 解析，所有用户内容经 React 文本节点自动转义，天然防 XSS。
  * 流式输出阶段个别 token 跨 chunk 时，bold 可能短暂"漏"——可接受。
+ *
+ * 注意：商品推荐卡片由后端作为结构化 attachment 推送（AgentMessage.product_recommendations），
+ * 不在此处解析 markdown 文本。早期实现中的"可选商品："段字符串匹配已删除。
  */
 
 const INLINE_TOKEN_RE = /(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|_[^_]+_|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
@@ -122,7 +125,7 @@ function renderBlock(block: string, blockKey: string): ReactNode {
   );
 }
 
-export function renderMarkdown(text: string): ReactNode {
+export function MarkdownContent({ text }: { text: string }): ReactNode {
   if (!text) return null;
   const blocks = text.split(/\n{2,}/);
   return <>{blocks.map((block, i) => renderBlock(block, `b${i}`))}</>;

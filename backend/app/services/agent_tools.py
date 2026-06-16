@@ -1,3 +1,4 @@
+import json
 import logging
 
 from app.repositories.kb_repository import SqlAlchemyKbRepository
@@ -33,7 +34,14 @@ class KbSearchTool:
         try:
             embedding_service = self._embedding_service()
             vector_store = self._vector_store()
+            logger.info(
+                "kb_search embedding start member_id=%s top_k=%s query_chars=%s",
+                member_id,
+                top_k,
+                len(query),
+            )
             embedding = embedding_service.embed(query)
+            logger.info("kb_search embedding done member_id=%s", member_id)
             hits = vector_store.search(embedding, top_k, member_id=member_id)
             chunks = self.repository.get_chunks_by_ids([hit.chunk_id for hit in hits])
         except Exception as exc:
@@ -114,3 +122,49 @@ class MemorySearchTool:
             len(result),
         )
         return result
+
+
+class MallRecommendTool:
+    def __init__(self, service, allowed_member_ids: list[str]):
+        self.service = service
+        self.allowed_member_ids = set(allowed_member_ids)
+
+    def recommend(
+        self,
+        *,
+        scope: str,
+        meal_plan_text: str,
+        member_id: str | None = None,
+        limit: int = 5,
+    ) -> str:
+        # 工具返回值必须是字符串（LangChain tool 协议），但 service 现在返回结构化 dict。
+        # 成功路径：dict → JSON 字符串，agent runner 拦截 ToolMessage 后按结构解析。
+        # 错误路径：仍然以 "Error: ..." 字符串返回，runner 会因 JSON 解析失败而忽略。
+        if scope not in {"member", "family"}:
+            logger.info("mall_recommend rejected reason=invalid_scope scope=%s", scope)
+            return "Error: scope 只能是 member 或 family"
+        if not meal_plan_text.strip():
+            logger.info("mall_recommend rejected reason=blank_meal_plan")
+            return "Error: meal_plan_text 不能为空"
+        if scope == "member":
+            if not member_id:
+                logger.info("mall_recommend rejected reason=missing_member_id")
+                return "Error: 单人商品推荐必须传入 member_id"
+            if member_id not in self.allowed_member_ids:
+                logger.info("mall_recommend rejected reason=member_not_allowed member_id=%s", member_id)
+                return f"Error: member_id={member_id} 不在可用家人列表中，可用：{sorted(self.allowed_member_ids)}"
+        result = self.service.recommend(
+            scope=scope,
+            member_id=member_id,
+            meal_plan_text=meal_plan_text,
+            limit=limit,
+        )
+        payload = json.dumps(result, ensure_ascii=False)
+        logger.info(
+            "mall_recommend done scope=%s member_id=%s item_count=%s is_error=%s",
+            scope,
+            member_id,
+            len(result.get("items") or []),
+            result.get("is_error"),
+        )
+        return payload

@@ -7,6 +7,7 @@ from random import Random
 
 from app.repositories.device_repository import SqlAlchemyDeviceRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
+from app.core.time import utc_now
 from app.schemas.device import (
     DeviceBloodPressureChartPoint,
     DeviceChartPoint,
@@ -72,7 +73,7 @@ class DeviceService:
             )
             existing_by_date[metric_date] = metric
 
-        self.device_repository.touch_binding_sync(member_id, datetime.utcnow())
+        self.device_repository.touch_binding_sync(member_id, utc_now())
         self.db.commit()
 
     def get_overview(self, member_id: str) -> DeviceOverviewResponse:

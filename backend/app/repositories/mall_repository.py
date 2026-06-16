@@ -1,6 +1,7 @@
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
+from app.core.time import utc_now
 from app.models.mall import MallCartItem, MallProduct, MallProductRelation, MallZone
 from app.schemas.mall import MallCartResponse, MallCartItem as MallCartItemSchema, MallProductSummary, MallZone as MallZoneSchema
 from app.services.mall_catalog import load_mall_catalog
@@ -122,14 +123,12 @@ class SqlAlchemyMallRepository:
             self.db.commit()
             self.db.refresh(existing)
             return existing
-        from datetime import datetime
-
         item = MallCartItem(
             cart_owner_id=cart_owner_id,
             product_id=product_id,
             quantity=quantity,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=utc_now(),
+            updated_at=utc_now(),
         )
         self.db.add(item)
         self.db.commit()
@@ -140,10 +139,8 @@ class SqlAlchemyMallRepository:
         item = self.get_cart_item(cart_owner_id, product_id)
         if item is None:
             return None
-        from datetime import datetime
-
         item.quantity = quantity
-        item.updated_at = datetime.utcnow()
+        item.updated_at = utc_now()
         self.db.commit()
         self.db.refresh(item)
         return item
@@ -254,9 +251,7 @@ class SqlAlchemyMallRepository:
             self.db.commit()
 
     def _seed_products(self, catalog) -> None:
-        from datetime import datetime
-
-        now = datetime.utcnow()
+        now = utc_now()
         for item in catalog.products:
             self.db.add(
                 MallProduct(

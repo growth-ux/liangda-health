@@ -1,3 +1,4 @@
+import logging
 import shutil
 from pathlib import Path
 
@@ -27,6 +28,8 @@ from app.services.ocr import CloudOcrClient
 from app.services.pdf_extractor import PdfExtractor
 from app.services.health_fact_tasks import extract_health_facts_for_document
 from app.services.vector_store import MilvusVectorStore
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/kb", tags=["knowledge-base"])
 
@@ -161,7 +164,14 @@ def search(
     member_repository = SqlAlchemyMemberRepository(db)
     if not member_repository.exists_by_member_id(request.member_id):
         raise HTTPException(status_code=400, detail="家人不存在")
+    logger.info(
+        "kb_api_search embedding start member_id=%s top_k=%s query_chars=%s",
+        request.member_id,
+        request.top_k,
+        len(request.query),
+    )
     embedding = embedding_service.embed(request.query)
+    logger.info("kb_api_search embedding done member_id=%s", request.member_id)
     hits = vector_store.search(embedding, request.top_k, member_id=request.member_id)
     repository = SqlAlchemyKbRepository(db)
     chunks = repository.get_chunks_by_ids([hit.chunk_id for hit in hits])

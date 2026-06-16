@@ -5,6 +5,16 @@ export type AgentSession = {
   updated_at: string;
 };
 
+export type ProductRecommendationItem = {
+  product_id: string;
+  name: string;
+  reason: string;
+  price_text: string;
+  image_url: string | null;
+  image_emoji: string | null;
+  score: number;
+};
+
 export type AgentMessage = {
   message_id: string;
   session_id: string;
@@ -13,6 +23,7 @@ export type AgentMessage = {
   status: 'done' | 'failed' | 'sending';
   created_at: string;
   attachments?: Attachment[];
+  product_recommendations?: ProductRecommendationItem[];
 };
 
 export type Attachment = {
@@ -30,7 +41,8 @@ export type StreamCallbacks = {
   onUserMessage?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'attachments'>) => void;
   onAssistantStart?: (message: Pick<AgentMessage, 'message_id' | 'role'>) => void;
   onDelta?: (content: string) => void;
-  onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content'>) => void;
+  onProductRecommendations?: (payload: { message_id: string; items: ProductRecommendationItem[] }) => void;
+  onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'product_recommendations'>) => void;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -116,6 +128,7 @@ function handleSseEvent(eventText: string, callbacks: StreamCallbacks) {
   if (event === 'user_message') callbacks.onUserMessage?.(data);
   if (event === 'assistant_start') callbacks.onAssistantStart?.(data);
   if (event === 'delta') callbacks.onDelta?.(data.content ?? '');
+  if (event === 'product_recommendations') callbacks.onProductRecommendations?.(data);
   if (event === 'assistant_done') callbacks.onAssistantDone?.(data);
   if (event === 'error') throw new Error(data.message ?? '模型调用失败');
 }

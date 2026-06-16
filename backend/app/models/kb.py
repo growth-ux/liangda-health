@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.core.time import utc_now
 from app.db.session import Base
 
 
@@ -35,12 +36,12 @@ class KbDocument(Base):
     )
     fact_extract_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utc_now,
+        onupdate=utc_now,
     )
 
 
@@ -51,7 +52,7 @@ class KbPage(Base):
     document_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     page_no: Mapped[int] = mapped_column(Integer, nullable=False)
     text_content: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
 
 
 class KbChunk(Base):
@@ -65,4 +66,4 @@ class KbChunk(Base):
     # 已有 chunk 由 Plan Task 10 迁移脚本回填。
     member_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)

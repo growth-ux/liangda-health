@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from app.core.time import utc_now
 from app.models.kb import KbDocument
 from app.models.member import Member
 from app.schemas.member import (
@@ -21,7 +22,7 @@ class SqlAlchemyMemberRepository:
         self.db = db
 
     def create_member(self, request: MemberCreateRequest) -> MemberDetail:
-        now = datetime.utcnow()
+        now = utc_now()
         member = Member(
             member_id=f"mem_{uuid4().hex}",
             name=request.name,
@@ -104,7 +105,7 @@ class SqlAlchemyMemberRepository:
         member.health_tags = json.dumps(request.health_tags, ensure_ascii=False)
         member.allergies = request.allergies
         member.taste_preferences = request.taste_preferences
-        member.updated_at = datetime.utcnow()
+        member.updated_at = utc_now()
         self.db.commit()
         self.db.refresh(member)
         return self._to_detail(member)

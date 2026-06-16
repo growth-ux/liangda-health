@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from app.core.time import utc_now
 from app.models.agent import AgentMessage, AgentSession
 
 
@@ -10,7 +11,7 @@ class SqlAlchemyAgentRepository:
         self.db = db
 
     def create_session(self, session_id: str, title: str) -> AgentSession:
-        now = datetime.utcnow()
+        now = utc_now()
         session = AgentSession(
             session_id=session_id,
             title=title,
@@ -62,6 +63,7 @@ class SqlAlchemyAgentRepository:
         role: str,
         content: str,
         status: str = "done",
+        product_recommendations: str | None = None,
         token_prompt: int | None = None,
         token_completion: int | None = None,
         model_name: str | None = None,
@@ -72,15 +74,16 @@ class SqlAlchemyAgentRepository:
             role=role,
             content=content,
             status=status,
+            product_recommendations=product_recommendations,
             token_prompt=token_prompt,
             token_completion=token_completion,
             model_name=model_name,
-            created_at=datetime.utcnow(),
+            created_at=utc_now(),
         )
         self.db.add(message)
         session = self.get_session(session_id)
         if session is not None:
-            session.updated_at = datetime.utcnow()
+            session.updated_at = utc_now()
         self.db.commit()
         self.db.refresh(message)
         return message
@@ -90,7 +93,7 @@ class SqlAlchemyAgentRepository:
         if session is None:
             return
         session.title = title
-        session.updated_at = datetime.utcnow()
+        session.updated_at = utc_now()
         self.db.commit()
 
     def delete_session(self, session_id: str) -> bool:

@@ -100,9 +100,14 @@ class FakeMemoryService:
     def __init__(self, items):
         self.items = items
         self.calls = []
+        self.list_calls = []
 
     def search(self, query, member_id=None, limit=5):
         self.calls.append((query, member_id, limit))
+        return self.items
+
+    def list_profile_memories(self, member_id=None, limit=50):
+        self.list_calls.append((member_id, limit))
         return self.items
 
 
@@ -121,7 +126,7 @@ def test_meal_plan_member_avoids_fish_from_memory(db_session):
 
     result = MealPlanService(db_session, memory_service=memory, generator=generator).build_member_plan("mem_dad")
 
-    assert memory.calls == [("李建国 爸爸 饮食 偏好 排斥 阶段目标 购买反馈", "mem_dad", 5)]
+    assert memory.list_calls == [("mem_dad", 50)]
     assert "清蒸鱼" not in result
     assert "鸡胸肉/豆腐" in result
     assert "爸爸不喜欢鱼" in generator.prompts[0]

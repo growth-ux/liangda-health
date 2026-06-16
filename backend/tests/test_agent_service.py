@@ -1,3 +1,5 @@
+import json
+
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.services.agent_service import AgentService
 from app.services.langchain_agent import LlmConfigError
@@ -13,7 +15,7 @@ class StaticRunner:
         }
 
     def stream(self, messages):
-        yield "收到"
+        yield ("delta", "收到")
 
 
 class MissingKeyRunner:
@@ -96,3 +98,76 @@ def test_agent_service_stream_writes_user_message_to_memory(db_session):
 
     assert memory.calls == [("爸爸不喜欢鱼", None)]
     assert any("assistant_done" in event for event in events)
+
+
+def test_agent_service_stream_emits_product_recommendations_sse(db_session):
+    """mall_recommend 工具结果应作为独立 SSE 事件发出，assistant 消息写入结构化字段。"""
+
+    class StructuredRunner:
+        def run(self, messages):
+            return {"content": "ok"}
+
+        def stream(self, messages):
+            yield ("delta", "先看餐单。")
+            yield (
+                "product_recommendations",
+                {
+                    "items": [
+                        {
+                            "product_id": "p_oil",
+                            "name": "低芥酸菜籽油",
+                            "reason": "契合少油",
+                            "price_text": "¥69.9",
+                            "image_url": None,
+                            "image_emoji": "🫒",
+                            "score": 80,
+                        }
+                    ],
+                    "is_error": False,
+                    "error": None,
+                },
+            )
+            yield ("delta", "推荐就放在下方卡片。")
+
+    service = AgentService(SqlAlchemyAgentRepository(db_session), StructuredRunner())
+    session = service.create_session("新对话")
+
+    events = "".join(service.stream_message(session.session_id, "今晚做什么适合全家"))
+
+    assert "event: product_recommendations" in events
+    assert '"product_id": "p_oil"' in events
+    assert "event: assistant_done" in events
+    # assistant_done 也应携带 product_recommendations
+    assert '"product_recommendations"' in events
+
+    # DB 写入验证
+    repo = SqlAlchemyAgentRepository(db_session)
+    messages = repo.list_messages(session.session_id)
+    assistant_messages = [m for m in messages if m.role == "assistant"]
+    assert len(assistant_messages) == 1
+    stored = json.loads(assistant_messages[0].product_recommendations)
+    assert stored[0]["product_id"] == "p_oil"
+
+
+def test_agent_service_stream_omits_product_recommendations_when_no_match(db_session):
+    """runner 没产出 product_recommendations 事件时，assistant 消息应保持 product_recommendations 为 NULL。"""
+
+    class PlainRunner:
+        def run(self, messages):
+            return {"content": "ok"}
+
+        def stream(self, messages):
+            yield ("delta", "只有文字，没有商品。")
+
+    service = AgentService(SqlAlchemyAgentRepository(db_session), PlainRunner())
+    session = service.create_session("新对话")
+
+    events = "".join(service.stream_message(session.session_id, "妈妈最近睡眠不好"))
+
+    assert "event: product_recommendations" not in events
+    assert "event: assistant_done" in events
+
+    repo = SqlAlchemyAgentRepository(db_session)
+    messages = repo.list_messages(session.session_id)
+    assistant_messages = [m for m in messages if m.role == "assistant"]
+    assert assistant_messages[0].product_recommendations is None

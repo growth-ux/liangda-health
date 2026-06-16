@@ -107,17 +107,32 @@ export function ChatPage() {
           });
         },
         onAssistantStart: (message) => {
-          setLocalMessages((items) => [
-            ...items,
-            {
-              message_id: message.message_id,
-              session_id: sessionId,
-              role: 'assistant',
-              content: '',
-              status: 'sending',
-              created_at: nowIso()
-            } as AgentMessage
-          ]);
+          setLocalMessages((items) => {
+            // 替换乐观占位：找到最后一条以 tmp_assistant_ 开头的 assistant 消息
+            // 用真实 message_id 替换，不动 content（继续等第一条 delta）
+            for (let i = items.length - 1; i >= 0; i--) {
+              const item = items[i];
+              if (item.role === 'assistant' && item.message_id.startsWith('tmp_assistant_')) {
+                return items.map((it, idx) =>
+                  idx === i
+                    ? ({ ...it, message_id: message.message_id, session_id: sessionId } as AgentMessage)
+                    : it
+                );
+              }
+            }
+            // 兜底：占位丢了（或刷新后重建），追加一条新的
+            return [
+              ...items,
+              {
+                message_id: message.message_id,
+                session_id: sessionId,
+                role: 'assistant',
+                content: '',
+                status: 'sending',
+                created_at: nowIso()
+              } as AgentMessage
+            ];
+          });
         },
         onDelta: (content) => {
           setLocalMessages((items) =>
@@ -128,11 +143,29 @@ export function ChatPage() {
             )
           );
         },
+        onProductRecommendations: (payload) => {
+          setLocalMessages((items) =>
+            items.map((item) =>
+              item.message_id === payload.message_id && item.role === 'assistant'
+                ? ({ ...item, product_recommendations: payload.items } as AgentMessage)
+                : item
+            )
+          );
+        },
         onAssistantDone: (message) => {
+          // 注意：message 里可能没带 product_recommendations（如果后端没在 done 事件里回填），
+          // 保留 onProductRecommendations 阶段已写入的本地字段；后端带了就以后端为准。
           setLocalMessages((items) =>
             items.map((item) =>
               item.message_id === message.message_id
-                ? ({ ...item, ...message, status: 'done', created_at: item.created_at } as AgentMessage)
+                ? ({
+                    ...item,
+                    ...message,
+                    product_recommendations:
+                      message.product_recommendations ?? item.product_recommendations,
+                    status: 'done',
+                    created_at: item.created_at
+                  } as AgentMessage)
                 : item
             )
           );
@@ -172,6 +205,9 @@ export function ChatPage() {
     // 乐观渲染：用户消息立刻进聊天框，不等后端 SSE user_message 事件
     // （该事件被 _remember_user_message 阻塞数秒，会让用户以为消息没发出去）
     const optimisticId = `tmp_${crypto.randomUUID()}`;
+    // 助手占位：assistant_start 事件要等记忆写入完成才到，先放一个 tmp_assistant_ 占位
+    // 让"正在生成"提示立即出现，避免用户以为消息没发出去
+    const assistantPlaceholderId = `tmp_assistant_${crypto.randomUUID()}`;
     setLocalMessages((items) => [
       ...items,
       {
@@ -182,6 +218,14 @@ export function ChatPage() {
         status: 'done',
         created_at: nowIso(),
         attachments: attachments.length > 0 ? attachments : undefined
+      } as AgentMessage,
+      {
+        message_id: assistantPlaceholderId,
+        session_id: activeSessionId ?? '',
+        role: 'assistant',
+        content: '',
+        status: 'sending',
+        created_at: nowIso()
       } as AgentMessage
     ]);
     // 点击发送后立刻清空输入框和附件，不等流式回复结束

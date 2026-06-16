@@ -54,11 +54,24 @@ class MemoryService:
         if owner.member_id:
             metadata["member_id"] = owner.member_id
         try:
+            logger.info(
+                "memory_add request start user_id=%s member_id=%s scope=%s content_chars=%s",
+                owner.user_id,
+                owner.member_id,
+                owner.scope,
+                len(content),
+            )
             self._get_client().add(
                 [{"role": "user", "content": prompt}],
                 user_id=owner.user_id,
                 metadata=metadata,
                 prompt=_memory_extraction_prompt(),
+            )
+            logger.info(
+                "memory_add request done user_id=%s member_id=%s scope=%s",
+                owner.user_id,
+                owner.member_id,
+                owner.scope,
             )
         except Exception:
             logger.exception("memory add failed")
@@ -68,6 +81,13 @@ class MemoryService:
             return []
         filters = {"user_id": member_id or self.family_user_id}
         try:
+            logger.info(
+                "memory_search request start user_id=%s member_id=%s limit=%s query_chars=%s",
+                filters["user_id"],
+                member_id,
+                limit,
+                len(query),
+            )
             raw_items = self._get_client().search(
                 query.strip(),
                 top_k=limit,
@@ -76,7 +96,14 @@ class MemoryService:
         except Exception:
             logger.exception("memory search failed")
             return []
-        return [_to_memory_item(item) for item in _normalize_results(raw_items)]
+        items = [_to_memory_item(item) for item in _normalize_results(raw_items)]
+        logger.info(
+            "memory_search request done user_id=%s member_id=%s result_count=%s",
+            filters["user_id"],
+            member_id,
+            len(items),
+        )
+        return items
 
     def search_text(self, query: str, *, member_id: str | None = None, limit: int = 5) -> str:
         items = self.search(query, member_id=member_id, limit=limit)
@@ -93,11 +120,24 @@ class MemoryService:
             return []
         filters = {"user_id": member_id or self.family_user_id}
         try:
+            logger.info(
+                "memory_list request start user_id=%s member_id=%s limit=%s",
+                filters["user_id"],
+                member_id,
+                limit,
+            )
             raw_items = self._get_client().get_all(filters=filters, top_k=limit)
         except Exception:
             logger.exception("memory list_profile_memories failed")
             return []
-        return [_to_memory_item(item) for item in _normalize_results(raw_items)]
+        items = [_to_memory_item(item) for item in _normalize_results(raw_items)]
+        logger.info(
+            "memory_list request done user_id=%s member_id=%s result_count=%s",
+            filters["user_id"],
+            member_id,
+            len(items),
+        )
+        return items
 
     def _get_client(self):
         settings.memory_dir.mkdir(parents=True, exist_ok=True)

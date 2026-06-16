@@ -3,6 +3,7 @@ from datetime import date, datetime
 from sqlalchemy import Date, DateTime, Float, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.core.time import utc_now
 from app.db.session import Base
 
 
@@ -15,12 +16,12 @@ class DeviceBinding(Base):
     device_status: Mapped[str] = mapped_column(String(30), nullable=False)
     battery_level: Mapped[int] = mapped_column(Integer, nullable=False)
     last_sync_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utc_now,
+        onupdate=utc_now,
     )
 
 
@@ -39,10 +40,10 @@ class DeviceDailyMetric(Base):
     blood_oxygen: Mapped[int] = mapped_column(Integer, nullable=False)
     sync_status: Mapped[str] = mapped_column(String(30), nullable=False)
     sync_source: Mapped[str] = mapped_column(String(30), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=utc_now,
+        onupdate=utc_now,
     )

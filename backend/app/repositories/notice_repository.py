@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from app.core.time import utc_now
 from app.models.notice import Notice
 
 
@@ -46,8 +47,8 @@ class SqlAlchemyNoticeRepository:
             secondary_action=secondary_action,
             status="unread",
             dedupe_key=dedupe_key,
-            created_at=created_at or datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=created_at or utc_now(),
+            updated_at=utc_now(),
         )
         self.db.add(notice)
         return notice
@@ -75,14 +76,14 @@ class SqlAlchemyNoticeRepository:
         if notice is None:
             return None
         notice.status = status
-        notice.updated_at = datetime.utcnow()
+        notice.updated_at = utc_now()
         self.db.commit()
         self.db.refresh(notice)
         return notice
 
     def mark_all_read(self) -> int:
         notices = self.db.query(Notice).filter(Notice.status == "unread").all()
-        now = datetime.utcnow()
+        now = utc_now()
         for notice in notices:
             notice.status = "read"
             notice.updated_at = now

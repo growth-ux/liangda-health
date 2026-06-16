@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from app.core.config import settings
@@ -33,6 +35,29 @@ class FakeMemoryTool:
     def search(self, query, member_id=None, limit=5):
         self.calls.append((query, member_id, limit))
         return "[avoidance] 爸爸不喜欢鱼"
+
+
+class FakeMallRecommendTool:
+    def __init__(self):
+        self.calls = []
+
+    def recommend(self, scope, meal_plan_text, member_id=None, limit=5):
+        self.calls.append((scope, meal_plan_text, member_id, limit))
+        return {
+            "items": [
+                {
+                    "product_id": "p_salt",
+                    "name": "低钠盐",
+                    "reason": "契合低钠方向",
+                    "price_text": "¥15.9",
+                    "image_url": None,
+                    "image_emoji": "🧂",
+                    "score": 80,
+                }
+            ],
+            "is_error": False,
+            "error": None,
+        }
 
 
 class FakeMember:
@@ -78,6 +103,22 @@ def test_langchain_agent_registers_memory_search_tool(monkeypatch):
     assert "爸爸不喜欢鱼" in result
 
 
+def test_langchain_agent_registers_mall_recommend_tool_returns_structured_dict(monkeypatch):
+    """LangChain 工具 wrapper 把 service 的 dict 直接返回给 runner（runner 自己负责后续结构化）。"""
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    mall_tool = FakeMallRecommendTool()
+    runner = LangChainAgentRunner(mall_recommend_tool=mall_tool)
+
+    tools = runner._tools()
+    result = tools[0](scope="member", member_id="mem_dad", meal_plan_text="晚餐：低钠杂粮饭", limit=2)
+
+    assert mall_tool.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", 2)]
+    # 工具返回值是结构化 dict，runner 会按结构解析；不再是 "可选商品：" markdown 文本
+    assert result["items"][0]["product_id"] == "p_salt"
+    assert isinstance(result, dict)
+    assert "可选商品" not in str(result)
+
+
 def test_langchain_agent_requires_api_key(monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", None)
     runner = LangChainAgentRunner()
@@ -86,15 +127,40 @@ def test_langchain_agent_requires_api_key(monkeypatch):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
-def test_langchain_agent_stream_skips_tool_messages(monkeypatch):
+def test_langchain_agent_stream_emits_structured_events(monkeypatch):
     from langchain_core.messages import AIMessageChunk, ToolMessage
 
     class FakeAgent:
         def stream(self, payload, stream_mode):
             yield AIMessageChunk(content="首先，"), {}
+            # kb_search 工具结果：不是 mall_recommend，应当被忽略（不进 delta 也不进 product_recommendations）
             yield ToolMessage(
                 content="[报告片段 1]\n文档：体检报告\n页码：3\n内容：谷丙转氨酶",
                 tool_call_id="call_1",
+                name="kb_search",
+            ), {}
+            # mall_recommend 工具结果：JSON 字符串，应当产出 product_recommendations 事件
+            yield ToolMessage(
+                content=json.dumps(
+                    {
+                        "items": [
+                            {
+                                "product_id": "p_oil",
+                                "name": "低芥酸菜籽油",
+                                "reason": "契合少油方向",
+                                "price_text": "¥69.9",
+                                "image_url": None,
+                                "image_emoji": "🫒",
+                                "score": 80,
+                            }
+                        ],
+                        "is_error": False,
+                        "error": None,
+                    },
+                    ensure_ascii=False,
+                ),
+                tool_call_id="call_2",
+                name="mall_recommend",
             ), {}
             yield AIMessageChunk(content="爸爸报告里的转氨酶正常。"), {}
 
@@ -102,10 +168,81 @@ def test_langchain_agent_stream_skips_tool_messages(monkeypatch):
     runner = LangChainAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
-    chunks = list(runner.stream([{"role": "user", "content": "爸爸报告里能不能吃鱼？"}]))
+    events = list(runner.stream([{"role": "user", "content": "今晚做什么适合全家"}]))
 
-    assert chunks == ["首先，", "爸爸报告里的转氨酶正常。"]
-    assert "报告片段" not in "".join(chunks)
+    deltas = [payload for kind, payload in events if kind == "delta"]
+    product_events = [payload for kind, payload in events if kind == "product_recommendations"]
+
+    assert deltas == ["首先，", "爸爸报告里的转氨酶正常。"]
+    assert "报告片段" not in "".join(deltas)
+    assert len(product_events) == 1
+    assert product_events[0]["items"][0]["product_id"] == "p_oil"
+
+
+def test_langchain_agent_stream_skips_mall_recommend_error_payload(monkeypatch):
+    """mall_recommend 返回的 "Error: ..." 字符串无法被解析为 JSON，不应产生 product_recommendations 事件。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield ToolMessage(
+                content="Error: 单人商品推荐必须传入 member_id",
+                tool_call_id="call_1",
+                name="mall_recommend",
+            ), {}
+            yield AIMessageChunk(content="暂时无法推荐商品。"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "给我爸爸推荐点商品"}]))
+
+    product_events = [payload for kind, payload in events if kind == "product_recommendations"]
+    assert product_events == []
+    deltas = [payload for kind, payload in events if kind == "delta"]
+    assert deltas == ["暂时无法推荐商品。"]
+
+
+def test_langchain_agent_run_extracts_product_recommendations(monkeypatch):
+    """run() 返回的 dict 应包含 product_recommendations 字段，从 messages 里解析 mall_recommend ToolMessage。"""
+    from langchain_core.messages import AIMessage, ToolMessage
+
+    class FakeAgent:
+        def invoke(self, payload):
+            mall_payload = json.dumps(
+                {
+                    "items": [
+                        {
+                            "product_id": "p_x",
+                            "name": "藜麦",
+                            "reason": "高纤维",
+                            "price_text": "¥39.9",
+                            "image_url": None,
+                            "image_emoji": "🌾",
+                            "score": 80,
+                        }
+                    ],
+                    "is_error": False,
+                    "error": None,
+                },
+                ensure_ascii=False,
+            )
+            return {
+                "messages": [
+                    ToolMessage(content=mall_payload, tool_call_id="call_1", name="mall_recommend"),
+                    AIMessage(content="全家晚餐建议..."),
+                ]
+            }
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    result = runner.run([{"role": "user", "content": "今晚做什么适合全家"}])
+
+    assert "全家晚餐建议" in result["content"]
+    assert result["product_recommendations"]["items"][0]["product_id"] == "p_x"
 
 
 def test_langchain_agent_does_not_duplicate_system_prompt():
@@ -186,3 +323,15 @@ def test_runner_system_prompt_includes_memory_rules():
     assert "memory_search" in prompt
     assert "记忆只能用于个性化表达" in prompt
     assert "不能覆盖过敏" in prompt
+
+
+def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
+    runner = LangChainAgentRunner()
+
+    prompt = runner._system_prompt()
+
+    assert "mall_recommend" in prompt
+    assert "meal_plan 工具返回的餐单文本" in prompt
+    # 关键：商品卡片由系统自动附加，LLM 不再把商品名写入文本
+    assert "不要" in prompt
+    assert "写进自己的文本回复" in prompt

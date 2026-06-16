@@ -1659,6 +1659,128 @@ select {
   text-decoration: underline;
 }
 
+.msg-product-section {
+  margin: 10px 0 8px;
+  white-space: normal;
+  width: min(660px, calc(100vw - 420px));
+  overflow: hidden;
+}
+
+.msg-product-section.card-message {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.msg-product-section .card-message-header {
+  padding: 12px 16px;
+  background: #f5f7f5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.msg-product-section .card-message-header.info {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.msg-product-section .card-message-body {
+  padding: 14px 16px;
+}
+
+.msg-product-section .product-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 0;
+  scrollbar-color: #c7c7c7 transparent;
+  scrollbar-width: thin;
+}
+
+.msg-product-section .product-card {
+  min-width: 130px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.1s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.msg-product-section .product-card:hover,
+.msg-product-section .product-card.active {
+  border-color: #10b981;
+}
+
+.msg-product-section .product-image {
+  height: 90px;
+  background: #f5f7f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+}
+
+.msg-product-section .msg-product-photo {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.msg-product-section .product-info {
+  padding: 8px 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.msg-product-section .product-name {
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 4px;
+  color: #111827;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-product-section .product-price {
+  font-size: 13px;
+  color: #f97316;
+  font-weight: 600;
+}
+
+/* 助手占位符：流式回复尚未到达第一条 delta 时显示的跳动点 */
+.msg-placeholder-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 1.6em;
+}
+.msg-placeholder-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: msg-placeholder-bounce 1.2s ease-in-out infinite;
+}
+.msg-placeholder-dot:nth-child(2) { animation-delay: 0.15s; }
+.msg-placeholder-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes msg-placeholder-bounce {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+
 .msg-time {
   font-size: 11px;
   color: #9ca3af;
