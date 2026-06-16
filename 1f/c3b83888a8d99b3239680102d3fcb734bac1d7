@@ -1,0 +1,26 @@
+docs/superpowers/specs/2026-06-16-structured-reply-cards-design.md
+  s_bf1a9c0b4ccde2::t_902a69ce70b2e2 55
+  s_bf1a9c0b4ccde2::t_3fffb9bc1ff65f 106-108
+  s_bf1a9c0b4ccde2::t_174de4eace3041 170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "1fc3b83888a8d99b3239680102d3fcb734bac1d7",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
