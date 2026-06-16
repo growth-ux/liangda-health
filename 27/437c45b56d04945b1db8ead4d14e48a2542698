@@ -1,0 +1,32 @@
+frontend/src/components/chat/cards/QaCard.tsx
+  s_bf1a9c0b4ccde2::t_5f5db8de664652 1-20
+frontend/src/components/chat/cards/GreetingCard.tsx
+  s_bf1a9c0b4ccde2::t_671a70e0946cc2 1-23
+frontend/src/components/chat/cards/KbInterpretationCard.tsx
+  s_bf1a9c0b4ccde2::t_234cd1aa50fd99 1-47
+frontend/src/components/chat/StructuredCard.tsx
+  s_bf1a9c0b4ccde2::t_890adc529c8c53 24
+frontend/src/components/chat/cards/GeneralAdviceCard.tsx
+  s_bf1a9c0b4ccde2::t_dda6695f866685 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "27437c45b56d04945b1db8ead4d14e48a2542698",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
