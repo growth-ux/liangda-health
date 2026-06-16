@@ -1,0 +1,25 @@
+docs/superpowers/plans/2026-06-16-structured-reply-cards.md
+  s_bf1a9c0b4ccde2::t_1b47e5c368bf05 899-900,914-915,917-920
+  s_bf1a9c0b4ccde2::t_fd8eaa5f3ce8bd 1001-1003,1020
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "00ab6189803d950d9571c50926d238336b5bd282",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
