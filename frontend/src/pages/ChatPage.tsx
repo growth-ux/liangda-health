@@ -78,14 +78,33 @@ export function ChatPage() {
 
       await sendAgentMessageStream(sessionId, content, messageAttachments, {
         onUserMessage: (message) => {
-          setLocalMessages((items) => [
-            ...items,
-            {
-              ...message,
-              status: 'done',
-              created_at: nowIso()
-            } as AgentMessage
-          ]);
+          setLocalMessages((items) => {
+            // 去重：handleSend 已经乐观渲染过一条 user 消息，临时 message_id 以 tmp_ 开头
+            // 收到真实事件时按内容匹配并替换为真实 message_id
+            const dupIndex = items.findIndex(
+              (item) => item.role === 'user' && item.content === message.content && item.message_id.startsWith('tmp_')
+            );
+            if (dupIndex >= 0) {
+              return items.map((item, i) =>
+                i === dupIndex
+                  ? ({
+                      ...item,
+                      message_id: message.message_id,
+                      session_id: message.session_id,
+                      attachments: message.attachments
+                    } as AgentMessage)
+                  : item
+              );
+            }
+            return [
+              ...items,
+              {
+                ...message,
+                status: 'done',
+                created_at: nowIso()
+              } as AgentMessage
+            ];
+          });
         },
         onAssistantStart: (message) => {
           setLocalMessages((items) => [
@@ -150,6 +169,21 @@ export function ChatPage() {
     const content = draft.trim();
     if (!content && attachments.length === 0) return;
     if (sendMutation.isPending || uploadMutation.isPending) return;
+    // 乐观渲染：用户消息立刻进聊天框，不等后端 SSE user_message 事件
+    // （该事件被 _remember_user_message 阻塞数秒，会让用户以为消息没发出去）
+    const optimisticId = `tmp_${crypto.randomUUID()}`;
+    setLocalMessages((items) => [
+      ...items,
+      {
+        message_id: optimisticId,
+        session_id: activeSessionId ?? '',
+        role: 'user',
+        content,
+        status: 'done',
+        created_at: nowIso(),
+        attachments: attachments.length > 0 ? attachments : undefined
+      } as AgentMessage
+    ]);
     // 点击发送后立刻清空输入框和附件，不等流式回复结束
     setDraft('');
     setAttachments([]);

@@ -26,6 +26,15 @@ class FakeMealPlanTool:
         return "早餐：燕麦牛奶\n午餐：杂粮饭\n晚餐：豆腐青菜"
 
 
+class FakeMemoryTool:
+    def __init__(self):
+        self.calls = []
+
+    def search(self, query, member_id=None, limit=5):
+        self.calls.append((query, member_id, limit))
+        return "[avoidance] 爸爸不喜欢鱼"
+
+
 class FakeMember:
     def __init__(self, member_id, name, relation):
         self.member_id = member_id
@@ -55,6 +64,18 @@ def test_langchain_agent_registers_meal_plan_tool(monkeypatch):
 
     assert meal_plan_tool.calls == [("family", None, "清淡", "day")]
     assert "早餐" in result
+
+
+def test_langchain_agent_registers_memory_search_tool(monkeypatch):
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    memory_tool = FakeMemoryTool()
+    runner = LangChainAgentRunner(memory_tool=memory_tool)
+
+    tools = runner._tools()
+    result = tools[0](query="爸爸 饮食 排斥", member_id="mem_dad", limit=3)
+
+    assert memory_tool.calls == [("爸爸 饮食 排斥", "mem_dad", 3)]
+    assert "爸爸不喜欢鱼" in result
 
 
 def test_langchain_agent_requires_api_key(monkeypatch):
@@ -133,3 +154,13 @@ def test_runner_system_prompt_empty_when_no_members():
     prompt = runner._system_prompt()
 
     assert "当前没有可用家人" in prompt
+
+
+def test_runner_system_prompt_includes_memory_rules():
+    runner = LangChainAgentRunner()
+
+    prompt = runner._system_prompt()
+
+    assert "memory_search" in prompt
+    assert "记忆只能用于个性化表达" in prompt
+    assert "不能覆盖过敏" in prompt

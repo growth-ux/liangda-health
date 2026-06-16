@@ -1,4 +1,5 @@
 import type { AgentMessage } from '../../api/agent';
+import { renderMarkdown } from './markdown';
 
 type Props = {
   message: AgentMessage;
@@ -10,6 +11,7 @@ export function MessageBubble({ message }: Props) {
     hour: '2-digit',
     minute: '2-digit'
   });
+  const raw = message.content || (message.status === 'sending' ? '正在生成...' : '');
 
   return (
     <div className={`message-row ${isUser ? 'user' : ''}`}>
@@ -17,7 +19,7 @@ export function MessageBubble({ message }: Props) {
       <div className="msg-wrap">
         <div className="msg-bubble">
           <div className="msg-text">
-            {message.content || (message.status === 'sending' ? '正在生成...' : '')}
+            {isUser ? raw : renderMarkdown(raw)}
           </div>
         </div>
         <div className="msg-time">{message.status === 'failed' ? '发送失败' : time}</div>

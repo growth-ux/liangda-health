@@ -75,3 +75,50 @@ def test_meal_plan_family_outputs_shared_menu_and_adjustments(db_session):
     assert "爸爸" in result
     assert "低钠" in result
     assert "控糖" in result
+
+
+class FakeMemoryService:
+    def __init__(self, text):
+        self.text = text
+        self.calls = []
+
+    def search_text(self, query, member_id=None, limit=5):
+        self.calls.append((query, member_id, limit))
+        return self.text
+
+
+def test_meal_plan_member_avoids_fish_from_memory(db_session):
+    _add_member(
+        db_session,
+        member_id="mem_dad",
+        name="李建国",
+        relation="爸爸",
+        gender="男",
+        health_tags=["高血压"],
+    )
+    memory = FakeMemoryService("[avoidance] 爸爸不喜欢鱼")
+
+    result = MealPlanService(db_session, memory_service=memory).build_member_plan("mem_dad")
+
+    assert memory.calls == [("李建国 爸爸 饮食 偏好 排斥", "mem_dad", 5)]
+    assert "清蒸鱼" not in result
+    assert "鸡胸肉/豆腐" in result
+    assert "个性化记忆：已避开爸爸不喜欢的鱼。" in result
+    assert "低钠" in result
+
+
+def test_meal_plan_member_keeps_health_safety_above_memory(db_session):
+    _add_member(
+        db_session,
+        member_id="mem_dad",
+        name="李建国",
+        relation="爸爸",
+        gender="男",
+        health_tags=["高血压"],
+    )
+    memory = FakeMemoryService("[preference] 爸爸喜欢咸口")
+
+    result = MealPlanService(db_session, memory_service=memory).build_member_plan("mem_dad")
+
+    assert "低钠" in result
+    assert "喜欢咸口" not in result

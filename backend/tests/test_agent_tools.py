@@ -81,3 +81,36 @@ def test_kb_search_tool_filters_by_member_id_in_vector_store():
     tool.search(query="爸爸血糖", member_id="mem_2")
 
     assert vector_store.calls == ["mem_2"]
+
+
+class FakeMemoryService:
+    def __init__(self):
+        self.calls = []
+
+    def search_text(self, query, member_id=None, limit=5):
+        self.calls.append((query, member_id, limit))
+        return "[avoidance] 爸爸不喜欢鱼"
+
+
+def test_memory_search_tool_returns_memory_text():
+    from app.services.agent_tools import MemorySearchTool
+
+    service = FakeMemoryService()
+    tool = MemorySearchTool(service)
+
+    result = tool.search(query="爸爸 饮食 排斥", member_id="mem_dad", limit=3)
+
+    assert service.calls == [("爸爸 饮食 排斥", "mem_dad", 3)]
+    assert "爸爸不喜欢鱼" in result
+
+
+def test_memory_search_tool_rejects_empty_query():
+    from app.services.agent_tools import MemorySearchTool
+
+    service = FakeMemoryService()
+    tool = MemorySearchTool(service)
+
+    result = tool.search(query="   ")
+
+    assert result == "Error: query 不能为空"
+    assert service.calls == []

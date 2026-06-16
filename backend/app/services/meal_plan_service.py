@@ -6,8 +6,9 @@ from app.services.health_profile_service import FamilyHealthProfile, HealthProfi
 
 
 class MealPlanService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, memory_service=None):
         self.profile_service = HealthProfileService(db)
+        self.memory_service = memory_service
 
     def build(
         self,
@@ -27,13 +28,26 @@ class MealPlanService:
 
     def build_member_plan(self, member_id: str, goal: str | None = None, meal_type: str = "day") -> str:
         profile = self.profile_service.get_member_profile(member_id)
-        meals = _member_meals(profile)
-        return _format_member_plan(profile, meals, goal, meal_type)
+        memory_text = self._memory_text_for_member(profile)
+        meals = _apply_memory_to_meals(_member_meals(profile), memory_text)
+        return _format_member_plan(profile, meals, goal, meal_type, memory_text)
 
     def build_family_plan(self, goal: str | None = None, meal_type: str = "day") -> str:
         profile = self.profile_service.get_family_profile()
-        meals = _family_meals(profile)
-        return _format_family_plan(profile, meals, goal, meal_type)
+        memory_text = self._memory_text_for_family()
+        meals = _apply_memory_to_meals(_family_meals(profile), memory_text)
+        return _format_family_plan(profile, meals, goal, meal_type, memory_text)
+
+    def _memory_text_for_member(self, profile: HealthProfile) -> str:
+        if self.memory_service is None:
+            return ""
+        query = f"{profile.name} {profile.relation} 饮食 偏好 排斥"
+        return self.memory_service.search_text(query, member_id=profile.member_id, limit=5)
+
+    def _memory_text_for_family(self) -> str:
+        if self.memory_service is None:
+            return ""
+        return self.memory_service.search_text("全家 饮食 偏好 排斥", limit=5)
 
 
 def _member_meals(profile: HealthProfile) -> dict[str, str]:
@@ -78,6 +92,7 @@ def _format_member_plan(
     meals: dict[str, str],
     goal: str | None,
     meal_type: str,
+    memory_text: str = "",
 ) -> str:
     lines = [
         f"家人：{profile.name}（{profile.relation}）",
@@ -88,6 +103,8 @@ def _format_member_plan(
         lines.append(f"本次目标：{goal}")
     if profile.today_modifiers:
         lines.append(f"今日修正：{_join_or(profile.today_modifiers, '')}")
+    if _should_avoid_fish(memory_text):
+        lines.append(f"个性化记忆：已避开{profile.relation or profile.name}不喜欢的鱼。")
     lines.append("")
     lines.extend(_meal_lines(meals, meal_type))
     lines.extend(
@@ -107,6 +124,7 @@ def _format_family_plan(
     meals: dict[str, str],
     goal: str | None,
     meal_type: str,
+    memory_text: str = "",
 ) -> str:
     if not profile.members:
         return "当前没有可用家人，无法生成全家餐单。"
@@ -118,6 +136,8 @@ def _format_family_plan(
         lines.append(f"本次目标：{goal}")
     if profile.family_modifiers:
         lines.append(f"今日修正：{_join_or(profile.family_modifiers, '')}")
+    if _should_avoid_fish(memory_text):
+        lines.append("个性化记忆：已避开家人不喜欢的鱼。")
     lines.append("")
     lines.extend(_meal_lines(meals, meal_type))
     if profile.member_adjustments:
@@ -148,3 +168,18 @@ def _meal_lines(meals: dict[str, str], meal_type: str) -> list[str]:
 
 def _join_or(items: list[str], fallback: str) -> str:
     return "、".join(items) if items else fallback
+
+
+def _apply_memory_to_meals(meals: dict[str, str], memory_text: str) -> dict[str, str]:
+    if not _should_avoid_fish(memory_text):
+        return meals
+    return {
+        key: value.replace("清蒸鱼/鸡胸肉", "鸡胸肉/豆腐")
+        .replace("清蒸鱼", "鸡胸肉/豆腐")
+        .replace("鱼", "鸡胸肉/豆腐")
+        for key, value in meals.items()
+    }
+
+
+def _should_avoid_fish(memory_text: str) -> bool:
+    return "不喜欢鱼" in memory_text or "不喜欢吃鱼" in memory_text or "不吃鱼" in memory_text

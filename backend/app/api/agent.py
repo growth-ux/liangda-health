@@ -17,15 +17,22 @@ from app.schemas.agent import (
     QuickActionItem,
 )
 from app.services.agent_service import AgentService
-from app.services.agent_tools import KbSearchTool, MealPlanTool
+from app.services.agent_tools import KbSearchTool, MealPlanTool, MemorySearchTool
 from app.services.langchain_agent import LangChainAgentRunner
 from app.services.meal_plan_service import MealPlanService
+from app.services.memory_service import MemoryService
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
+def get_memory_service(db: Session = Depends(get_db)):
+    member_repository = SqlAlchemyMemberRepository(db)
+    return MemoryService(member_provider=member_repository.list_members)
+
+
 def get_agent_runner(
     db: Session = Depends(get_db),
+    memory_service: MemoryService = Depends(get_memory_service),
 ):
     member_repository = SqlAlchemyMemberRepository(db)
 
@@ -48,9 +55,10 @@ def get_agent_runner(
             vector_store_factory=get_vector_store,
         ),
         meal_plan_tool=MealPlanTool(
-            service=MealPlanService(db),
+            service=MealPlanService(db, memory_service=memory_service),
             allowed_member_ids=[m.member_id for m in member_provider()],
         ),
+        memory_tool=MemorySearchTool(memory_service),
         member_provider=member_provider,
     )
 
@@ -58,8 +66,13 @@ def get_agent_runner(
 def get_agent_service(
     db: Session = Depends(get_db),
     runner=Depends(get_agent_runner),
+    memory_service: MemoryService = Depends(get_memory_service),
 ) -> AgentService:
-    return AgentService(repository=SqlAlchemyAgentRepository(db), runner=runner)
+    return AgentService(
+        repository=SqlAlchemyAgentRepository(db),
+        runner=runner,
+        memory_service=memory_service,
+    )
 
 
 @router.get("/sessions", response_model=list[AgentSessionListItem])

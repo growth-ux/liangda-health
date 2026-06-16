@@ -1626,6 +1626,39 @@ select {
   overflow-wrap: anywhere;
 }
 
+/* markdown 渲染（仅助手消息） */
+.msg-text .md-paragraph {
+  margin: 0 0 8px 0;
+  white-space: normal;
+}
+.msg-text .md-paragraph:last-child {
+  margin-bottom: 0;
+}
+.msg-text .md-list {
+  margin: 0 0 8px 0;
+  padding-left: 0;
+  list-style: none;
+  white-space: normal;
+}
+.msg-text .md-list:last-child {
+  margin-bottom: 0;
+}
+.msg-text .md-list li {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+.msg-text code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.msg-text a {
+  color: #10b981;
+  text-decoration: underline;
+}
+
 .msg-time {
   font-size: 11px;
   color: #9ca3af;

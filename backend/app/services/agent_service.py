@@ -12,9 +12,10 @@ from app.services.langchain_agent import LlmConfigError
 
 
 class AgentService:
-    def __init__(self, repository: SqlAlchemyAgentRepository, runner):
+    def __init__(self, repository: SqlAlchemyAgentRepository, runner, memory_service=None):
         self.repository = repository
         self.runner = runner
+        self.memory_service = memory_service
 
     def create_session(self, title: str):
         return self.repository.create_session(session_id=f"sess_{uuid.uuid4().hex[:16]}", title=title)
@@ -40,6 +41,7 @@ class AgentService:
     def send_message(self, session_id: str, content: str):
         session = self._require_session(session_id)
         user_message = self._save_user_message(session_id, content)
+        self._remember_user_message(content)
         try:
             result = self.runner.run(self._history(session_id))
         except LlmConfigError as exc:
@@ -62,6 +64,7 @@ class AgentService:
     def stream_message(self, session_id: str, content: str) -> Iterable[str]:
         session = self._require_session(session_id)
         user_message = self._save_user_message(session_id, content)
+        self._remember_user_message(content)
         assistant_id = f"msg_{uuid.uuid4().hex[:16]}"
         yield self._event(
             "user_message",
@@ -122,6 +125,14 @@ class AgentService:
             role="user",
             content=content,
         )
+
+    def _remember_user_message(self, content: str) -> None:
+        if self.memory_service is None:
+            return
+        try:
+            self.memory_service.add_from_user_message(content)
+        except Exception:
+            logger.exception("memory write failed for agent user message")
 
     def _history(self, session_id: str):
         return [

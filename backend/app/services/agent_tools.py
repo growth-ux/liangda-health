@@ -77,3 +77,13 @@ class MealPlanTool:
             if member_id not in self.allowed_member_ids:
                 return f"Error: member_id={member_id} 不在可用家人列表中，可用：{sorted(self.allowed_member_ids)}"
         return self.service.build(scope=scope, member_id=member_id, goal=goal, meal_type=meal_type)
+
+
+class MemorySearchTool:
+    def __init__(self, service):
+        self.service = service
+
+    def search(self, query: str, member_id: str | None = None, limit: int = 5) -> str:
+        if not query.strip():
+            return "Error: query 不能为空"
+        return self.service.search_text(query=query, member_id=member_id, limit=limit)
