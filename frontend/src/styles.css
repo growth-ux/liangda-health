@@ -1659,6 +1659,66 @@ select {
   text-decoration: underline;
 }
 
+.welcome-summary-bubble {
+  min-width: min(520px, calc(100vw - 120px));
+}
+
+.welcome-summary-title {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.welcome-summary-muted {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.welcome-summary-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-summary-list li {
+  position: relative;
+  margin-top: 6px;
+  padding-left: 16px;
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.welcome-summary-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #10b981;
+}
+
+.welcome-summary-danger {
+  color: #b91c1c !important;
+}
+
+.welcome-summary-warning {
+  color: #92400e !important;
+}
+
+.welcome-summary-success {
+  color: #047857 !important;
+}
+
+.welcome-summary-info {
+  color: #4b5563 !important;
+}
+
 .msg-product-section {
   margin: 10px 0 8px;
   white-space: normal;

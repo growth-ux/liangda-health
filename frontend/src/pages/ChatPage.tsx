@@ -9,6 +9,7 @@ import {
   sendAgentMessageStream
 } from '../api/agent';
 import type { AgentMessage, Attachment } from '../api/agent';
+import { getHealthAnalysisOverview } from '../api/healthAnalysis';
 import { uploadPdf } from '../api/kb';
 import { AppShell } from '../components/AppShell';
 import { ChatInput } from '../components/chat/ChatInput';
@@ -32,6 +33,10 @@ export function ChatPage() {
 
   const sessionsQuery = useQuery({ queryKey: ['agent-sessions'], queryFn: listAgentSessions });
   const quickActionsQuery = useQuery({ queryKey: ['agent-quick-actions'], queryFn: listQuickActions });
+  const overviewQuery = useQuery({
+    queryKey: ['health-analysis', 'chat-welcome'],
+    queryFn: () => getHealthAnalysisOverview('this_month')
+  });
   const messagesQuery = useQuery({
     queryKey: ['agent-messages', activeSessionId],
     queryFn: () => listAgentMessages(activeSessionId!),
@@ -152,6 +157,16 @@ export function ChatPage() {
             )
           );
         },
+        onCard: (payload) => {
+          // 与 onProductRecommendations 同样的策略：把 card 写进本地 message 状态
+          setLocalMessages((items) =>
+            items.map((item) =>
+              item.message_id === payload.message_id && item.role === 'assistant'
+                ? ({ ...item, card: payload.card } as AgentMessage)
+                : item
+            )
+          );
+        },
         onAssistantDone: (message) => {
           // 注意：message 里可能没带 product_recommendations（如果后端没在 done 事件里回填），
           // 保留 onProductRecommendations 阶段已写入的本地字段；后端带了就以后端为准。
@@ -163,6 +178,8 @@ export function ChatPage() {
                     ...message,
                     product_recommendations:
                       message.product_recommendations ?? item.product_recommendations,
+                    card:
+                      message.card ?? item.card,
                     status: 'done',
                     created_at: item.created_at
                   } as AgentMessage)
@@ -269,7 +286,13 @@ export function ChatPage() {
           {sessionsQuery.isError && <div className="chat-inline-error">会话列表加载失败</div>}
           {messagesQuery.isError && <div className="chat-inline-error">消息加载失败</div>}
           {uploadMutation.isPending && <div className="chat-inline-info">正在上传并解析报告...</div>}
-          <MessageList messages={messages} loading={messagesQuery.isLoading} />
+          <MessageList
+            messages={messages}
+            loading={messagesQuery.isLoading}
+            overview={overviewQuery.data}
+            overviewLoading={overviewQuery.isLoading}
+            overviewError={overviewQuery.isError}
+          />
           <ChatInput
             value={draft}
             attachments={attachments}

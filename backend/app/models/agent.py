@@ -35,6 +35,9 @@ class AgentMessage(Base):
     # 结构化商品推荐：mall_recommend 工具产出的 items，JSON 字符串。
     # 与 content 解耦，前端按结构直接渲染卡片，不再依赖"可选商品："字面量匹配。
     product_recommendations: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # 结构化卡片：respond 工具的 StructuredResponse，JSON 字符串。
+    # 与 content / product_recommendations 解耦，前端按结构直接渲染对应卡片。
+    card: Mapped[str | None] = mapped_column(Text, nullable=True)
     token_prompt: Mapped[int | None] = mapped_column(Integer, nullable=True)
     token_completion: Mapped[int | None] = mapped_column(Integer, nullable=True)
     model_name: Mapped[str | None] = mapped_column(String(100), nullable=True)

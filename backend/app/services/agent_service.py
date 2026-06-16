@@ -60,6 +60,11 @@ class AgentService:
                 if result.get("product_recommendations") and (result["product_recommendations"].get("items") or [])
                 else None
             ),
+            card=(
+                json.dumps(result.get("card"), ensure_ascii=False)
+                if result.get("card") is not None
+                else None
+            ),
             token_prompt=result.get("token_prompt"),
             token_completion=result.get("token_completion"),
             model_name=result.get("model_name"),
@@ -92,6 +97,7 @@ class AgentService:
 
         delta_chunks: list[str] = []
         product_recs_items: list[dict] | None = None
+        card_dict: dict | None = None
         try:
             for event_type, payload in self.runner.stream(self._history(session_id)):
                 if event_type == "delta":
@@ -99,6 +105,10 @@ class AgentService:
                     if text:
                         delta_chunks.append(text)
                         yield self._event("delta", {"content": text})
+                elif event_type == "card":
+                    if isinstance(payload, dict):
+                        card_dict = payload
+                        yield self._event("card", {"message_id": assistant_id, "card": payload})
                 elif event_type == "product_recommendations":
                     items = (payload or {}).get("items") if isinstance(payload, dict) else None
                     if items:
@@ -127,6 +137,7 @@ class AgentService:
             role="assistant",
             content=content_done,
             product_recommendations=product_recs_json,
+            card=json.dumps(card_dict, ensure_ascii=False) if card_dict is not None else None,
         )
         self._refresh_title(session.session_id, session.title, content)
         logger.info(
@@ -145,6 +156,7 @@ class AgentService:
                 "role": assistant_message.role,
                 "content": assistant_message.content,
                 "product_recommendations": product_recs_items,
+                "card": card_dict,
             },
         )
         yield self._event("done", {})

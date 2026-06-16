@@ -171,3 +171,112 @@ def test_agent_service_stream_omits_product_recommendations_when_no_match(db_ses
     messages = repo.list_messages(session.session_id)
     assistant_messages = [m for m in messages if m.role == "assistant"]
     assert assistant_messages[0].product_recommendations is None
+
+
+def test_agent_service_send_message_persists_card(monkeypatch):
+    """runner.run() 返回 result['card'] 时，仓储应落库为 JSON 字符串。"""
+    from app.services.agent_service import AgentService
+
+    class FakeRunner:
+        def run(self, messages):
+            return {
+                "content": "你好",
+                "token_prompt": 1,
+                "token_completion": 2,
+                "model_name": "m",
+                "product_recommendations": None,
+                "card": {
+                    "kind": "qa",
+                    "summary_text": "你好",
+                    "payload": {"question_topic": "x", "answer": "y", "tips": []},
+                },
+            }
+
+    saved_cards = []
+
+    class FakeRepo:
+        def __init__(self):
+            self.session = self._make_session()
+
+        def _make_session(self):
+            s = type("S", (), {"session_id": "sess_1", "title": "新对话"})()
+            return s
+
+        def get_session(self, session_id):
+            return self.session if session_id == "sess_1" else None
+
+        def list_recent_messages(self, session_id, limit=8):
+            return []
+
+        def save_message(self, **kwargs):
+            if kwargs.get("card") is not None:
+                saved_cards.append(kwargs["card"])
+            return type("M", (), {**kwargs, "message_id": kwargs.get("message_id", "msg_x")})()
+
+        def update_session_title(self, *args, **kwargs):
+            return None
+
+    svc = AgentService(repository=FakeRepo(), runner=FakeRunner())
+    user_msg, asst_msg = svc.send_message(session_id="sess_1", content="x")
+
+    assert len(saved_cards) == 1
+    import json
+    parsed = json.loads(saved_cards[0])
+    assert parsed["kind"] == "qa"
+    assert parsed["payload"]["answer"] == "y"
+
+
+def test_agent_service_stream_message_emits_card_event(monkeypatch):
+    """runner.stream() yield ('card', dict) 时，service 透传为 SSE 'card' 事件并落库。"""
+    from app.services.agent_service import AgentService
+
+    card_dict = {
+        "kind": "qa",
+        "summary_text": "你好",
+        "payload": {"question_topic": "x", "answer": "y", "tips": []},
+    }
+
+    class FakeRunner:
+        def stream(self, messages):
+            yield ("delta", "先回")
+            yield ("card", card_dict)
+            yield ("delta", "结束")
+
+    saved_cards = []
+
+    class FakeRepo:
+        def __init__(self):
+            self.session = type("S", (), {"session_id": "sess_1", "title": "新对话"})()
+
+        def get_session(self, session_id):
+            return self.session if session_id == "sess_1" else None
+
+        def list_recent_messages(self, session_id, limit=8):
+            return []
+
+        def save_message(self, **kwargs):
+            if kwargs.get("card") is not None:
+                saved_cards.append(kwargs["card"])
+            return type("M", (), {**kwargs, "message_id": "msg_x"})()
+
+        def update_session_title(self, *args, **kwargs):
+            return None
+
+    svc = AgentService(repository=FakeRepo(), runner=FakeRunner())
+    events = list(svc.stream_message(session_id="sess_1", content="x"))
+
+    # 验证 SSE 事件序列含 card
+    card_events = [e for e in events if "event: card" in e]
+    assert len(card_events) == 1
+    assert '"kind": "qa"' in card_events[0] or '"kind":"qa"' in card_events[0]
+
+    # 验证落库
+    assert len(saved_cards) == 1
+    import json
+    parsed = json.loads(saved_cards[0])
+    assert parsed["kind"] == "qa"
+
+    # 验证 assistant_done 事件含 card 字段
+    done_events = [e for e in events if "event: assistant_done" in e]
+    assert len(done_events) == 1
+    assert '"card"' in done_events[0]

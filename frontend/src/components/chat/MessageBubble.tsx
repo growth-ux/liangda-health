@@ -1,6 +1,7 @@
 import type { AgentMessage } from '../../api/agent';
 import { MarkdownContent } from './markdown';
 import { ProductRecommendationCards } from './ProductRecommendationCards';
+import { StructuredCard } from './StructuredCard';
 
 type Props = {
   message: AgentMessage;
@@ -35,6 +36,9 @@ export function MessageBubble({ message }: Props) {
           </div>
           {!isUser && productItems.length > 0 && (
             <ProductRecommendationCards items={productItems} />
+          )}
+          {!isUser && message.card && (
+            <StructuredCard card={message.card} />
           )}
         </div>
         <div className="msg-time">{message.status === 'failed' ? '发送失败' : time}</div>

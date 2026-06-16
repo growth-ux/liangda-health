@@ -127,6 +127,38 @@ def test_langchain_agent_requires_api_key(monkeypatch):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
+def test_langchain_agent_stream_emits_summary_text_deltas_from_respond_tool_call(monkeypatch):
+    """LLM 调 respond 工具时，summary_text 字段在 tool_call_chunks 里逐渐生成，stream() 把它的 token 作为 delta 发出。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            # 第一次 chunk：开始 tool call，args 是 '{"kind": "qa", "summary_text": "你'
+            chunk1 = AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name="respond", args='{"kind": "qa", "summary_text": "你', index=0, id="call_1"),
+                ],
+            )
+            yield chunk1, {}
+            # 第二次 chunk：args 增加 '好"，payload: {...}'
+            chunk2 = AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name="respond", args='好", "payload": {"question_topic": "t", "answer": "a", "tips": []}}', index=0, id="call_1"),
+                ],
+            )
+            yield chunk2, {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [p for k, p in runner.stream([{"role": "user", "content": "x"}]) if k == "delta"]
+    assert "".join(deltas) == "你好"
+
+
 def test_langchain_agent_stream_emits_structured_events(monkeypatch):
     from langchain_core.messages import AIMessageChunk, ToolMessage
 
@@ -228,9 +260,18 @@ def test_langchain_agent_run_extracts_product_recommendations(monkeypatch):
                 },
                 ensure_ascii=False,
             )
+            respond_payload = json.dumps(
+                {
+                    "kind": "qa",
+                    "summary_text": "全家晚餐建议...",
+                    "payload": {"question_topic": "晚餐", "answer": "清淡为主", "tips": []},
+                },
+                ensure_ascii=False,
+            )
             return {
                 "messages": [
                     ToolMessage(content=mall_payload, tool_call_id="call_1", name="mall_recommend"),
+                    ToolMessage(content=respond_payload, tool_call_id="call_2", name="respond"),
                     AIMessage(content="全家晚餐建议..."),
                 ]
             }
@@ -241,7 +282,7 @@ def test_langchain_agent_run_extracts_product_recommendations(monkeypatch):
 
     result = runner.run([{"role": "user", "content": "今晚做什么适合全家"}])
 
-    assert "全家晚餐建议" in result["content"]
+    assert result["content"] == "全家晚餐建议..."
     assert result["product_recommendations"]["items"][0]["product_id"] == "p_x"
 
 
@@ -335,3 +376,221 @@ def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
     # 关键：商品卡片由系统自动附加，LLM 不再把商品名写入文本
     assert "不要" in prompt
     assert "写进自己的文本回复" in prompt
+
+
+def test_langchain_agent_registers_respond_tool(monkeypatch):
+    """respond 工具的 schema 来自 StructuredResponse.model_json_schema()，且必含 kind/summary_text/payload。"""
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+
+    tools = runner._tools()
+    respond = next(t for t in tools if t.name == "respond")
+
+    # 工具存在
+    assert respond is not None
+    # 工具参数 schema 来自 StructuredResponse
+    params = respond.args
+    assert "kind" in params
+    assert "summary_text" in params
+    assert "payload" in params
+    # kind 是枚举
+    assert set(params["kind"]["enum"]) == {
+        "meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"
+    }
+
+
+def test_langchain_agent_respond_tool_callable(monkeypatch):
+    """respond 工具被 LLM 调用时直接返回 'ok'（payload 在 tool_call args 里，不在 result 里）。"""
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+
+    tools = runner._tools()
+    respond = next(t for t in tools if t.name == "respond")
+
+    result = respond.invoke(
+        {
+            "kind": "qa",
+            "summary_text": "你好",
+            "payload": {"question_topic": "测试", "answer": "测试回答", "tips": []},
+        }
+    )
+    assert result == "ok"
+
+
+def test_langchain_agent_stream_emits_card_event_for_respond(monkeypatch):
+    """respond 工具返回后，stream() 产出 ('card', StructuredResponse-like dict) 事件。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+
+    card_args = {
+        "kind": "qa",
+        "summary_text": "你好",
+        "payload": {"question_topic": "早餐", "answer": "高蛋白", "tips": []},
+    }
+    import json
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(content="先回一句"), {}
+            yield ToolMessage(
+                content=json.dumps(card_args, ensure_ascii=False),
+                tool_call_id="call_1",
+                name="respond",
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
+    card_events = [p for k, p in events if k == "card"]
+    deltas = [p for k, p in events if k == "delta"]
+
+    assert len(card_events) == 1
+    assert card_events[0]["kind"] == "qa"
+    assert card_events[0]["payload"]["answer"] == "高蛋白"
+    # 现有 delta 仍正常
+    assert deltas == ["先回一句"]
+
+
+def test_langchain_agent_stream_raises_on_invalid_respond_payload(monkeypatch):
+    """respond 工具的 ToolMessage 解析失败抛 ResponseSchemaError。"""
+    from langchain_core.messages import ToolMessage
+    from app.services.langchain_agent import ResponseSchemaError
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield ToolMessage(
+                content='{"kind": "nonsense", "summary_text": "x", "payload": {}}',
+                tool_call_id="call_1",
+                name="respond",
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    with pytest.raises(ResponseSchemaError):
+        list(runner.stream([{"role": "user", "content": "x"}]))
+
+
+def test_langchain_agent_stream_drops_aimessage_after_respond(monkeypatch):
+    """LLM 调了 respond 之后又发普通 AIMessage 文字，stream() 丢弃并 warn。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    import json
+
+    card_args = {
+        "kind": "qa",
+        "summary_text": "s",
+        "payload": {"question_topic": "q", "answer": "a", "tips": []},
+    }
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield ToolMessage(
+                content=json.dumps(card_args, ensure_ascii=False),
+                tool_call_id="call_1",
+                name="respond",
+            ), {}
+            # 绕过工具直接说话 → 应被丢弃
+            yield AIMessageChunk(content="这段不该给用户看到"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+    deltas = [p for k, p in events if k == "delta"]
+    assert deltas == []
+
+
+def test_langchain_agent_run_extracts_card(monkeypatch):
+    """run() 同步路径应从 respond ToolMessage 提取 card 字段，校验失败抛 ResponseSchemaError。"""
+    from langchain_core.messages import AIMessage, ToolMessage
+    from app.services.langchain_agent import ResponseSchemaError
+    import json
+
+    card_args = {
+        "kind": "qa",
+        "summary_text": "你好",
+        "payload": {"question_topic": "早餐", "answer": "高蛋白", "tips": []},
+    }
+
+    class FakeAgent:
+        def invoke(self, payload):
+            return {
+                "messages": [
+                    ToolMessage(
+                        content=json.dumps(card_args, ensure_ascii=False),
+                        tool_call_id="call_1",
+                        name="respond",
+                    ),
+                    AIMessage(content="已生成回复"),
+                ]
+            }
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    result = runner.run([{"role": "user", "content": "早餐"}])
+    assert result["card"] is not None
+    assert result["card"]["kind"] == "qa"
+    assert result["card"]["payload"]["answer"] == "高蛋白"
+
+
+def test_langchain_agent_run_raises_when_no_respond(monkeypatch):
+    """run() 路径 LLM 没调 respond 抛 ResponseSchemaError。"""
+    from langchain_core.messages import AIMessage
+    from app.services.langchain_agent import ResponseSchemaError
+
+    class FakeAgent:
+        def invoke(self, payload):
+            return {"messages": [AIMessage(content="直接说话没用")]}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    with pytest.raises(ResponseSchemaError):
+        runner.run([{"role": "user", "content": "x"}])
+
+
+def test_langchain_agent_run_raises_on_invalid_respond_payload(monkeypatch):
+    """respond ToolMessage 存在但 payload 不合法时，run() 抛 ResponseSchemaError。"""
+    from langchain_core.messages import ToolMessage
+    from app.services.langchain_agent import ResponseSchemaError
+
+    class FakeAgent:
+        def invoke(self, payload):
+            return {
+                "messages": [
+                    ToolMessage(
+                        content='{"kind":"bogus"}',
+                        tool_call_id="c1",
+                        name="respond",
+                    ),
+                ]
+            }
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    with pytest.raises(ResponseSchemaError):
+        runner.run([{"role": "user", "content": "x"}])
+
+
+def test_runner_system_prompt_requires_respond_tool():
+    """system_prompt 必须明确要求 LLM 调用 respond 工具才算完成回复。"""
+    runner = LangChainAgentRunner()
+    prompt = runner._system_prompt()
+    assert "respond" in prompt
+    assert "必须调用" in prompt or "只能通过" in prompt
+
+
+def test_runner_system_prompt_documents_kinds():
+    """system_prompt 必须列出 5 个 kind 的选择规则。"""
+    runner = LangChainAgentRunner()
+    prompt = runner._system_prompt()
+    for kind in ["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]:
+        assert kind in prompt

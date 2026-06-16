@@ -1,3 +1,5 @@
+import type { StructuredCard } from '../schemas/agentResponse';
+
 export type AgentSession = {
   session_id: string;
   title: string;
@@ -24,6 +26,7 @@ export type AgentMessage = {
   created_at: string;
   attachments?: Attachment[];
   product_recommendations?: ProductRecommendationItem[];
+  card?: StructuredCard;
 };
 
 export type Attachment = {
@@ -42,7 +45,8 @@ export type StreamCallbacks = {
   onAssistantStart?: (message: Pick<AgentMessage, 'message_id' | 'role'>) => void;
   onDelta?: (content: string) => void;
   onProductRecommendations?: (payload: { message_id: string; items: ProductRecommendationItem[] }) => void;
-  onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'product_recommendations'>) => void;
+  onCard?: (payload: { message_id: string; card: StructuredCard }) => void;
+  onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'product_recommendations' | 'card'>) => void;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -129,6 +133,7 @@ function handleSseEvent(eventText: string, callbacks: StreamCallbacks) {
   if (event === 'assistant_start') callbacks.onAssistantStart?.(data);
   if (event === 'delta') callbacks.onDelta?.(data.content ?? '');
   if (event === 'product_recommendations') callbacks.onProductRecommendations?.(data);
+  if (event === 'card') callbacks.onCard?.(data);
   if (event === 'assistant_done') callbacks.onAssistantDone?.(data);
   if (event === 'error') throw new Error(data.message ?? '模型调用失败');
 }
