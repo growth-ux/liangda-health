@@ -1,0 +1,23 @@
+backend/app/services/langchain_agent.py
+  s_bf1a9c0b4ccde2::t_5492f1d8900a7d 59-62
+  s_bf1a9c0b4ccde2::t_b68c05e2e36ee5 145,150,155,161-180
+  s_bf1a9c0b4ccde2::t_323ae6076c02bb 353-376
+backend/tests/test_langchain_agent.py
+  s_bf1a9c0b4ccde2::t_57420c2c813f85 377-462
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "a6681d04d77a60248c768f1c646cbfcb74baf360",
+  "prompts": {},
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
