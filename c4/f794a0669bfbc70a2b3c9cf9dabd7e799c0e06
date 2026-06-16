@@ -1,0 +1,26 @@
+backend/app/repositories/agent_repository.py
+  s_bf1a9c0b4ccde2::t_738df65bfcc621 67,79
+backend/app/schemas/agent.py
+  s_bf1a9c0b4ccde2::t_894b2a83bd4c29 36,60-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c4f794a0669bfbc70a2b3c9cf9dabd7e799c0e06",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
