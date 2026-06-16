@@ -1,0 +1,27 @@
+frontend/src/api/agent.ts
+  s_bf1a9c0b4ccde2::t_a68d003701ee85 29
+  s_bf1a9c0b4ccde2::t_b6cf736e0525c3 1-2
+  s_bf1a9c0b4ccde2::t_a2b70be4cb4518 136
+  s_bf1a9c0b4ccde2::t_6fec3b79823819 48-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "0c138febcaa83caccb0bfc3947407fc41a735b55",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": null
+    }
+  }
+}
