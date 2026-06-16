@@ -1,0 +1,198 @@
+backend/app/scripts/migrate_add_product_recommendations.py
+  s_35fed369a1b824::t_236f7b265a56ba 1-59
+backend/app/models/member.py
+  s_2b629445f80f3e::t_d040b7bb0610bd 6,25,29-30
+backend/app/main.py
+  s_2b629445f80f3e::t_4fdbd8732f2b06 29-39
+backend/app/repositories/notice_repository.py
+  s_2b629445f80f3e::t_10d52366767c87 6,50-51,79,86
+backend/app/services/notice_service.py
+  s_2b629445f80f3e::t_5bd696247a3cdf 13,257
+frontend/src/pages/ChatPage.tsx
+  s_25c42a01e8337b::t_d2f018c065c2cb 110-135
+  s_35fed369a1b824::t_26f6a510309e09 146-154,156-157,161-168
+  s_25c42a01e8337b::t_d552344385015a 208-210,221-228
+backend/app/models/notice.py
+  s_2b629445f80f3e::t_851643a371e7ad 6,27,31-32
+backend/app/api/agent.py
+  s_9851f9f75a13e5::t_97fd0f671b354a 9,21,23,52-53,57,63-70
+backend/app/schemas/agent.py
+  s_35fed369a1b824::t_1e021d385e6f8b 40-58
+  s_35fed369a1b824::t_1b1ae8c838349e 3
+  s_35fed369a1b824::t_d052cce94ea6d8 35
+backend/tests/test_meal_plan_service.py
+  s_9851f9f75a13e5::t_4434ded06baccf 103,109-112,129
+backend/app/services/embedding.py
+  s_2b629445f80f3e::t_d81f2f3e054023 3,7-8,30-36,70-75
+backend/tests/test_agent_api.py
+  s_35fed369a1b824::t_6951eca0e8f10d 26-28
+backend/app/services/device_service.py
+  s_2b629445f80f3e::t_f6067f88a12e91 10,76
+backend/app/services/agent_service.py
+  s_35fed369a1b824::t_4d55ea2c5b6603 93-94,96-109,118-123,129,133,137-138,147
+  s_35fed369a1b824::t_aa83c747af39d6 58-62
+backend/app/services/kb_service.py
+  s_2b629445f80f3e::t_0dee2584f5eb8a 2,11-12,108-113,115-120
+frontend/src/styles.css
+  s_9851f9f75a13e5::t_615bb40f3bc21d 1662,1664,1673-1674,1684-1685,1693-1694,1698,1701,1708,1715-1716,1725-1727,1738-1739,1744-1745,1752,1755-1756,1761-1762
+  s_285597a667cc4e::t_6b2b542efaf27b 1742-1743
+  s_285597a667cc4e::t_19f3ef3c21a6e0 1753-1754
+  s_9851f9f75a13e5::t_a90292c34d29e2 1713,1730-1733,1736-1737
+  s_8c6542848eb997::t_4f7b4621897c9f 1751
+  s_8c6542848eb997::t_d5cef6c9aee42e 1702-1703,1729,1747
+  s_9851f9f75a13e5::t_ffebc7fd7fbd4f 1666-1669,1675,1678,1682,1689-1691,1695-1696,1704,1709,1720-1722,1740,1746,1757
+  s_8c6542848eb997::t_3d2ee2aa1b3342 1663,1665,1670-1672,1676-1677,1679-1681,1683,1686-1688,1692,1697,1699-1700,1706-1707,1711-1712,1714,1717,1719,1723-1724,1728,1734-1735,1741,1748-1750,1758-1760
+  s_9851f9f75a13e5::t_336eb1aa7c1761 1718
+  s_25c42a01e8337b::t_6f55bbce394cb4 1763-1783
+backend/app/api/kb.py
+  s_2b629445f80f3e::t_cee959df082b74 1,32-33,167-172,174
+backend/app/models/agent.py
+  s_2b629445f80f3e::t_ba7a7f4d6be25a 6,17,21-22,41
+  s_35fed369a1b824::t_179bf1ba91f9bc 35-37
+backend/app/services/langchain_agent.py
+  s_35fed369a1b824::t_b9c5277d2662a0 35
+  s_285597a667cc4e::t_f9ad98f614c5b5 169
+  s_35fed369a1b824::t_137649771242ef 97,103,106,110,114,123-128,135
+  s_35fed369a1b824::t_1b5576234a98b2 2,4
+  s_35fed369a1b824::t_3eda65aebdc529 258-298
+  s_9851f9f75a13e5::t_9ae7945b818bae 32-33,58-65,69,164-168,170-186
+  h_7549b7dc6a6921 34
+backend/tests/test_langchain_agent.py
+  s_9851f9f75a13e5::t_32542466a4ad6d 40-43,45,61-62,108-115,326-334
+  s_35fed369a1b824::t_4d1e628363f8fa 1-2,46-60,130,136,140-163,171-205,207-245,335-337
+  s_35fed369a1b824::t_e1b6cf6551b9e7 106-107,116-119
+  s_285597a667cc4e::t_25b021f1533f5d 44
+backend/app/repositories/mall_repository.py
+  s_2b629445f80f3e::t_073cf0c429bee6 4,130-131,143,254
+backend/app/models/mall.py
+  s_2b629445f80f3e::t_2d78e420e05ae3 6,32,36-37,60,64-65
+backend/app/models/device.py
+  s_2b629445f80f3e::t_135a7a672e1941 6,19,23-24,43,47-48
+backend/app/core/time.py
+  s_2b629445f80f3e::t_6cdcb4a3223e03 1-5
+backend/app/services/meal_product_recommendation_service.py
+  s_285597a667cc4e::t_f9ad98f614c5b5 51
+  s_9851f9f75a13e5::t_edd06bd9a6e157 1-50,77-78,80-82,84-89,96-156,177-226
+  s_35fed369a1b824::t_17552d9a869bcb 52-76,79,83,90-95
+  s_35fed369a1b824::t_8c446fd892d0d2 158-176
+  s_35fed369a1b824::t_4d5c040861440e 157
+docs/superpowers/specs/2026-06-16-meal-product-recommendation-design.md
+  s_9851f9f75a13e5::t_6c712acb08b3c5 1-360
+frontend/src/components/chat/MessageBubble.tsx
+  s_8d386c84656666::t_b46c29e9e7accd 2,34
+  s_35fed369a1b824::t_881e6df5b5fadc 3,26,36-38,44
+  s_25c42a01e8337b::t_c5811581bad3c3 9-18,25
+backend/app/repositories/agent_repository.py
+  s_35fed369a1b824::t_85d5dbf4fbe569 66,77
+  s_2b629445f80f3e::t_a7317533751e41 5,14,81,86,96
+frontend/src/api/agent.ts
+  s_35fed369a1b824::t_2219d0c108e5c6 8-17,26,44-45
+  s_35fed369a1b824::t_c23e07745c53fb 131
+backend/tests/test_agent_service.py
+  s_35fed369a1b824::t_5abad3c33082ba 1-2,18,101-173
+backend/app/models/health_fact.py
+  s_2b629445f80f3e::t_12d9daac447f2f 6,26
+frontend/src/components/chat/ProductRecommendationCards.tsx
+  s_8c6542848eb997::t_dea412887ac42b 52
+  s_285597a667cc4e::t_2c08792a75449b 8-12,41-43
+  s_35fed369a1b824::t_345230842d52f4 1-7,13-17,19-20,48-51
+  s_8c6542848eb997::t_89d59db4de05f8 18,21-40,44-47
+frontend/src/components/chat/markdown.tsx
+  s_35fed369a1b824::t_57126f2a9c8b6b 16-18,132
+  s_8d386c84656666::t_2bb0fb154205d8 128
+backend/tests/test_meal_product_recommendation_service.py
+  s_35fed369a1b824::t_3f6163a1188e7b 46-49,89-91,99-112,115-119,122,125-128
+  s_9851f9f75a13e5::t_874f6581499487 1-45,58-59,76-88,92-98
+  s_35fed369a1b824::t_4f644399b40309 50-54
+  s_35fed369a1b824::t_59012d0a03e389 123-124
+  s_35fed369a1b824::t_167812c2947906 55-57
+  s_285597a667cc4e::t_25b021f1533f5d 60-75,131
+  s_35fed369a1b824::t_5e4a77de42a98b 113-114,120-121,129-130
+backend/app/models/kb.py
+  s_2b629445f80f3e::t_d4dbfa4f52c2c3 6,39,43-44,55,69
+backend/tests/test_agent_tools.py
+  s_35fed369a1b824::t_2c3df26394c6c4 125-139,142-143,157-162
+  s_9851f9f75a13e5::t_434841f4da17cb 117-122,124,140-141,144-156,163-174
+  s_285597a667cc4e::t_25b021f1533f5d 123
+backend/app/repositories/member_repository.py
+  s_2b629445f80f3e::t_64367419523eb5 8,25,108
+docs/superpowers/plans/2026-06-16-p5-meal-plan-product-recommendation.md
+  s_9851f9f75a13e5::t_ea95013d30d9f1 1-711
+backend/app/services/memory_service.py
+  s_2b629445f80f3e::t_3533c98ed8b0c1 57-63,70-75,84-90,99-106,123-128,133-140
+backend/app/services/agent_tools.py
+  s_35fed369a1b824::t_9c830cddb4fac5 1
+  s_9851f9f75a13e5::t_23f07328b2fa05 125-137,139,143-161,163,165-166,169
+  s_35fed369a1b824::t_25abf9f5c51353 140-142,162,164,167-168,170
+  s_285597a667cc4e::t_f9ad98f614c5b5 138
+  s_2b629445f80f3e::t_f1bf82e26f4b84 37-42,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "480354d9258ec6fabba79aa7a353a0ee7c7c12d8",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_25c42a01e8337b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ca2b23ca-e091-4735-a370-41ba43c43096",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_285597a667cc4e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed09d-1cf4-7c42-82b8-3a1a8724a46e",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_2b629445f80f3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed070-3af6-7a43-9fc8-cda1fbbef200",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_35fed369a1b824": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "99554046-892d-453c-96ab-bd86203370bb",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_8c6542848eb997": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b5c88aa-a090-4556-9c65-a89d9c9b20d9",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_8d386c84656666": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ecf9e-f5ee-7ef3-b856-a2b4a8a893be",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9851f9f75a13e5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ecf1c-58ce-7043-9933-da27fe0bc355",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
