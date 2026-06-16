@@ -1,0 +1,33 @@
+frontend/src/pages/ChatPage.tsx
+  s_bb5e3c6cd136e3::t_53ab51cc1ba569 12,36-39,289-295
+  s_bf1a9c0b4ccde2::t_36e1ce2abf4fae 160-169,181-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "ce1efdd88db1316ff206aceda36340ce9a692e55",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bb5e3c6cd136e3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed0b1-0bba-7421-98fa-331ce03a7b48",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
