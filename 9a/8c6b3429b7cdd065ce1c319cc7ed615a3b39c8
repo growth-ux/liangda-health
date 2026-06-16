@@ -1,0 +1,34 @@
+frontend/src/components/chat/MessageList.tsx
+  s_bf1a9c0b4ccde2::t_15c9cda24b698d 37-63
+frontend/src/styles.css
+  s_bb5e3c6cd136e3::t_33bfb9198f65b6 1662-1721
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "9a8c6b3429b7cdd065ce1c319cc7ed615a3b39c8",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bb5e3c6cd136e3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed0b1-0bba-7421-98fa-331ce03a7b48",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
