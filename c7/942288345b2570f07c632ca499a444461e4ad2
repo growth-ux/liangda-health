@@ -1,0 +1,28 @@
+backend/app/services/agent_service.py
+  s_bf1a9c0b4ccde2::t_d87415b571511a 159
+  s_bf1a9c0b4ccde2::t_31468cc9afcd7c 100,108-111
+  s_bf1a9c0b4ccde2::t_937c1c90a7e457 140
+backend/tests/test_agent_service.py
+  s_bf1a9c0b4ccde2::t_7847416473b542 226-282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c7942288345b2570f07c632ca499a444461e4ad2",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
