@@ -40,6 +40,7 @@ class AgentService:
 
     def send_message(self, session_id: str, content: str):
         session = self._require_session(session_id)
+        logger.info("agent send start session_id=%s input_chars=%s", session_id, len(content))
         user_message = self._save_user_message(session_id, content)
         self._remember_user_message(content)
         try:
@@ -59,10 +60,17 @@ class AgentService:
             model_name=result.get("model_name"),
         )
         self._refresh_title(session.session_id, session.title, content)
+        logger.info(
+            "agent send done session_id=%s assistant_message_id=%s output_chars=%s",
+            session_id,
+            assistant_message.message_id,
+            len(assistant_message.content),
+        )
         return user_message, assistant_message
 
     def stream_message(self, session_id: str, content: str) -> Iterable[str]:
         session = self._require_session(session_id)
+        logger.info("agent stream request start session_id=%s input_chars=%s", session_id, len(content))
         user_message = self._save_user_message(session_id, content)
         self._remember_user_message(content)
         assistant_id = f"msg_{uuid.uuid4().hex[:16]}"
@@ -98,6 +106,13 @@ class AgentService:
             content=content_done,
         )
         self._refresh_title(session.session_id, session.title, content)
+        logger.info(
+            "agent stream request done session_id=%s assistant_message_id=%s output_chars=%s delta_count=%s",
+            session_id,
+            assistant_message.message_id,
+            len(assistant_message.content),
+            len(chunks),
+        )
         yield self._event(
             "assistant_done",
             {
@@ -129,10 +144,13 @@ class AgentService:
     def _remember_user_message(self, content: str) -> None:
         if self.memory_service is None:
             return
+        logger.info("agent memory write start input_chars=%s", len(content))
         try:
             self.memory_service.add_from_user_message(content)
         except Exception:
             logger.exception("memory write failed for agent user message")
+            return
+        logger.info("agent memory write done")
 
     def _history(self, session_id: str):
         return [

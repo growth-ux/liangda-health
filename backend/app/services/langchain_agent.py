@@ -1,6 +1,9 @@
 from collections.abc import Iterable
+import logging
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent。
@@ -67,6 +70,7 @@ class LangChainAgentRunner:
 
     def run(self, messages: list[dict[str, str]]) -> dict[str, object]:
         self._ensure_api_key()
+        logger.info("agent run start message_count=%s model=%s", len(messages), settings.llm_model)
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
         response = agent.invoke({"messages": self._to_langchain_messages(prepared_messages)})
@@ -76,25 +80,37 @@ class LangChainAgentRunner:
             if response_message.response_metadata
             else {}
         )
-        return {
+        result = {
             "content": _content_to_text(response_message.content),
             "token_prompt": token_usage.get("prompt_tokens"),
             "token_completion": token_usage.get("completion_tokens"),
             "model_name": response_message.response_metadata.get("model_name") if response_message.response_metadata else None,
         }
+        logger.info(
+            "agent run done output_chars=%s prompt_tokens=%s completion_tokens=%s",
+            len(str(result["content"])),
+            result["token_prompt"],
+            result["token_completion"],
+        )
+        return result
 
     def stream(self, messages: list[dict[str, str]]) -> Iterable[str]:
         self._ensure_api_key()
+        logger.info("agent stream start message_count=%s model=%s", len(messages), settings.llm_model)
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
         for chunk, _metadata in agent.stream(
             {"messages": self._to_langchain_messages(prepared_messages)},
             stream_mode="messages",
         ):
+            if not _is_visible_assistant_chunk(chunk):
+                logger.info("agent stream skip internal_message type=%s", chunk.__class__.__name__)
+                continue
             content = getattr(chunk, "content", "")
             text = _content_to_text(content)
             if text:
                 yield text
+        logger.info("agent stream done")
 
     def _agent(self):
         from langchain.agents import create_agent
@@ -111,6 +127,13 @@ class LangChainAgentRunner:
         if self.meal_plan_tool is not None:
             def meal_plan(scope: str, member_id: str | None = None, goal: str | None = None, meal_type: str = "day") -> str:
                 """根据单人或全家健康状态生成一日三餐或指定餐次建议。"""
+                logger.info(
+                    "agent tool call name=meal_plan scope=%s member_id=%s meal_type=%s has_goal=%s",
+                    scope,
+                    member_id,
+                    meal_type,
+                    bool(goal),
+                )
                 return self.meal_plan_tool.build(scope=scope, member_id=member_id, goal=goal, meal_type=meal_type)
 
             tools.append(meal_plan)
@@ -118,6 +141,12 @@ class LangChainAgentRunner:
         if self.memory_tool is not None:
             def memory_search(query: str, member_id: str | None = None, limit: int = 5) -> str:
                 """检索家庭或指定家人的长期互动记忆，包括偏好、排斥、阶段目标和营销反馈。"""
+                logger.info(
+                    "agent tool call name=memory_search member_id=%s limit=%s query_chars=%s",
+                    member_id,
+                    limit,
+                    len(query.strip()),
+                )
                 return self.memory_tool.search(query=query, member_id=member_id, limit=limit)
 
             tools.append(memory_search)
@@ -125,6 +154,12 @@ class LangChainAgentRunner:
         if self.kb_tool is not None:
             def kb_search(query: str, member_id: str, top_k: int = 5) -> str:
                 """检索指定家人的健康报告片段。"""
+                logger.info(
+                    "agent tool call name=kb_search member_id=%s top_k=%s query_chars=%s",
+                    member_id,
+                    top_k,
+                    len(query.strip()),
+                )
                 return self.kb_tool.search(query=query, member_id=member_id, top_k=top_k)
 
             tools.append(kb_search)
@@ -169,3 +204,7 @@ def _content_to_text(content) -> str:
                 parts.append(item["text"])
         return "".join(parts)
     return str(content) if content is not None else ""
+
+
+def _is_visible_assistant_chunk(chunk) -> bool:
+    return chunk.__class__.__name__ == "AIMessageChunk"

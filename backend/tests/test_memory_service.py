@@ -14,6 +14,7 @@ class FakeMem0Client:
     def __init__(self, search_result=None):
         self.add_calls = []
         self.search_calls = []
+        self.get_all_calls = []
         self.search_result = search_result or []
 
     def add(self, messages, user_id=None, metadata=None, infer=True, prompt=None):
@@ -34,6 +35,15 @@ class FakeMem0Client:
                 "query": query,
                 "top_k": top_k,
                 "filters": filters,
+            }
+        )
+        return self.search_result
+
+    def get_all(self, filters=None, top_k=20):
+        self.get_all_calls.append(
+            {
+                "filters": filters,
+                "top_k": top_k,
             }
         )
         return self.search_result
@@ -115,16 +125,44 @@ def test_memory_service_searches_family_memory_when_member_id_missing():
     assert client.search_calls[0]["filters"] == {"user_id": "default_family"}
 
 
+def test_memory_service_lists_profile_memories_by_member_without_similarity_query():
+    client = FakeMem0Client(
+        search_result=[
+            {"memory": "爸爸不喜欢鱼", "metadata": {"memory_type": "avoidance", "member_id": "mem_dad"}},
+            {"memory": "爸爸最近想控糖", "metadata": {"memory_type": "goal", "member_id": "mem_dad"}},
+        ]
+    )
+    service = MemoryService(client=client, family_user_id="default_family", enabled=True)
+
+    items = service.list_profile_memories(member_id="mem_dad", limit=50)
+
+    assert client.get_all_calls == [{"filters": {"user_id": "mem_dad"}, "top_k": 50}]
+    assert client.search_calls == []
+    assert [item.content for item in items] == ["爸爸不喜欢鱼", "爸爸最近想控糖"]
+    assert [item.memory_type for item in items] == ["avoidance", "goal"]
+
+
+def test_memory_service_lists_profile_memories_for_family_owner():
+    client = FakeMem0Client(search_result=[{"memory": "全家周末在家做饭"}])
+    service = MemoryService(client=client, family_user_id="default_family", enabled=True)
+
+    service.list_profile_memories(limit=30)
+
+    assert client.get_all_calls == [{"filters": {"user_id": "default_family"}, "top_k": 30}]
+
+
 def test_memory_service_disabled_is_noop():
     client = FakeMem0Client()
     service = MemoryService(client=client, family_user_id="default_family", enabled=False)
 
     service.add_from_user_message("爸爸不喜欢鱼")
     items = service.search("爸爸 饮食 排斥")
+    profile_items = service.list_profile_memories(member_id="mem_dad")
 
     assert client.add_calls == []
     assert client.search_calls == []
     assert items == []
+    assert profile_items == []
 
 
 def test_memory_service_disables_mem0_telemetry_before_import(monkeypatch):

@@ -88,6 +88,17 @@ class MemoryService:
             lines.append(f"[{label}] {item.content}")
         return "\n".join(lines)
 
+    def list_profile_memories(self, *, member_id: str | None = None, limit: int = 50) -> list[MemoryItem]:
+        if not self.enabled:
+            return []
+        filters = {"user_id": member_id or self.family_user_id}
+        try:
+            raw_items = self._get_client().get_all(filters=filters, top_k=limit)
+        except Exception:
+            logger.exception("memory list_profile_memories failed")
+            return []
+        return [_to_memory_item(item) for item in _normalize_results(raw_items)]
+
     def _get_client(self):
         settings.memory_dir.mkdir(parents=True, exist_ok=True)
         os.environ.setdefault("MEM0_DIR", str(settings.memory_dir))

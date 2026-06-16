@@ -1,11 +1,12 @@
 from collections.abc import Callable
 from contextlib import asynccontextmanager
+import logging
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
-from pathlib import Path
 
 from app.api.agent import router as agent_router
 from app.api.device import router as device_router
@@ -24,6 +25,9 @@ from app.models import member as _member_models
 from app.models import notice as _notice_models
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.services.device_service import DeviceService
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s - %(message)s")
+logging.getLogger("app").setLevel(logging.INFO)
 
 
 def ensure_schema_updates() -> None:

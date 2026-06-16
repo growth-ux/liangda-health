@@ -86,6 +86,28 @@ def test_langchain_agent_requires_api_key(monkeypatch):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
+def test_langchain_agent_stream_skips_tool_messages(monkeypatch):
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(content="首先，"), {}
+            yield ToolMessage(
+                content="[报告片段 1]\n文档：体检报告\n页码：3\n内容：谷丙转氨酶",
+                tool_call_id="call_1",
+            ), {}
+            yield AIMessageChunk(content="爸爸报告里的转氨酶正常。"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    chunks = list(runner.stream([{"role": "user", "content": "爸爸报告里能不能吃鱼？"}]))
+
+    assert chunks == ["首先，", "爸爸报告里的转氨酶正常。"]
+    assert "报告片段" not in "".join(chunks)
+
+
 def test_langchain_agent_does_not_duplicate_system_prompt():
     runner = LangChainAgentRunner()
 
