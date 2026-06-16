@@ -1,0 +1,26 @@
+backend/app/models/agent.py
+  s_bf1a9c0b4ccde2::t_761ec752a0ac24 38-40
+backend/app/scripts/migrate_add_agent_card.py
+  s_bf1a9c0b4ccde2::t_7771acaf26321d 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c5f025738fc1a4c0662e26d65e76c88cdc5d18ee",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
