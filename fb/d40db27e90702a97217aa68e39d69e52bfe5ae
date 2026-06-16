@@ -1,0 +1,27 @@
+backend/app/services/langchain_agent.py
+  s_bf1a9c0b4ccde2::t_bc0277c8a6d17b 6-7,9
+  s_bf1a9c0b4ccde2::t_e0d7409b2a8c89 62
+  s_bf1a9c0b4ccde2::t_6418f5215698d7 242
+  s_bf1a9c0b4ccde2::t_e0d0ca35cf7b2c 243
+  s_bf1a9c0b4ccde2::t_988bb55362908b 60-61,63-76,83-84
+  s_bf1a9c0b4ccde2::t_508ccb64bb90dd 77-82
+backend/tests/test_langchain_agent.py
+  s_bf1a9c0b4ccde2::t_c56638bef88874 338-351,355,357-376
+  s_bf1a9c0b4ccde2::t_920d0a0c4f6433 352-354,356
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "fbd40db27e90702a97217aa68e39d69e52bfe5ae",
+  "prompts": {},
+  "sessions": {
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
