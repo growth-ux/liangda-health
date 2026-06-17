@@ -135,6 +135,7 @@ class MallRecommendTool:
         scope: str,
         meal_plan_text: str,
         member_id: str | None = None,
+        query_text: str = "",
         limit: int = 5,
     ) -> str:
         # 工具返回值必须是字符串（LangChain tool 协议），但 service 现在返回结构化 dict。
@@ -154,6 +155,7 @@ class MallRecommendTool:
             scope=scope,
             member_id=member_id,
             meal_plan_text=meal_plan_text,
+            query_text=query_text,
             limit=limit,
         )
         payload = json.dumps(result, ensure_ascii=False)

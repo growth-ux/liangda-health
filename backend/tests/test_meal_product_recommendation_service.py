@@ -149,3 +149,21 @@ def test_recommend_member_returns_placeholder_when_no_match(db_session):
     assert result["error"] is None
     for item in result["items"]:
         assert {"product_id", "name", "reason", "price_text", "image_url", "image_emoji", "score"} <= item.keys()
+
+
+def test_recommend_family_filters_to_requested_category_when_query_mentions_oil(db_session):
+    _add_member(db_session)
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+
+    result = service.recommend(
+        scope="family",
+        meal_plan_text="",
+        query_text="推荐一款适合全家人的油",
+        limit=3,
+    )
+
+    assert result["is_error"] is False
+    assert result["items"], "问油时应返回油品推荐"
+    assert all(item["product_id"].startswith("oil-") for item in result["items"])

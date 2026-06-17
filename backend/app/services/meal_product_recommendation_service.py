@@ -36,6 +36,20 @@ CATEGORY_RULES: list[tuple[tuple[str, ...], str, str]] = [
     (("水果", "加餐", "餐后", "维C", "苹果", "蓝莓", "橙子", "猕猴桃", "牛油果", "圣女果"), "fruits", "适合作为加餐或餐后水果补充"),
 ]
 
+QUERY_CATEGORY_RULES: list[tuple[tuple[str, ...], str, str]] = [
+    (("油", "食用油", "橄榄油", "菜籽油", "亚麻籽油", "玉米油", "花生油"), "oil", "匹配你正在找的油品类目"),
+    (("米", "面", "挂面", "面条", "大米"), "rice_flour", "匹配你正在找的米面类目"),
+    (("杂粮", "燕麦", "藜麦", "黑米", "糙米"), "grains", "匹配你正在找的杂粮类目"),
+    (("调料", "调味", "酱油", "生抽", "醋", "蚝油"), "seasoning", "匹配你正在找的调味品类目"),
+    (("牛奶", "酸奶", "奶"), "dairy", "匹配你正在找的乳制品类目"),
+    (("饮料", "饮品", "豆奶", "果汁"), "beverages", "匹配你正在找的饮品类目"),
+    (("零食", "饼干"), "snacks", "匹配你正在找的零食类目"),
+    (("蔬菜", "菌菇"), "vegetables", "匹配你正在找的蔬菜菌菇类目"),
+    (("水果",), "fruits", "匹配你正在找的水果类目"),
+    (("豆腐", "豆浆", "豆干", "豆制品"), "soy_products", "匹配你正在找的豆制品类目"),
+    (("鸡蛋", "鸡胸肉", "牛肉", "猪肉", "虾", "鱼", "肉"), "meat_eggs", "匹配你正在找的肉禽蛋类目"),
+]
+
 
 class MealProductRecommendationService:
     def __init__(
@@ -55,6 +69,7 @@ class MealProductRecommendationService:
         scope: str,
         meal_plan_text: str,
         member_id: str | None = None,
+        query_text: str = "",
         limit: int = 5,
     ) -> dict:
         """返回结构化推荐结果。
@@ -88,11 +103,11 @@ class MealProductRecommendationService:
             member = self.db.query(Member).filter(Member.member_id == member_id).one_or_none()
             if member is None:
                 return {"items": [], "is_error": True, "error": "家人不存在"}
-            recs = self._recommend_for_member(profile, member, meal_plan_text, limit)
+            recs = self._recommend_for_member(profile, member, meal_plan_text, query_text, limit)
         elif scope == "family":
             profile = self.profile_service.get_family_profile()
             members = self.db.query(Member).all()
-            recs = self._recommend_for_family(profile, members, meal_plan_text, limit)
+            recs = self._recommend_for_family(profile, members, meal_plan_text, query_text, limit)
         else:
             return {"items": [], "is_error": True, "error": "scope 只能是 member 或 family"}
         return {
@@ -106,36 +121,40 @@ class MealProductRecommendationService:
         profile: HealthProfile,
         member: Member,
         meal_plan_text: str,
+        query_text: str,
         limit: int,
     ) -> list[MealProductRecommendation]:
         products = self._products()
         context = " ".join(
             [
                 meal_plan_text,
+                query_text,
                 " ".join(profile.diet_principles),
                 " ".join(profile.recent_states),
                 " ".join(profile.goals),
             ]
         )
-        return self._rank(products, context, [member], limit)
+        return self._rank(products, context, [member], query_text, limit)
 
     def _recommend_for_family(
         self,
         profile: FamilyHealthProfile,
         members: list[Member],
         meal_plan_text: str,
+        query_text: str,
         limit: int,
     ) -> list[MealProductRecommendation]:
         products = self._products()
         context = " ".join(
             [
                 meal_plan_text,
+                query_text,
                 " ".join(profile.shared_principles),
                 " ".join(profile.family_modifiers),
                 " ".join(profile.family_goals),
             ]
         )
-        return self._rank(products, context, members, limit)
+        return self._rank(products, context, members, query_text, limit)
 
     def _products(self) -> list[MallProduct]:
         self.mall_repository.seed_default_data()
@@ -146,8 +165,13 @@ class MealProductRecommendationService:
         products: list[MallProduct],
         context: str,
         members: list[Member],
+        query_text: str,
         limit: int,
     ) -> list[MealProductRecommendation]:
+        requested_category, requested_reason = _match_requested_category(query_text)
+        if requested_category:
+            products = [product for product in products if product.category_code == requested_category]
+
         scored: list[MealProductRecommendation] = []
         for product in products:
             if any(_has_allergy_conflict(member, product) for member in members):
@@ -156,8 +180,9 @@ class MealProductRecommendationService:
             category_score, category_reason = _score_category(context, product.category_code)
             tag_score, tag_reason = _score_tags(context, tags)
             member_score = sum(max(0, score_product_for_member(member, product)) for member in members)
-            score = category_score + tag_score + member_score
-            reason = category_reason or tag_reason
+            requested_score = 200 if requested_category and product.category_code == requested_category else 0
+            score = requested_score + category_score + tag_score + member_score
+            reason = requested_reason or category_reason or tag_reason
             if score > 0:
                 scored.append(MealProductRecommendation(product=product, score=score, reason=reason))
         scored.sort(key=lambda item: (-item.score, item.product.product_id))
@@ -196,6 +221,13 @@ def _score_category(context: str, category_code: str) -> tuple[int, str]:
         if category_code == target_category and any(keyword in context for keyword in keywords):
             return 120, reason
     return 0, ""
+
+
+def _match_requested_category(query_text: str) -> tuple[str | None, str]:
+    for keywords, category_code, reason in QUERY_CATEGORY_RULES:
+        if any(keyword in query_text for keyword in keywords):
+            return category_code, reason
+    return None, ""
 
 
 def _pick_diverse_reasons(

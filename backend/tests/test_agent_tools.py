@@ -120,8 +120,8 @@ class FakeMallRecommendService:
     def __init__(self):
         self.calls = []
 
-    def recommend(self, *, scope, meal_plan_text, member_id=None, limit=5):
-        self.calls.append((scope, meal_plan_text, member_id, limit))
+    def recommend(self, *, scope, meal_plan_text, member_id=None, query_text="", limit=5):
+        self.calls.append((scope, meal_plan_text, member_id, query_text, limit))
         return {
             "items": [
                 {
@@ -153,7 +153,7 @@ def test_mall_recommend_tool_returns_structured_json():
         limit=2,
     )
 
-    assert service.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", 2)]
+    assert service.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", "", 2)]
     import json
 
     payload = json.loads(result)
@@ -185,8 +185,25 @@ def test_mall_recommend_tool_allows_empty_meal_plan_text():
     result = tool.recommend(scope="member", member_id="mem_dad", meal_plan_text="")
 
     assert "Error" not in result
-    assert service.calls == [("member", "", "mem_dad", 5)]
+    assert service.calls == [("member", "", "mem_dad", "", 5)]
     import json
 
     payload = json.loads(result)
     assert payload["items"][0]["name"] == "低钠盐"
+
+
+def test_mall_recommend_tool_passes_query_text_for_category_requests():
+    from app.services.agent_tools import MallRecommendTool
+
+    service = FakeMallRecommendService()
+    tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
+
+    result = tool.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="",
+        query_text="推荐一款适合全家人的油",
+    )
+
+    assert "Error" not in result
+    assert service.calls == [("member", "", "mem_dad", "推荐一款适合全家人的油", 5)]

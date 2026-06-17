@@ -42,8 +42,8 @@ class FakeMallRecommendTool:
     def __init__(self):
         self.calls = []
 
-    def recommend(self, scope, meal_plan_text, member_id=None, limit=5):
-        self.calls.append((scope, meal_plan_text, member_id, limit))
+    def recommend(self, scope, meal_plan_text, member_id=None, query_text="", limit=5):
+        self.calls.append((scope, meal_plan_text, member_id, query_text, limit))
         return {
             "items": [
                 {
@@ -113,7 +113,7 @@ def test_langchain_agent_registers_mall_recommend_tool_returns_structured_dict(m
     tools = runner._tools()
     result = tools[0](scope="member", member_id="mem_dad", meal_plan_text="晚餐：低钠杂粮饭", limit=2)
 
-    assert mall_tool.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", 2)]
+    assert mall_tool.calls == [("member", "晚餐：低钠杂粮饭", "mem_dad", "", 2)]
     # 工具返回值是结构化 dict，runner 会按结构解析；不再是 "可选商品：" markdown 文本
     assert result["items"][0]["product_id"] == "p_salt"
     assert isinstance(result, dict)
@@ -434,6 +434,16 @@ def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
     # 关键：商品卡片由系统自动附加，LLM 不再把商品名写入文本
     assert "不要" in prompt
     assert "写进自己的文本回复" in prompt
+
+
+def test_runner_system_prompt_routes_category_product_queries_to_mall_recommend():
+    runner = LangChainAgentRunner()
+
+    prompt = runner._system_prompt()
+
+    assert "推荐一款适合全家人的油" in prompt
+    assert "直接调用 mall_recommend" in prompt
+    assert "不要先调用 meal_plan" in prompt
 
 
 def test_langchain_agent_registers_respond_tool(monkeypatch):
