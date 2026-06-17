@@ -1,0 +1,57 @@
+.superpowers/brainstorm/44273-1781618298/content/style-1-calm-card.html
+  s_bf1a9c0b4ccde2::t_0fafd636a46c99 1-77
+backend/tests/test_agent_response_schema.py
+  s_759fdafa1b9bc2::t_c1c169ee08b048 73-98
+  s_759fdafa1b9bc2::t_4492820ab39c25 99-116
+.superpowers/brainstorm/44273-1781618298/content/other-scenarios.html
+  s_bf1a9c0b4ccde2::t_0fafd636a46c99 1-50
+.superpowers/brainstorm/44273-1781618298/state/server-info
+  s_bf1a9c0b4ccde2::t_0fafd636a46c99 1
+backend/tests/test_langchain_agent.py
+  s_759fdafa1b9bc2::t_176b855aed2c72 455-486,608-640
+  s_759fdafa1b9bc2::t_3b6b07440bf160 509,538-570
+backend/app/schemas/agent_response.py
+  s_759fdafa1b9bc2::t_4b21993f075849 10,69-77
+  s_759fdafa1b9bc2::t_6ac82baf2c9af2 93-101,112-122
+frontend/tsconfig.tsbuildinfo
+  s_bf1a9c0b4ccde2::t_0fafd636a46c99 1
+.superpowers/brainstorm/44273-1781618298/content/styles-overview.html
+  s_bf1a9c0b4ccde2::t_0fafd636a46c99 1-175
+backend/app/services/langchain_agent.py
+  s_bf1a9c0b4ccde2::t_c1c6c36ac3f712 195-201
+  s_759fdafa1b9bc2::t_772673f0beb218 206
+  s_759fdafa1b9bc2::t_fa8151cbbd654f 527-528
+  s_bf1a9c0b4ccde2::t_f22b5cfc5583e2 431-442,470-477
+  s_759fdafa1b9bc2::t_2b51f51b554daf 190-193,395,401-404,423-428,447-469,478-501,526,529-530
+docs/superpowers/specs/2026-06-16-structured-reply-cards-design.md
+  h_7549b7dc6a6921 229-247
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "a49d2ac424a7b0219d4850deb6921dd0d318071c",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_759fdafa1b9bc2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed319-d1c3-7d80-8584-bb4e8dda80b0",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
