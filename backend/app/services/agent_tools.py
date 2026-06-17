@@ -143,9 +143,6 @@ class MallRecommendTool:
         if scope not in {"member", "family"}:
             logger.info("mall_recommend rejected reason=invalid_scope scope=%s", scope)
             return "Error: scope 只能是 member 或 family"
-        if not meal_plan_text.strip():
-            logger.info("mall_recommend rejected reason=blank_meal_plan")
-            return "Error: meal_plan_text 不能为空"
         if scope == "member":
             if not member_id:
                 logger.info("mall_recommend rejected reason=missing_member_id")

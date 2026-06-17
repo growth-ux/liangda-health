@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
+from app.services.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,17 @@ class LangChainMealPlanGenerator:
             base_url=settings.llm_base_url,
             temperature=settings.llm_temperature,
             timeout=settings.llm_timeout_seconds,
+        )
+        log_llm_request(
+            logger,
+            service="meal_plan.generate",
+            payload={
+                "model": settings.llm_model,
+                "base_url": settings.llm_base_url,
+                "temperature": settings.llm_temperature,
+                "timeout": settings.llm_timeout_seconds,
+                "messages": [{"role": "user", "content": prompt}],
+            },
         )
         response = model.invoke(prompt)
         return _content_to_text(response.content).strip()

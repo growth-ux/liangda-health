@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
+import logging
 import re
 from typing import Protocol
 from uuid import uuid4
@@ -10,6 +11,9 @@ from pydantic import BaseModel, Field, field_validator
 from app.core.config import settings
 from app.repositories.health_fact_repository import HealthFactCreate
 from app.services.chunker import TextChunk
+from app.services.llm_logging import log_llm_request
+
+logger = logging.getLogger(__name__)
 
 
 class PageLike(Protocol):
@@ -49,6 +53,20 @@ class DashScopeHealthFactLlmClient:
             return '{"facts": []}'
 
         client = OpenAI(api_key=settings.llm_api_key, base_url=settings.llm_base_url)
+        log_llm_request(
+            logger,
+            service="health_fact.extract",
+            payload={
+                "model": settings.llm_model,
+                "base_url": settings.llm_base_url,
+                "temperature": 0,
+                "timeout": settings.llm_timeout_seconds,
+                "messages": [
+                    {"role": "system", "content": _SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+            },
+        )
         response = client.chat.completions.create(
             model=settings.llm_model,
             temperature=0,

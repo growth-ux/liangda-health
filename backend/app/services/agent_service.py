@@ -108,16 +108,26 @@ class AgentService:
                 elif event_type == "card":
                     if isinstance(payload, dict):
                         card_dict = payload
+                        logger.info(
+                            "agent stream service forward card kind=%s summary_chars=%s",
+                            payload.get("kind"),
+                            len(payload.get("summary_text", "")) if isinstance(payload.get("summary_text"), str) else 0,
+                        )
                         yield self._event("card", {"message_id": assistant_id, "card": payload})
                 elif event_type == "product_recommendations":
                     items = (payload or {}).get("items") if isinstance(payload, dict) else None
                     if items:
                         product_recs_items = items
+                        logger.info(
+                            "agent stream service forward product_recommendations item_count=%s",
+                            len(items),
+                        )
                         yield self._event(
                             "product_recommendations",
                             {"message_id": assistant_id, "items": items},
                         )
         except LlmConfigError as exc:
+            logger.warning("agent stream service llm config error session_id=%s detail=%s", session_id, str(exc))
             yield self._event("error", {"message": str(exc)})
             return
         except Exception:
@@ -141,12 +151,14 @@ class AgentService:
         )
         self._refresh_title(session.session_id, session.title, content)
         logger.info(
-            "agent stream request done session_id=%s assistant_message_id=%s output_chars=%s delta_count=%s product_items=%s",
+            "agent stream request done session_id=%s assistant_message_id=%s output_chars=%s delta_count=%s product_items=%s has_card=%s card_kind=%s",
             session_id,
             assistant_message.message_id,
             len(assistant_message.content),
             len(delta_chunks),
             len(product_recs_items or []),
+            card_dict is not None,
+            card_dict.get("kind") if isinstance(card_dict, dict) else None,
         )
         yield self._event(
             "assistant_done",

@@ -172,3 +172,21 @@ def test_mall_recommend_tool_rejects_unknown_member():
 
     assert "Error" in result
     assert service.calls == []
+
+
+def test_mall_recommend_tool_allows_empty_meal_plan_text():
+    """直接商品推荐（如"推荐一款适合全家人的油"）没有 meal_plan 时，
+    工具必须放行并把空串透传给 service，让 service 用健康画像兜底匹配。"""
+    from app.services.agent_tools import MallRecommendTool
+
+    service = FakeMallRecommendService()
+    tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
+
+    result = tool.recommend(scope="member", member_id="mem_dad", meal_plan_text="")
+
+    assert "Error" not in result
+    assert service.calls == [("member", "", "mem_dad", 5)]
+    import json
+
+    payload = json.loads(result)
+    assert payload["items"][0]["name"] == "低钠盐"

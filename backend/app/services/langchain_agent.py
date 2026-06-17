@@ -7,6 +7,7 @@ from typing import Literal
 from langchain.tools import tool
 
 from app.core.config import settings
+from app.services.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,8 @@ SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent�
 22. meal_plan 工具返回餐单后，必须把 meal_plan 工具返回的餐单文本原样作为 meal_plan_text 参数继续调用 mall_recommend 工具。
 23. mall_recommend 工具的推荐结果会由系统作为商品卡片自动附加到回复上，**不要**把商品名、价格、推荐理由写进自己的文本回复里；只输出餐单和自然的总结文字。如果 mall_recommend 返回 Error，简单说明”暂时无法推荐商品”即可。
 24. mall_recommend 的 scope 和 member_id 必须与 meal_plan 保持一致；全家餐单使用 scope=”family”，不传 member_id。
+24.5 如果用户**只**问某一类商品（油/米/调料/坚果/调味品等）且没要三餐安排，**不要**先调用 meal_plan；
+     直接调用 mall_recommend(scope="family" 或 "member"，meal_plan_text 留空)，service 会用健康画像匹配。
 25. **【硬性要求】** Agent 完成一次用户回复必须调用 `respond` 工具，**不能**直接用普通文本对用户说话。`respond` 工具参数：
    - `kind`：5 选 1——`meal_plan`（用户问餐单/三餐/早午晚吃什么）/ `qa`（用户简单问答）/ `greeting`（首问/寒暄）/ `kb_interpretation`（用户问"为什么/要不要紧"且你刚调过 kb_search）/ `general_advice`（其他健康建议）
    - `summary_text`：用户第一眼看到的 Markdown 摘要（≤ 400 字），会流式产出给用户。不要堆成长段，必须易扫读：
@@ -144,6 +147,23 @@ class LangChainAgentRunner:
         logger.info("agent run start message_count=%s model=%s", len(messages), settings.llm_model)
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
+        logger.info(
+            "agent run invoke prepared_messages roles=%s last_user_chars=%s",
+            [message["role"] for message in prepared_messages],
+            len(prepared_messages[-1]["content"]) if prepared_messages else 0,
+        )
+        log_llm_request(
+            logger,
+            service="langchain_agent.run",
+            payload={
+                "model": settings.llm_model,
+                "base_url": settings.llm_base_url,
+                "temperature": settings.llm_temperature,
+                "timeout": settings.llm_timeout_seconds,
+                "system_prompt": self._system_prompt(),
+                "messages": prepared_messages,
+            },
+        )
         response = agent.invoke({"messages": self._to_langchain_messages(prepared_messages)})
         response_message = response["messages"][-1]
         token_usage = (
@@ -165,12 +185,13 @@ class LangChainAgentRunner:
             "card": card,
         }
         logger.info(
-            "agent run done kind=%s summary_chars=%s prompt_tokens=%s completion_tokens=%s item_count=%s",
+            "agent run done kind=%s summary_chars=%s prompt_tokens=%s completion_tokens=%s item_count=%s card_keys=%s",
             card.get("kind"),
             len(card.get("summary_text", "")),
             result["token_prompt"],
             result["token_completion"],
             len((product_recs or {}).get("items") or []),
+            list(card.keys()),
         )
         return result
 
@@ -179,6 +200,23 @@ class LangChainAgentRunner:
         logger.info("agent stream start message_count=%s model=%s", len(messages), settings.llm_model)
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
+        logger.info(
+            "agent stream invoke prepared_messages roles=%s last_user_chars=%s",
+            [message["role"] for message in prepared_messages],
+            len(prepared_messages[-1]["content"]) if prepared_messages else 0,
+        )
+        log_llm_request(
+            logger,
+            service="langchain_agent.stream",
+            payload={
+                "model": settings.llm_model,
+                "base_url": settings.llm_base_url,
+                "temperature": settings.llm_temperature,
+                "timeout": settings.llm_timeout_seconds,
+                "system_prompt": self._system_prompt(),
+                "messages": prepared_messages,
+            },
+        )
         respond_done = False
         respond_args_state: dict[str, str] = {}
         for chunk, _metadata in agent.stream(
@@ -208,7 +246,13 @@ class LangChainAgentRunner:
                     )
                     raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
                 respond_done = True
-                logger.info("agent stream emit card kind=%s", card.get("kind"))
+                logger.info(
+                    "agent stream emit card kind=%s summary_chars=%s payload_keys=%s args_state_keys=%s",
+                    card.get("kind"),
+                    len(card.get("summary_text", "")),
+                    list((card.get("payload") or {}).keys()) if isinstance(card.get("payload"), dict) else [],
+                    list(respond_args_state.keys()),
+                )
                 yield ("card", card)
                 return
 
@@ -217,11 +261,17 @@ class LangChainAgentRunner:
                 tool_call_chunks = getattr(chunk, "tool_call_chunks", None) or []
                 respond_chunk_text = _extract_respond_summary_text_delta(tool_call_chunks, respond_args_state)
                 if respond_chunk_text:
+                    logger.info(
+                        "agent stream emit delta from respond summary chars=%s args_state_keys=%s",
+                        len(respond_chunk_text),
+                        list(respond_args_state.keys()),
+                    )
                     yield ("delta", respond_chunk_text)
                 # AIMessageChunk.content 文本 → 仅在 respond 未完成时走 delta；否则丢弃 + warn
                 if not respond_done:
                     text = _content_to_text(getattr(chunk, "content", ""))
                     if text:
+                        logger.info("agent stream emit delta from content chars=%s", len(text))
                         yield ("delta", text)
                 else:
                     text = _content_to_text(getattr(chunk, "content", ""))
@@ -230,7 +280,11 @@ class LangChainAgentRunner:
                 continue
 
             logger.info("agent stream skip internal_message type=%s", chunk.__class__.__name__)
-        logger.info("agent stream done")
+        logger.warning(
+            "agent stream finished without card respond_done=%s args_state_keys=%s",
+            respond_done,
+            list(respond_args_state.keys()),
+        )
 
     def _agent(self):
         from langchain.agents import create_agent
@@ -261,11 +315,14 @@ class LangChainAgentRunner:
         if self.mall_recommend_tool is not None:
             def mall_recommend(
                 scope: str,
-                meal_plan_text: str,
                 member_id: str | None = None,
+                meal_plan_text: str = "",
                 limit: int = 5,
             ) -> str:
-                """根据 meal_plan 工具返回的餐单文本和健康画像推荐商城商品。"""
+                """根据 meal_plan 工具返回的餐单文本和健康画像推荐商城商品。
+                当用户只问某一类商品（如油/米/调料）时，meal_plan_text 可为空，
+                service 会用健康画像和成员得分兜底匹配。
+                """
                 logger.info(
                     "agent tool call name=mall_recommend scope=%s member_id=%s limit=%s meal_plan_chars=%s",
                     scope,
@@ -447,7 +504,19 @@ def _validate_respond_payload(data: dict) -> dict | None:
                 )
         except Exception:
             pass
+        logger.warning(
+            "respond payload fallback attempt kind=%s has_summary=%s payload_type=%s",
+            data.get("kind"),
+            bool(data.get("summary_text")),
+            type(data.get("payload")).__name__,
+        )
         return _build_generic_response_card(data)
+    logger.info(
+        "respond payload validated kind=%s summary_chars=%s payload_type=%s",
+        validated.kind,
+        len(validated.summary_text),
+        type(validated.payload).__name__,
+    )
     return _format_card_summary_text(validated.model_dump())
 
 
@@ -456,6 +525,7 @@ def _build_generic_response_card(data: dict) -> dict | None:
 
     summary_text = data.get("summary_text")
     if not isinstance(summary_text, str) or not summary_text.strip():
+        logger.warning("respond payload fallback skipped because summary_text missing")
         return None
     payload = data.get("payload") if isinstance(data.get("payload"), dict) else {}
     topic = payload.get("topic") or payload.get("question_topic") or data.get("kind") or "健康建议"
@@ -469,8 +539,15 @@ def _build_generic_response_card(data: dict) -> dict | None:
         },
     }
     try:
-        return _format_card_summary_text(StructuredResponse.model_validate(generic).model_dump())
+        card = _format_card_summary_text(StructuredResponse.model_validate(generic).model_dump())
+        logger.warning(
+            "respond payload downgraded to general_advice original_kind=%s topic=%s",
+            data.get("kind"),
+            generic["payload"]["topic"],
+        )
+        return card
     except Exception:
+        logger.exception("respond payload fallback validation failed")
         return None
 
 
@@ -555,6 +632,8 @@ def _extract_respond_tool_call_args(messages) -> dict[str, str]:
                 continue
             tool_call_id = tool_call.get("id") if isinstance(tool_call, dict) else getattr(tool_call, "id", None)
             result[tool_call_id or f"index:{index}"] = raw_args
+    if result:
+        logger.info("respond tool call args extracted ids=%s", list(result.keys()))
     return result
 
 
@@ -588,6 +667,13 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
         prev_args = state.get(tc_id, "")
         new_args = prev_args + (_tc_attr(tc, "args", "") or "")
         state[tc_id] = new_args
+        logger.info(
+            "respond args chunk appended tc_id=%s name=%s prev_chars=%s new_chars=%s",
+            tc_id,
+            name,
+            len(prev_args),
+            len(new_args),
+        )
         m = SUMMARY_RE.search(new_args)
         if not m:
             continue
@@ -596,6 +682,10 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
         prev_match = SUMMARY_RE.search(prev_args)
         if prev_match:
             prev_decoded = _decode(prev_match.group(1))
-            return decoded[len(prev_decoded):]
+            delta = decoded[len(prev_decoded):]
+            if delta:
+                logger.info("respond summary delta parsed tc_id=%s delta_chars=%s", tc_id, len(delta))
+            return delta
+        logger.info("respond summary initial parsed tc_id=%s chars=%s", tc_id, len(decoded))
         return decoded
     return ""
