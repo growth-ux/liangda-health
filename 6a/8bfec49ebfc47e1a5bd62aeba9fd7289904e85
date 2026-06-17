@@ -1,0 +1,30 @@
+docs/superpowers/specs/2026-06-17-evidence-chain-design.md
+  s_8e61fea1ab042e::t_9517380653aa19 462,469-470
+  s_8e61fea1ab042e::t_37037f8caa78a4 1-111,115-233,235-236,239-244,269-287,289,291-296,299-303,307-316,318-449,452-461,463-468,471-538
+  s_8e61fea1ab042e::t_2ba92507df0ac8 234,237-238,245-268
+  s_8e61fea1ab042e::t_762aa92829ca2e 112-114
+  s_8e61fea1ab042e::t_a78dce68088843 450-451
+  s_8e61fea1ab042e::t_3bdebc2ce304a9 288,290,297-298
+  s_8e61fea1ab042e::t_7599b677d18781 304-306,317
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "6a8bfec49ebfc47e1a5bd62aeba9fd7289904e85",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_8e61fea1ab042e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c086355-7edb-41b1-b36d-1229721eba7d",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
