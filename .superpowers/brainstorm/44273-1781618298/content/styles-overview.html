@@ -1,0 +1,175 @@
+<h2>餐单回复版式 · 3 个方向</h2>
+<p class="subtitle">同一段餐单（全家晚餐）按 3 种风格渲染。点选你喜欢的方向（可多选对比），再告诉我取舍</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="A" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>清淡卡片 · 家庭健康顾问感</h3>
+      <p>浅色卡片 + emoji 图标 + 单列，温和日常</p>
+    </div>
+  </div>
+  <div class="option" data-choice="B" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>折叠分组 · 信息密度高</h3>
+      <p>默认展开三餐，成员差异 / 禁忌折叠收纳</p>
+    </div>
+  </div>
+  <div class="option" data-choice="C" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>结构化时间线 · 像点单</h3>
+      <p>三餐横向时间线 + 末尾商品卡</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 方案 A ===== -->
+<div class="section">
+  <div class="label">方案 A · 清淡卡片</div>
+  <div class="mockup" style="max-width:780px">
+    <div class="mockup-header">对话气泡 · 粮达健康</div>
+    <div class="mockup-body" style="background:#f7f8f5;padding:20px;display:flex;flex-direction:column;gap:12px;font-family:-apple-system,'PingFang SC',sans-serif">
+
+      <div style="background:white;border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04)">
+        <div style="font-size:13px;color:#8a8a8a;margin-bottom:6px">🍽️ 全家共餐 · 晚餐</div>
+        <div style="font-size:16px;font-weight:600;color:#2d3a2e;margin-bottom:4px">今晚建议</div>
+        <div style="font-size:14px;color:#5a5a5a">整体清淡，高蛋白高纤维，控制总热量和晚餐份量</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:white;border-radius:12px;padding:14px 16px">
+          <div style="font-size:12px;color:#7a8a7a;font-weight:600;margin-bottom:6px">🥗 主菜</div>
+          <div style="font-size:14px;color:#2d3a2e">清蒸鸡胸肉（去皮）配香芹炒豆腐丁</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px 16px">
+          <div style="font-size:12px;color:#7a8a7a;font-weight:600;margin-bottom:6px">🥬 配菜</div>
+          <div style="font-size:14px;color:#2d3a2e">蒜蓉西兰花 + 番茄冬瓜汤</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px 16px">
+          <div style="font-size:12px;color:#7a8a7a;font-weight:600;margin-bottom:6px">🍚 主食</div>
+          <div style="font-size:14px;color:#2d3a2e">杂粮饭（糙米+小米+燕麦 1/4）</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px 16px">
+          <div style="font-size:12px;color:#7a8a7a;font-weight:600;margin-bottom:6px">🥛 附加</div>
+          <div style="font-size:14px;color:#2d3a2e">每人低脂牛奶一杯</div>
+        </div>
+      </div>
+
+      <div style="background:#fff8e8;border-radius:12px;padding:12px 16px;font-size:13px;color:#7a5e1a">
+        💡 女儿可额外加一个水煮蛋补蛋白，奶奶番茄冬瓜汤少盐
+      </div>
+
+      <div style="background:white;border-radius:12px;padding:12px 16px">
+        <div style="font-size:12px;color:#a07a3a;font-weight:600;margin-bottom:4px">需要避免</div>
+        <div style="font-size:13px;color:#5a5a5a">油炸、肥肉、动物油、咸菜、腌制品、浓汤、重盐调味、甜饮甜点、白米白面</div>
+      </div>
+
+      <div style="font-size:12px;color:#9a9a9a;padding:0 4px">这顿饭清淡少油、高蛋白高纤维，适合全家健康需求，尤其照顾了爸爸的控脂、奶奶的低钠和女儿的生长发育。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 方案 B ===== -->
+<div class="section">
+  <div class="label">方案 B · 折叠分组</div>
+  <div class="mockup" style="max-width:780px">
+    <div class="mockup-header">对话气泡 · 粮达健康</div>
+    <div class="mockup-body" style="background:#fafafa;padding:20px;display:flex;flex-direction:column;gap:10px;font-family:-apple-system,'PingFang SC',sans-serif">
+
+      <div style="font-size:15px;color:#2d3a2e;line-height:1.7">
+        全家晚餐以清淡高蛋白为主，控制总热量和晚餐份量。下面是分餐建议。
+      </div>
+
+      <details open style="background:white;border:1px solid #ececec;border-radius:10px;padding:0">
+        <summary style="cursor:pointer;padding:12px 16px;font-size:14px;font-weight:600;color:#2d3a2e;list-style:none">
+          🥗 主菜 · 清蒸鸡胸肉配香芹炒豆腐丁
+        </summary>
+        <div style="padding:0 16px 14px 16px;font-size:13px;color:#5a5a5a;line-height:1.7">
+          鸡胸去皮，少油。豆腐切丁香芹快炒。爸爸蛋白质来源，奶奶切小块好咀嚼。
+        </div>
+      </details>
+
+      <details open style="background:white;border:1px solid #ececec;border-radius:10px;padding:0">
+        <summary style="cursor:pointer;padding:12px 16px;font-size:14px;font-weight:600;color:#2d3a2e;list-style:none">
+          🥬 配菜 · 蒜蓉西兰花 + 番茄冬瓜汤
+        </summary>
+        <div style="padding:0 16px 14px 16px;font-size:13px;color:#5a5a5a;line-height:1.7">
+          西兰花焯水后蒜蓉快炒；冬瓜汤无盐或极低盐，用天然食材提味。
+        </div>
+      </details>
+
+      <details open style="background:white;border:1px solid #ececec;border-radius:10px;padding:0">
+        <summary style="cursor:pointer;padding:12px 16px;font-size:14px;font-weight:600;color:#2d3a2e;list-style:none">
+          🍚 主食 · 杂粮饭（糙米+小米+燕麦）
+        </summary>
+        <div style="padding:0 16px 14px 16px;font-size:13px;color:#5a5a5a;line-height:1.7">
+          比例约 1:1:1，比纯白米饭少 1/4 量。
+        </div>
+      </details>
+
+      <details style="background:white;border:1px solid #ececec;border-radius:10px;padding:0">
+        <summary style="cursor:pointer;padding:12px 16px;font-size:14px;font-weight:600;color:#2d3a2e;list-style:none">
+          👨‍👩‍👧 成员差异调整（3 项）
+        </summary>
+        <div style="padding:0 16px 14px 16px;font-size:13px;color:#5a5a5a;line-height:1.8">
+          <div>· 爸爸：控脂，主食减量已执行</div>
+          <div>· 女儿：牛奶 + 一个水煮蛋，补充生长所需</div>
+          <div>· 奶奶：低钠杂粮粥，番茄冬瓜汤清汤</div>
+        </div>
+      </details>
+
+      <details style="background:white;border:1px solid #ececec;border-radius:10px;padding:0">
+        <summary style="cursor:pointer;padding:12px 16px;font-size:14px;font-weight:600;color:#a06820;list-style:none">
+          ⚠️ 需要避免或替代（点击展开）
+        </summary>
+        <div style="padding:0 16px 14px 16px;font-size:13px;color:#5a5a5a;line-height:1.8">
+          油炸、肥肉、动物油、咸菜、腌制品、浓汤、重盐调味、甜饮甜点、白米白面、过量咖啡或浓茶
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 方案 C ===== -->
+<div class="section">
+  <div class="label">方案 C · 结构化时间线</div>
+  <div class="mockup" style="max-width:820px">
+    <div class="mockup-header">对话气泡 · 粮达健康</div>
+    <div class="mockup-body" style="background:#fafafa;padding:20px;display:flex;flex-direction:column;gap:14px;font-family:-apple-system,'PingFang SC',sans-serif">
+
+      <div style="font-size:15px;color:#2d3a2e;font-weight:600">🍽️ 全家 · 今日三餐</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:white;border-top:3px solid #e9b97a;border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;color:#a06820;font-weight:600;margin-bottom:6px">早餐</div>
+          <div style="font-size:13px;color:#3a3a3a;line-height:1.6">杂粮粥 + 水煮蛋 + 凉拌黄瓜丝</div>
+        </div>
+        <div style="background:white;border-top:3px solid #7a8a7a;border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;color:#4a5a4a;font-weight:600;margin-bottom:6px">午餐</div>
+          <div style="font-size:13px;color:#3a3a3a;line-height:1.6">糙米饭 + 清蒸鱼 + 蒜蓉时蔬</div>
+        </div>
+        <div style="background:white;border-top:3px solid #8a7a9a;border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;color:#5a4a6a;font-weight:600;margin-bottom:6px">晚餐</div>
+          <div style="font-size:13px;color:#3a3a3a;line-height:1.6">杂粮饭 + 鸡胸豆腐 + 西兰花冬瓜汤</div>
+        </div>
+      </div>
+
+      <div style="background:white;border-radius:10px;padding:12px 16px">
+        <div style="font-size:12px;color:#7a8a7a;font-weight:600;margin-bottom:6px">👨‍👩‍👧 成员调整</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:#eaf3ea;color:#3a5a3a;font-size:12px;padding:3px 10px;border-radius:999px">爸爸：控脂，主食减量</span>
+          <span style="background:#eaf3ea;color:#3a5a3a;font-size:12px;padding:3px 10px;border-radius:999px">女儿：+水煮蛋</span>
+          <span style="background:#eaf3ea;color:#3a5a3a;font-size:12px;padding:3px 10px;border-radius:999px">奶奶：低钠杂粮粥</span>
+        </div>
+      </div>
+
+      <div style="background:#fff8e8;border-radius:10px;padding:10px 14px;font-size:12px;color:#7a5e1a">
+        ⚠️ 避免：油炸 · 肥肉 · 咸菜 · 浓汤 · 重盐 · 甜饮 · 白米白面
+      </div>
+
+      <div style="font-size:12px;color:#9a9a9a">清淡少油、高蛋白高纤维，兼顾爸爸控脂、奶奶低钠、女儿生长。</div>
+    </div>
+  </div>
+</div>

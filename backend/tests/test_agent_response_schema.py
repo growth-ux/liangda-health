@@ -70,6 +70,50 @@ def test_kb_interpretation_payload_validates():
     assert response.payload.evidence[0].source == "2024 体检"
 
 
+def test_structured_response_payload_follows_kind():
+    payload = {
+        "kind": "kb_interpretation",
+        "summary_text": "爸爸的血脂指标偏高，建议少吃肥肉和动物内脏，多吃燕麦、豆类和绿叶菜，并定期复查。",
+        "payload": {
+            "topic": "爸爸血脂情况",
+            "evidence": [
+                {
+                    "source": "2024年体检报告 第3页",
+                    "excerpt": "总胆固醇 6.8 mmol/L，甘油三酯 2.1 mmol/L。",
+                }
+            ],
+            "suggestions": [
+                {"text": "少吃肥肉、动物内脏，多吃燕麦、豆类和绿叶菜。", "priority": "primary"},
+                {"text": "每天快走或骑车30分钟，每周至少5天。", "priority": "secondary"},
+            ],
+            "red_flags": ["胸痛、胸闷或明显头晕时及时就医"],
+        },
+    }
+
+    response = StructuredResponse.model_validate(payload)
+
+    assert isinstance(response.payload, KbInterpretationPayload)
+    assert response.payload.topic == "爸爸血脂情况"
+
+
+def test_kb_interpretation_suggestions_accept_string_items():
+    payload = {
+        "kind": "kb_interpretation",
+        "summary_text": "爸爸血脂偏高，建议先从饮食和运动调整。",
+        "payload": {
+            "topic": "血脂偏高",
+            "evidence": [{"source": "2024年体检报告 第3页", "excerpt": "总胆固醇 6.8 mmol/L。"}],
+            "suggestions": ["减少动物油、肥肉摄入", "定期复查血脂"],
+            "red_flags": ["胸痛胸闷时及时就医"],
+        },
+    }
+
+    response = StructuredResponse.model_validate(payload)
+
+    assert response.payload.suggestions[0].text == "减少动物油、肥肉摄入"
+    assert response.payload.suggestions[0].priority == "primary"
+
+
 def test_general_advice_payload_validates():
     payload = {
         "kind": "general_advice",

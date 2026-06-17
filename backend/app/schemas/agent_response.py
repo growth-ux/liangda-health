@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 # ===== 餐单 payload =====
@@ -66,6 +66,16 @@ class KbInterpretationPayload(BaseModel):
     suggestions: list[SuggestionItem] = Field(..., min_length=1)
     red_flags: list[str] = Field(default_factory=list)
 
+    @field_validator("suggestions", mode="before")
+    @classmethod
+    def normalize_suggestions(cls, value):
+        if not isinstance(value, list):
+            return value
+        return [
+            {"text": item, "priority": "primary"} if isinstance(item, str) else item
+            for item in value
+        ]
+
 
 # ===== 一般建议 payload =====
 
@@ -80,6 +90,15 @@ class GeneralAdvicePayload(BaseModel):
 ResponseKind = Literal["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]
 
 
+_PAYLOAD_MODELS = {
+    "meal_plan": MealPlanPayload,
+    "qa": QaPayload,
+    "greeting": GreetingPayload,
+    "kb_interpretation": KbInterpretationPayload,
+    "general_advice": GeneralAdvicePayload,
+}
+
+
 class StructuredResponse(BaseModel):
     kind: ResponseKind
     summary_text: str = Field(..., min_length=1, max_length=400)
@@ -90,3 +109,14 @@ class StructuredResponse(BaseModel):
         | KbInterpretationPayload
         | GeneralAdvicePayload
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_payload_by_kind(cls, data):
+        if not isinstance(data, dict):
+            return data
+        kind = data.get("kind")
+        payload_model = _PAYLOAD_MODELS.get(kind)
+        if payload_model is None or "payload" not in data:
+            return data
+        return {**data, "payload": payload_model.model_validate(data["payload"])}

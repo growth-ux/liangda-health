@@ -187,14 +187,23 @@ class LangChainAgentRunner:
 
             # 2) respond 工具的 ToolMessage → 整体解析为 card 事件
             if chunk.__class__.__name__ == "ToolMessage" and getattr(chunk, "name", None) == "respond":
-                card = _parse_respond_payload(chunk)
+                card = _parse_respond_payload(chunk) or _parse_respond_payload_from_args_state(
+                    respond_args_state,
+                    tool_call_id=getattr(chunk, "tool_call_id", None),
+                )
                 if card is None:
-                    logger.warning("agent stream respond payload invalid; raising")
+                    raw_content = getattr(chunk, "content", "")
+                    logger.warning(
+                        "agent stream respond payload invalid; raising. tool_call_id=%s raw_content=%r args_state_keys=%s",
+                        getattr(chunk, "tool_call_id", None),
+                        raw_content[:500] if isinstance(raw_content, str) else str(raw_content)[:500],
+                        list(respond_args_state.keys()),
+                    )
                     raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
                 respond_done = True
                 logger.info("agent stream emit card kind=%s", card.get("kind"))
                 yield ("card", card)
-                continue
+                return
 
             # 3) AIMessageChunk 含 respond 工具的 tool_call_chunk → 提取 summary_text 字段增量
             if chunk.__class__.__name__ == "AIMessageChunk":
@@ -383,12 +392,16 @@ def _extract_product_recommendations(messages) -> dict | None:
 
 def _extract_card(messages) -> dict | None:
     """从 agent.invoke 的完整消息列表中找出 respond 工具的结果并解析。"""
+    respond_args_by_id = _extract_respond_tool_call_args(messages)
     for message in messages:
         if message.__class__.__name__ != "ToolMessage":
             continue
         if getattr(message, "name", None) != "respond":
             continue
-        return _parse_respond_payload(message)
+        return _parse_respond_payload(message) or _parse_respond_payload_from_args_state(
+            respond_args_by_id,
+            tool_call_id=getattr(message, "tool_call_id", None),
+        )
     return None
 
 
@@ -398,8 +411,6 @@ def _parse_respond_payload(tool_message) -> dict | None:
     ToolMessage.content 是 LLM 填入 respond 工具的 JSON 字符串（LangChain 会把 args 序列化为 content）。
     用 Pydantic 严格校验；返回 None 表示解析失败（由调用方决定抛错）。
     """
-    from app.schemas.agent_response import StructuredResponse
-
     raw = getattr(tool_message, "content", "")
     if not isinstance(raw, str) or not raw.strip():
         return None
@@ -409,11 +420,83 @@ def _parse_respond_payload(tool_message) -> dict | None:
         return None
     if not isinstance(data, dict):
         return None
+    return _validate_respond_payload(data)
+
+
+def _validate_respond_payload(data: dict) -> dict | None:
+    from app.schemas.agent_response import StructuredResponse
+
     try:
         validated = StructuredResponse.model_validate(data)
-    except Exception:
+    except Exception as exc:
+        # 诊断：把校验失败原因和原始数据打出来，便于排查 LLM 输出
+        try:
+            from pydantic import ValidationError
+            if isinstance(exc, ValidationError):
+                logger.warning(
+                    "respond payload Pydantic validation failed: errors=%s payload=%s",
+                    exc.errors()[:3],
+                    json.dumps(data, ensure_ascii=False)[:500],
+                )
+        except Exception:
+            pass
         return None
     return validated.model_dump()
+
+
+def _parse_respond_payload_from_args_state(state: dict[str, str], tool_call_id: str | None = None) -> dict | None:
+    """从 respond tool_call args 中解析结构化回复。
+
+    真实工具执行后的 ToolMessage.content 是 _respond 的返回值 "ok"；
+    LLM 填入的参数在前面的 AIMessage/tool_call_chunks 里。
+    """
+    candidates: list[str] = []
+    if tool_call_id and tool_call_id in state:
+        candidates.append(state[tool_call_id])
+    candidates.extend(raw for key, raw in state.items() if key != tool_call_id)
+
+    for raw in candidates:
+        if not isinstance(raw, str) or not raw.strip():
+            continue
+        try:
+            data = json.loads(raw)
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        card = _validate_respond_payload(data)
+        if card is not None:
+            return card
+    if state:
+        # 诊断：args_state 有内容但都校验失败
+        logger.warning(
+            "respond args_state present but no candidate validated: state_keys=%s tool_call_id=%s last_raw=%s",
+            list(state.keys()),
+            tool_call_id,
+            json.dumps(list(state.values())[-1], ensure_ascii=False)[:300] if state else "",
+        )
+    return None
+
+
+def _extract_respond_tool_call_args(messages) -> dict[str, str]:
+    """从完整 AIMessage 列表里提取 respond tool_call 参数，供 ToolMessage(content="ok") 反查。"""
+    result: dict[str, str] = {}
+    for message in messages:
+        tool_calls = getattr(message, "tool_calls", None) or []
+        for index, tool_call in enumerate(tool_calls):
+            name = tool_call.get("name") if isinstance(tool_call, dict) else getattr(tool_call, "name", None)
+            if name != "respond":
+                continue
+            args = tool_call.get("args") if isinstance(tool_call, dict) else getattr(tool_call, "args", None)
+            if isinstance(args, dict):
+                raw_args = json.dumps(args, ensure_ascii=False)
+            elif isinstance(args, str):
+                raw_args = args
+            else:
+                continue
+            tool_call_id = tool_call.get("id") if isinstance(tool_call, dict) else getattr(tool_call, "id", None)
+            result[tool_call_id or f"index:{index}"] = raw_args
+    return result
 
 
 def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str, str]) -> str:
@@ -440,10 +523,12 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
                 return captured
         return captured
 
-    for tc in tool_call_chunks:
-        if _tc_attr(tc, "name") != "respond":
+    for index, tc in enumerate(tool_call_chunks):
+        tc_index = _tc_attr(tc, "index", index)
+        tc_id = f"index:{tc_index}" if tc_index is not None else (_tc_attr(tc, "id") or "default")
+        name = _tc_attr(tc, "name")
+        if name != "respond" and tc_id not in state:
             continue
-        tc_id = _tc_attr(tc, "id") or "default"
         prev_args = state.get(tc_id, "")
         new_args = prev_args + (_tc_attr(tc, "args", "") or "")
         state[tc_id] = new_args

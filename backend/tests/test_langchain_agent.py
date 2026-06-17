@@ -452,6 +452,38 @@ def test_langchain_agent_stream_emits_card_event_for_respond(monkeypatch):
     assert deltas == ["先回一句"]
 
 
+def test_langchain_agent_stream_extracts_card_from_respond_tool_call_args(monkeypatch):
+    """真实工具执行结果是 ok 时，stream() 从 respond tool_call_chunks 的 args 解析 card。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind": "qa", "summary_text": "你好", "payload": {"question_topic": "早餐", "answer": "高蛋白", "tips": []}}',
+                        index=0,
+                        id="call_1",
+                    ),
+                ],
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_1", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
+    card_events = [p for k, p in events if k == "card"]
+
+    assert len(card_events) == 1
+    assert card_events[0]["kind"] == "qa"
+    assert card_events[0]["payload"]["answer"] == "高蛋白"
+
+
 def test_langchain_agent_stream_raises_on_invalid_respond_payload(monkeypatch):
     """respond 工具的 ToolMessage 解析失败抛 ResponseSchemaError。"""
     from langchain_core.messages import ToolMessage
@@ -474,7 +506,7 @@ def test_langchain_agent_stream_raises_on_invalid_respond_payload(monkeypatch):
 
 
 def test_langchain_agent_stream_drops_aimessage_after_respond(monkeypatch):
-    """LLM 调了 respond 之后又发普通 AIMessage 文字，stream() 丢弃并 warn。"""
+    """LLM 调了 respond 之后，stream() 直接结束，不再消费后续普通文本。"""
     from langchain_core.messages import AIMessageChunk, ToolMessage
     import json
 
@@ -501,6 +533,41 @@ def test_langchain_agent_stream_drops_aimessage_after_respond(monkeypatch):
     events = list(runner.stream([{"role": "user", "content": "x"}]))
     deltas = [p for k, p in events if k == "delta"]
     assert deltas == []
+
+
+def test_langchain_agent_stream_stops_after_first_valid_respond(monkeypatch):
+    """真实 agent 可能在 respond 后继续循环；第一张 card 已经是最终回复，应直接结束。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    import json
+
+    valid_card = {
+        "kind": "qa",
+        "summary_text": "你好",
+        "payload": {"question_topic": "q", "answer": "a", "tips": []},
+    }
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield ToolMessage(
+                content=json.dumps(valid_card, ensure_ascii=False),
+                tool_call_id="call_1",
+                name="respond",
+            ), {}
+            yield ToolMessage(
+                content='{"kind": "nonsense", "summary_text": "x", "payload": {}}',
+                tool_call_id="call_2",
+                name="respond",
+            ), {}
+            yield AIMessageChunk(content="这段不应被消费"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+
+    assert [k for k, _ in events] == ["card"]
+    assert events[0][1]["summary_text"] == "你好"
 
 
 def test_langchain_agent_run_extracts_card(monkeypatch):
@@ -534,6 +601,43 @@ def test_langchain_agent_run_extracts_card(monkeypatch):
 
     result = runner.run([{"role": "user", "content": "早餐"}])
     assert result["card"] is not None
+    assert result["card"]["kind"] == "qa"
+    assert result["card"]["payload"]["answer"] == "高蛋白"
+
+
+def test_langchain_agent_run_extracts_card_from_respond_tool_call_args(monkeypatch):
+    """run() 中 ToolMessage.content 为 ok 时，从前面的 AIMessage.tool_calls 解析 respond 参数。"""
+    from langchain_core.messages import AIMessage, ToolMessage
+
+    class FakeAgent:
+        def invoke(self, payload):
+            return {
+                "messages": [
+                    AIMessage(
+                        content="",
+                        tool_calls=[
+                            {
+                                "name": "respond",
+                                "id": "call_1",
+                                "args": {
+                                    "kind": "qa",
+                                    "summary_text": "你好",
+                                    "payload": {"question_topic": "早餐", "answer": "高蛋白", "tips": []},
+                                },
+                            }
+                        ],
+                    ),
+                    ToolMessage(content="ok", tool_call_id="call_1", name="respond"),
+                ]
+            }
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    result = runner.run([{"role": "user", "content": "早餐"}])
+
+    assert result["content"] == "你好"
     assert result["card"]["kind"] == "qa"
     assert result["card"]["payload"]["answer"] == "高蛋白"
 
