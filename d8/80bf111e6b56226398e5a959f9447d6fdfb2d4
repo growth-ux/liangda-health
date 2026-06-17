@@ -1,0 +1,116 @@
+backend/app/services/langchain_agent.py
+  s_bf1a9c0b4ccde2::t_00d725c7b74320 1
+  s_bf1a9c0b4ccde2::t_bc0277c8a6d17b 6-7,9
+  s_bf1a9c0b4ccde2::t_0b9e1acd9a4373 45-56
+  s_bf1a9c0b4ccde2::t_5492f1d8900a7d 59-62
+  s_bf1a9c0b4ccde2::t_988bb55362908b 63-76,83-84
+  s_bf1a9c0b4ccde2::t_508ccb64bb90dd 77-82
+  s_bf1a9c0b4ccde2::t_c1b6784506c03a 129-132,134,139,142-144
+  s_bf1a9c0b4ccde2::t_b68c05e2e36ee5 145,150,155,161-180
+  s_bf1a9c0b4ccde2::t_9470cec172abdb 158,181-191,194
+  s_bf1a9c0b4ccde2::t_282c87d91be636 193,198-201
+  s_bf1a9c0b4ccde2::t_6418f5215698d7 242
+  s_bf1a9c0b4ccde2::t_e0d0ca35cf7b2c 243
+  s_bf1a9c0b4ccde2::t_323ae6076c02bb 353-360,372-376
+  s_bf1a9c0b4ccde2::t_a36a0a8e105ed5 361-371
+  s_bf1a9c0b4ccde2::t_6004f3e2b9dde5 395-402,406,421,423,425,427-430,432-434,436-438
+  s_bf1a9c0b4ccde2::t_f1e4376fab04a2 403-405
+  s_bf1a9c0b4ccde2::t_2b2b4023735b69 407-411,422,424,426
+  s_bf1a9c0b4ccde2::t_4572d26012eb9e 412-420,431,435
+backend/app/services/agent_service.py
+  s_bf1a9c0b4ccde2::t_43714c19fe4944 63-67
+  s_bf1a9c0b4ccde2::t_31468cc9afcd7c 100,108-111
+  s_bf1a9c0b4ccde2::t_937c1c90a7e457 140
+  s_bf1a9c0b4ccde2::t_d87415b571511a 159
+docs/superpowers/specs/2026-06-16-structured-reply-cards-design.md
+  s_bf1a9c0b4ccde2::t_fa71362a5c9e31 1-54,56-105,109-169,171-228
+  s_bf1a9c0b4ccde2::t_902a69ce70b2e2 55
+  s_bf1a9c0b4ccde2::t_3fffb9bc1ff65f 106-108
+  s_bf1a9c0b4ccde2::t_174de4eace3041 170
+frontend/src/styles.css
+  s_bb5e3c6cd136e3::t_33bfb9198f65b6 1662-1721
+frontend/src/components/chat/cards/QaCard.tsx
+  s_bf1a9c0b4ccde2::t_5f5db8de664652 1-20
+frontend/src/components/chat/cards/GeneralAdviceCard.tsx
+  s_bf1a9c0b4ccde2::t_dda6695f866685 1-20
+backend/tests/test_langchain_agent.py
+  s_bf1a9c0b4ccde2::t_2d75f95f1a5751 130-161
+  s_bf1a9c0b4ccde2::t_d6d1e7229d90a7 231-238,242,253
+  s_bf1a9c0b4ccde2::t_c56638bef88874 338-351,355,357-376
+  s_bf1a9c0b4ccde2::t_920d0a0c4f6433 352-354,356
+  s_bf1a9c0b4ccde2::t_57420c2c813f85 377-462
+  s_bf1a9c0b4ccde2::t_b26c026b6eba48 472-523
+  s_bf1a9c0b4ccde2::t_fa6baeb1116744 524-548
+  s_bf1a9c0b4ccde2::t_8ce07bdf10a05d 581-596
+frontend/src/components/chat/MessageBubble.tsx
+  s_bf1a9c0b4ccde2::t_38e806b58af945 4
+  s_bf1a9c0b4ccde2::t_953ea3259a0cfa 28
+  s_bf1a9c0b4ccde2::t_a59d033f8d2e79 40
+  s_bf1a9c0b4ccde2::t_487f642d772ed2 41-43
+backend/app/repositories/agent_repository.py
+  s_bf1a9c0b4ccde2::t_738df65bfcc621 67,79
+backend/app/schemas/agent.py
+  s_bf1a9c0b4ccde2::t_894b2a83bd4c29 36,60-76
+backend/app/models/agent.py
+  s_bf1a9c0b4ccde2::t_761ec752a0ac24 38-40
+frontend/src/components/chat/cards/GreetingCard.tsx
+  s_bf1a9c0b4ccde2::t_671a70e0946cc2 1-23
+frontend/src/components/chat/StructuredCard.tsx
+  s_bf1a9c0b4ccde2::t_cd35d77bb7b603 1-23,25-28
+  s_bf1a9c0b4ccde2::t_890adc529c8c53 24
+frontend/src/api/agent.ts
+  s_bf1a9c0b4ccde2::t_b6cf736e0525c3 1-2
+  s_bf1a9c0b4ccde2::t_a68d003701ee85 29
+  s_bf1a9c0b4ccde2::t_6fec3b79823819 48-49
+  s_bf1a9c0b4ccde2::t_a2b70be4cb4518 136
+backend/tests/test_agent_response_schema.py
+  s_bf1a9c0b4ccde2::t_599585d45a33c8 1-116
+frontend/src/components/chat/MessageList.tsx
+  s_bf1a9c0b4ccde2::t_15c9cda24b698d 37-63
+frontend/src/schemas/agentResponse.ts
+  s_bf1a9c0b4ccde2::t_10d43aa936bfac 1-90
+backend/app/schemas/agent_response.py
+  s_bf1a9c0b4ccde2::t_901e463aa248b7 1-92
+frontend/src/components/chat/cards/MealPlanCard.tsx
+  s_bf1a9c0b4ccde2::t_3b03f15df737da 1-91
+backend/app/scripts/migrate_add_agent_card.py
+  s_bf1a9c0b4ccde2::t_7771acaf26321d 1-59
+docs/superpowers/plans/2026-06-16-structured-reply-cards.md
+  s_bf1a9c0b4ccde2::t_a53c415c327fe0 1-867,869-878,880,882-883,885-898,901-913,916,921-1000,1004-1019,1021-2273
+  s_bf1a9c0b4ccde2::t_600c0281b96c62 868
+  s_bf1a9c0b4ccde2::t_a69badd763bb0a 879,881,884
+  s_bf1a9c0b4ccde2::t_1b47e5c368bf05 899-900,914-915,917-920
+  s_bf1a9c0b4ccde2::t_fd8eaa5f3ce8bd 1001-1003,1020
+frontend/src/pages/ChatPage.tsx
+  s_bb5e3c6cd136e3::t_53ab51cc1ba569 12,36-39,289-295
+  s_bf1a9c0b4ccde2::t_36e1ce2abf4fae 160-169,181-182
+frontend/src/components/chat/cards/KbInterpretationCard.tsx
+  s_bf1a9c0b4ccde2::t_234cd1aa50fd99 1-47
+backend/tests/test_agent_service.py
+  s_bf1a9c0b4ccde2::t_3c6148cd774006 173-225
+  s_bf1a9c0b4ccde2::t_7847416473b542 226-282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "d880bf111e6b56226398e5a959f9447d6fdfb2d4",
+  "prompts": {},
+  "sessions": {
+    "s_bb5e3c6cd136e3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed0b1-0bba-7421-98fa-331ce03a7b48",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_bf1a9c0b4ccde2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1c18d202-ddf7-4095-8f20-ac19620cb2be",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
