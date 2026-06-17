@@ -57,6 +57,26 @@ def test_recommend_member_products_from_meal_plan_and_profile(db_session):
     assert any(keyword in all_reasons for keyword in ["低钠", "少油", "轻负担", "高纤维", "蛋白"])
 
 
+def test_recommend_prefers_new_food_categories_for_dish_keywords(db_session):
+    _add_member(db_session)
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+
+    result = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：清炒西兰花、番茄豆腐、鸡蛋和餐后蓝莓。建议清淡、轻负担。",
+        limit=5,
+    )
+
+    assert result["is_error"] is False
+    category_codes = {item["product_id"].split("-", 1)[0] for item in result["items"]}
+    assert "vegetables" in category_codes
+    assert "soy_products" in category_codes
+    assert any(code in category_codes for code in {"meat_eggs", "fruits"})
+
+
 def test_recommend_default_limit_is_five(db_session):
     _add_member(db_session)
     repo = SqlAlchemyMallRepository(db_session)

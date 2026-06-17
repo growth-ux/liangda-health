@@ -9,7 +9,7 @@ import sys
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import parse_qs, urlencode, urljoin, urlparse
+from urllib.parse import parse_qs, urlencode, urljoin, urlparse, unquote
 
 import requests
 
@@ -102,7 +102,8 @@ class ProductImageParser(HTMLParser):
 def fetch_category_images(url: str) -> list[RemoteProductImage]:
     if url.startswith("@"):
         return read_local_images(Path(url[1:]))
-    if "mall.jd.com/view_search-" in url:
+    parsed = urlparse(url)
+    if parsed.netloc.endswith("jd.com") and Path(parsed.path).stem.startswith("view_search-"):
         return fetch_jd_shop_images(url)
 
     response = requests.get(url, headers=HEADERS, timeout=20)
@@ -130,16 +131,17 @@ def fetch_jd_shop_images(url: str) -> list[RemoteProductImage]:
         or parts[2]
     )
     page_instance_id = extract_first(page_html, r'id="pageInstance_id"\s+value="(\d+)"') or ""
-    render = extract_jd_render_params(page_html)
+    render = extract_jd_render_params(page_html, prefer_search_module=True)
+    search_params = extract_jd_search_params(page_html)
 
-    category_id = parts[2]
-    order_by = parts[3]
-    direction = parts[4]
-    page_size = parts[5]
-    page_no = parts[6]
+    category_id = search_params.get("categoryId") or (parts[4] if len(parts) >= 11 else parts[2])
+    order_by = search_params.get("orderBy") or (parts[5] if len(parts) >= 11 else parts[3])
+    direction = search_params.get("direction") or (parts[8] if len(parts) >= 11 else parts[4])
+    page_size = search_params.get("pageSize") or parts[-1]
+    page_no = search_params.get("pageNo") or (parts[9] if len(parts) >= 11 else parts[6])
     params = {
         "pageNo": page_no,
-        "pagePrototypeId": "8",
+        "pagePrototypeId": search_params.get("pagePrototypeId") or "8",
         "orderBy": order_by,
         "pageSize": page_size,
         "categoryId": category_id,
@@ -148,17 +150,24 @@ def fetch_jd_shop_images(url: str) -> list[RemoteProductImage]:
         "moduleInstanceId": render.get("instance") or "",
         "prototypeId": render.get("prototype") or "55555",
         "templateId": render.get("template") or "905542",
-        "appId": parts[1],
+        "appId": search_params.get("appId") or parts[1],
         "layoutInstanceId": render.get("layout") or render.get("instance") or "",
         "origin": "0",
         "shopId": shop_id,
         "venderId": vender_id,
         "callback": "jshop_module_render_callback",
     }
+    optional_params = ("keyword", "isGlobalSearch", "minPrice", "maxPrice")
+    for key in optional_params:
+        value = search_params.get(key)
+        if value not in (None, ""):
+            params[key] = value
     module_url = f"https://module-jshop.jd.com/module/getModuleHtml.html?{urlencode(params)}"
     response = requests.get(module_url, headers={**HEADERS, "Referer": url}, timeout=20)
     response.raise_for_status()
     images = parse_jd_module_images(response.text, url)
+    if not images:
+        images = parse_jd_page_images(page_html, url)
     return enrich_jd_images_with_detail(images)
 
 
@@ -167,12 +176,19 @@ def extract_first(text: str, pattern: str) -> str | None:
     return match.group(1) if match else None
 
 
-def extract_jd_render_params(page_html: str) -> dict[str, str]:
-    structure_match = re.search(r'<div class="m_render_structure\b(?P<attrs>[^>]*)>', page_html)
-    if not structure_match:
+def extract_jd_render_params(page_html: str, prefer_search_module: bool = False) -> dict[str, str]:
+    structure_matches = re.findall(r'<div class="m_render_structure\b(?P<attrs>[^>]*)>', page_html)
+    if not structure_matches:
         return {}
 
-    attrs = dict(re.findall(r'(m_render_[A-Za-z_]+)="([^"]+)"', structure_match.group("attrs")))
+    attrs_source = structure_matches[0]
+    if prefer_search_module:
+        for raw_attrs in reversed(structure_matches):
+            if 'm_render_is_search="true"' in raw_attrs:
+                attrs_source = raw_attrs
+                break
+
+    attrs = dict(re.findall(r'(m_render_[A-Za-z_]+)="([^"]+)"', attrs_source))
     return {
         "page": attrs.get("m_render_pageInstance_id", ""),
         "layout": attrs.get("m_render_layout_instance_id", ""),
@@ -183,6 +199,23 @@ def extract_jd_render_params(page_html: str) -> dict[str, str]:
     }
 
 
+def extract_jd_search_params(page_html: str) -> dict[str, str]:
+    params_match = re.search(r"var params = \{(?P<body>.*?)\}\s*\|\|\s*\{\};", page_html, re.DOTALL)
+    if not params_match:
+        return {}
+
+    params: dict[str, str] = {}
+    for key, value in re.findall(r'"([^"]+)":"([^"]*)"', params_match.group("body")):
+        if key == "keyword":
+            while "%25" in value:
+                decoded = unquote(value)
+                if decoded == value:
+                    break
+                value = decoded
+        params[key] = value
+    return params
+
+
 def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImage]:
     callback_match = re.search(r"jshop_module_render_callback\((.*)\)\s*$", raw, re.DOTALL)
     if callback_match:
@@ -191,19 +224,24 @@ def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImag
 
     items: list[RemoteProductImage] = []
     blocks = re.findall(
-        r'<li class="jSubObject gl-item">(?P<block>.*?)(?=<li class="jSubObject gl-item">|</ul>\s*<span class="clr">)',
+        r'<li class="jSubObject(?:\s+gl-item)?">(?P<block>.*?)(?=<li class="jSubObject(?:\s+gl-item)?">|</ul>\s*<span class="clr">|</ul>\s*</div>\s*</div>\s*</div>)',
         raw,
         re.DOTALL,
     )
 
     for block in blocks:
         image_match = re.search(r'(?:original|src)="(?P<url>//img[^"]+?/n7/[^"]+?)"', block)
-        title_match = re.search(r'<div class="jDesc">\s*<a [^>]* title="(?P<title>.*?)"', block, re.DOTALL)
+        title_match = re.search(
+            r'<div class="jDesc">\s*<a [^>]* title="(?P<title_attr>.*?)"[^>]*>|<div class="jDesc">\s*<a [^>]*>(?P<title_text>.*?)</a>',
+            block,
+            re.DOTALL,
+        )
         sku_match = re.search(r"item\.jd\.com/(?P<sku>\d+)\.html", block)
         detail_match = re.search(r'href="(?P<href>//item\.jd\.com/\d+\.html[^"]*)"', block)
         if not image_match or not title_match:
             continue
-        title = title_match.group("title")
+        title = (title_match.group("title_attr") or title_match.group("title_text") or "").strip()
+        title = re.sub(r"<[^>]+>", "", title).strip()
         image_url = image_match.group("url")
         items.append(
             RemoteProductImage(
@@ -221,6 +259,52 @@ def parse_jd_module_images(raw: str, source_page: str) -> list[RemoteProductImag
         if item.url in seen:
             continue
         seen.add(item.url)
+        deduped.append(item)
+    return deduped
+
+
+def parse_jd_page_images(page_html: str, source_page: str) -> list[RemoteProductImage]:
+    blocks = re.findall(
+        r'<div class="jItem">(?P<block>.*?)(?=<div class="jItem">|</li>\s*</ul>|</ul>\s*</div>)',
+        page_html,
+        re.DOTALL,
+    )
+
+    items: list[RemoteProductImage] = []
+    for block in blocks:
+        detail_match = re.search(r'href="(?P<href>//item\.jd\.com/\d+\.html[^"]*)"', block)
+        title_match = re.search(
+            r'<div class="jDesc"[^>]* title="(?P<title_attr>[^"]+)"|<div class="jDesc"[^>]*>\s*<a [^>]*>(?P<title_text>.*?)</a>',
+            block,
+            re.DOTALL,
+        )
+        image_match = re.search(r'(?:original|src)="(?P<url>//img[^"]+?/n\d+/[^"]+?)"', block)
+        sku_match = re.search(r"item\.jd\.com/(?P<sku>\d+)\.html", block)
+        if not detail_match or not title_match or not image_match:
+            continue
+
+        title = (title_match.group("title_attr") or title_match.group("title_text") or "").strip()
+        title = re.sub(r"<[^>]+>", "", title).strip()
+        if not title:
+            continue
+
+        items.append(
+            RemoteProductImage(
+                title=title,
+                url=urljoin("https:", image_match.group("url")),
+                source_page=source_page,
+                goods_id=sku_match.group("sku") if sku_match else None,
+                detail_url=urljoin("https:", detail_match.group("href")),
+            )
+        )
+
+    deduped: list[RemoteProductImage] = []
+    seen: set[str] = set()
+    for item in items:
+        key = item.goods_id or item.url
+        if key in seen:
+            continue
+        seen.add(key)
         deduped.append(item)
     return deduped
 

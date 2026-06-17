@@ -12,13 +12,17 @@ MANIFEST_ROOT = ROOT_DIR / "frontend" / "public" / "mall-products"
 
 CATEGORY_NAMES = {
     "rice_flour": "米面",
-    "seasoning": "调味品",
-    "wine_tea": "红酒茶饮",
     "grains": "杂粮",
-    "beverages": "饮品",
-    "dairy": "乳制品",
-    "snacks": "零食",
+    "vegetables": "蔬菜菌菇",
+    "meat_eggs": "肉禽蛋",
+    "soy_products": "豆制品",
+    "fruits": "水果鲜食",
     "oil": "油品",
+    "seasoning": "调味品",
+    "dairy": "乳制品",
+    "beverages": "饮品",
+    "snacks": "零食",
+    "wine_tea": "红酒茶饮",
 }
 
 BRAND_KEYWORDS = [
@@ -106,14 +110,18 @@ def _extract_spec(title: str) -> str | None:
 
 def _price_for_title(category_code: str, title: str, goods_id: str | None) -> int:
     base_map = {
-        "seasoning": 1590,
         "rice_flour": 2590,
-        "wine_tea": 6990,
         "grains": 1990,
-        "beverages": 2990,
-        "dairy": 4590,
-        "snacks": 1890,
+        "vegetables": 1290,
+        "meat_eggs": 3290,
+        "soy_products": 1690,
+        "fruits": 1490,
         "oil": 5990,
+        "seasoning": 1590,
+        "dairy": 4590,
+        "beverages": 2990,
+        "snacks": 1890,
+        "wine_tea": 6990,
     }
     price = base_map.get(category_code, 2990)
     if any(word in title for word in ["礼盒", "整箱", "2箱", "尊享", "国潮"]):
@@ -159,6 +167,20 @@ def _health_profile(category_code: str, title: str) -> tuple[list[str], list[str
         for tag in tags:
             if tag not in warning_tags:
                 warning_tags.append(tag)
+
+    if category_code == "vegetables":
+        add_health("高纤维", "轻负担")
+        add_recommend("high_fiber", "low_fat", "low_sodium")
+    elif category_code == "meat_eggs":
+        add_health("高蛋白")
+        add_recommend("high_protein")
+    elif category_code == "soy_products":
+        add_health("高蛋白", "轻负担")
+        add_recommend("high_protein", "low_fat")
+        add_warning("soy")
+    elif category_code == "fruits":
+        add_health("高纤维")
+        add_recommend("high_fiber")
 
     if "低钠" in title or "薄盐" in title:
         add_health("低钠")
@@ -245,12 +267,47 @@ def _health_profile(category_code: str, title: str) -> tuple[list[str], list[str
         add_warning("nut")
     if any(word in title for word in ["酒", "白兰地", "葡萄酒"]):
         add_warning("alcohol")
+    if any(word in title for word in ["鸡蛋", "蛋液"]):
+        add_warning("egg")
+    if any(word in title for word in ["虾", "虾仁"]):
+        add_warning("shellfish")
+
+    if any(word in title for word in ["鸡胸", "鳕鱼", "虾仁", "牛里脊", "鸡蛋"]):
+        add_health("高蛋白")
+        add_recommend("high_protein")
+    if any(word in title for word in ["鸡胸", "鳕鱼", "虾仁", "豆腐", "豆干", "豆浆", "纳豆"]):
+        add_health("轻负担")
+        add_recommend("low_fat")
+    if any(word in title for word in ["豆腐", "豆干", "豆浆", "纳豆", "腐竹"]):
+        add_health("植物蛋白")
+        add_recommend("high_protein")
+        add_warning("soy")
+    if any(word in title for word in ["西兰花", "菠菜", "生菜", "番茄", "黄瓜", "胡萝卜", "猕猴桃", "蓝莓", "苹果", "橙", "圣女果", "牛油果"]):
+        add_health("高纤维")
+        add_recommend("high_fiber")
+    if any(word in title for word in ["蓝莓", "猕猴桃", "橙", "番茄", "圣女果"]):
+        add_health("营养素补充")
+        add_recommend("nutrients")
+    if any(word in title for word in ["蓝莓", "猕猴桃", "牛油果", "圣女果", "豆浆"]):
+        add_health("控糖友好")
+        add_recommend("sugar_control")
+    if any(word in title for word in ["菠菜", "西兰花", "香菇", "木耳", "银耳", "黄瓜", "番茄"]):
+        add_health("低嘌呤友好")
+        add_recommend("low_purine")
 
     if category_code == "wine_tea":
         description = "真实商品图同步入库，作为礼赠和日常选购型商品展示。"
         nutrition_rows = nutrition_rows[:1]
         recommend_tags = []
         health_tags = []
+    elif category_code == "vegetables":
+        description = "围绕清淡配菜和膳食纤维方向整理，适合餐单中的蔬菜菌菇搭配。"
+    elif category_code == "meat_eggs":
+        description = "围绕优质蛋白方向整理，适合作为正餐中的肉禽蛋白选择。"
+    elif category_code == "soy_products":
+        description = "围绕豆制品和植物蛋白方向整理，适合清淡烹调和轻负担饮食。"
+    elif category_code == "fruits":
+        description = "围绕水果加餐和餐后补充方向整理，适合作为日常轻食搭配。"
     elif category_code == "beverages" and not recommend_tags:
         description = "适合作为家庭常备饮品或轻食搭配，商品信息来自真实图片目录。"
     elif recommend_tags:
@@ -276,6 +333,14 @@ def _ingredients_for_title(title: str, category_code: str) -> str | None:
         return "植物原料、水"
     if any(word in title for word in ["糙米", "藜麦", "小米", "玉米糁", "大米"]):
         return "谷物原料"
+    if any(word in title for word in ["西兰花", "菠菜", "生菜", "番茄", "黄瓜", "胡萝卜"]):
+        return "新鲜蔬菜"
+    if any(word in title for word in ["鸡胸", "牛里脊", "虾仁", "鳕鱼", "鸡蛋"]):
+        return "动物性食材"
+    if any(word in title for word in ["豆腐", "豆干", "豆浆", "纳豆", "腐竹"]):
+        return "大豆制品"
+    if any(word in title for word in ["苹果", "蓝莓", "橙", "猕猴桃", "牛油果", "圣女果"]):
+        return "水果原料"
     if any(word in title for word in ["麦香小麦粉", "小麦粉", "面粉", "荞麦面", "挂面"]):
         return "小麦粉"
     if any(word in title for word in ["杂粮", "礼盒", "谷礼盒", "道礼盒"]):
@@ -288,6 +353,10 @@ def _ingredients_for_title(title: str, category_code: str) -> str | None:
         "seasoning": "调味原料",
         "rice_flour": "谷物原料",
         "grains": "杂粮原料",
+        "vegetables": "蔬果原料",
+        "meat_eggs": "动物性食材",
+        "soy_products": "大豆制品原料",
+        "fruits": "水果原料",
         "beverages": "植物原料",
         "dairy": "乳制品原料",
         "wine_tea": "茶叶或酿造原料",
@@ -299,6 +368,10 @@ def _ingredients_for_title(title: str, category_code: str) -> str | None:
 def _shelf_life_for_title(category_code: str, title: str) -> str | None:
     if any(word in title for word in ["酸奶"]):
         return "21天（冷藏）"
+    if category_code in {"vegetables", "fruits"}:
+        return "7天（冷藏）"
+    if category_code in {"meat_eggs", "soy_products"}:
+        return "10天（冷藏）"
     if category_code in {"dairy", "beverages"}:
         return "6个月"
     if category_code in {"oil", "seasoning"}:

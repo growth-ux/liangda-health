@@ -4,3 +4,4 @@ frontend/dist
 frontend/node_modules
 backend/uploads
 .idea
+.superpowers/brainstorm/*/state

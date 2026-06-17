@@ -24,9 +24,16 @@ TAG_RULES: list[tuple[tuple[str, ...], tuple[str, ...], str]] = [
     (("控糖", "低GI", "血糖", "主食定量", "杂粮", "燕麦", "糙米"), ("sugar_control", "low_gi"), "适合作为控糖或低 GI 主食选择"),
     (("少油", "低脂", "轻负担", "晚餐减轻"), ("low_fat",), "更适合少油轻负担饮食"),
     (("高纤维", "高纤", "杂粮", "蔬菜", "黑米", "藜麦"), ("high_fiber",), "补充膳食纤维，适合餐单中的杂粮方向"),
-    (("优质蛋白", "高蛋白", "鸡胸肉", "豆腐", "豆浆", "牛奶", "蛋"), ("high_protein",), "补充优质蛋白，适合餐单搭配"),
+    (("优质蛋白", "高蛋白", "鸡胸肉", "豆腐", "豆浆", "牛奶", "蛋", "植物蛋白"), ("high_protein",), "补充优质蛋白，适合餐单搭配"),
     (("高钙", "骨密度", "骨质", "牛奶", "芝麻"), ("high_calcium", "nutrients"), "匹配高钙和营养补充方向"),
     (("低嘌呤", "尿酸", "痛风"), ("low_purine",), "更适合关注尿酸和嘌呤摄入的人群"),
+]
+
+CATEGORY_RULES: list[tuple[tuple[str, ...], str, str]] = [
+    (("蔬菜", "配菜", "清炒", "凉拌", "菌菇", "生菜", "西兰花", "菠菜", "番茄", "黄瓜"), "vegetables", "适合清淡配菜和高纤维搭配"),
+    (("鸡蛋", "鸡胸肉", "虾仁", "鱼", "鳕鱼", "牛里脊", "优质蛋白", "高蛋白"), "meat_eggs", "补充优质蛋白，适合作为正餐食材"),
+    (("豆腐", "豆浆", "豆干", "纳豆", "腐竹", "植物蛋白"), "soy_products", "适合清淡烹调和植物蛋白补充"),
+    (("水果", "加餐", "餐后", "维C", "苹果", "蓝莓", "橙子", "猕猴桃", "牛油果", "圣女果"), "fruits", "适合作为加餐或餐后水果补充"),
 ]
 
 
@@ -146,9 +153,11 @@ class MealProductRecommendationService:
             if any(_has_allergy_conflict(member, product) for member in members):
                 continue
             tags = set(_json_list(product.recommend_tags))
-            tag_score, reason = _score_tags(context, tags)
+            category_score, category_reason = _score_category(context, product.category_code)
+            tag_score, tag_reason = _score_tags(context, tags)
             member_score = sum(max(0, score_product_for_member(member, product)) for member in members)
-            score = tag_score + member_score
+            score = category_score + tag_score + member_score
+            reason = category_reason or tag_reason
             if score > 0:
                 scored.append(MealProductRecommendation(product=product, score=score, reason=reason))
         scored.sort(key=lambda item: (-item.score, item.product.product_id))
@@ -180,6 +189,13 @@ def _score_tags(context: str, tags: set[str]) -> tuple[int, str]:
         if any(keyword in context for keyword in keywords) and tags & set(recommend_tags):
             return 80, reason
     return 0, "适合本次健康餐单搭配"
+
+
+def _score_category(context: str, category_code: str) -> tuple[int, str]:
+    for keywords, target_category, reason in CATEGORY_RULES:
+        if category_code == target_category and any(keyword in context for keyword in keywords):
+            return 120, reason
+    return 0, ""
 
 
 def _pick_diverse_reasons(

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 聊天证据链交互原型</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --primary: #10b981;
+      --primary-dark: #047857;
+      --primary-soft: #e8f8ef;
+      --orange: #f97316;
+      --orange-soft: #fff3e8;
+      --red: #dc2626;
+      --red-soft: #fff1f2;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --ink: #17211d;
+      --muted: #68746e;
+      --soft: #f7f8f5;
+      --line: #e4e8e2;
+      --paper: #ffffff;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #eef2ed;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .shell {
+      min-height: 100vh;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 240px minmax(540px, 1fr) 390px;
+      gap: 14px;
+    }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(27, 45, 37, 0.08);
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+    .brand strong { display: block; font-size: 15px; }
+    .brand span { color: var(--muted); font-size: 12px; }
+    .sessions { padding: 12px; display: grid; gap: 8px; }
+    .session {
+      padding: 11px 12px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .session.active {
+      background: var(--primary-soft);
+      border-color: #c5ead6;
+      color: var(--primary-dark);
+    }
+    .session-title { font-weight: 650; font-size: 13px; }
+    .session-sub { margin-top: 3px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .topbar {
+      height: 64px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .agent-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .agent-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+    .agent-title { font-weight: 700; }
+    .agent-status { color: var(--muted); font-size: 12px; }
+    .switcher {
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+      background: var(--soft);
+    }
+    .switcher button {
+      border: 0;
+      background: transparent;
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .switcher button.active {
+      background: var(--ink);
+      color: white;
+    }
+    .messages {
+      flex: 1;
+      padding: 22px;
+      overflow: auto;
+      background:
+        linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
+        radial-gradient(circle at top left, rgba(16,185,129,0.12), transparent 34%);
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      max-width: 86%;
+      margin-bottom: 16px;
+    }
+    .row.user {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+    .avatar {
+      flex: 0 0 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      background: var(--primary);
+    }
+    .row.user .avatar { background: var(--orange); }
+    .bubble {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      line-height: 1.65;
+      box-shadow: 0 8px 20px rgba(20, 42, 32, 0.05);
+    }
+    .row.user .bubble {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: none;
+    }
+    .time { margin: 4px 0 0 4px; color: #9aa39e; font-size: 11px; }
+    .evidence-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid #eef1ec;
+    }
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 6px;
+      padding: 6px 9px;
+      cursor: pointer;
+      color: #334139;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .mini-btn:hover, .mini-btn.active {
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+    }
+    .card-message {
+      width: min(560px, 100%);
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(20, 42, 32, 0.05);
+    }
+    .card-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-weight: 750;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-body { padding: 14px; }
+    .product-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .product {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+      cursor: pointer;
+      background: white;
+    }
+    .product.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(249,115,22,0.14);
+    }
+    .product-img {
+      height: 84px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      font-size: 30px;
+      position: relative;
+    }
+    .tag {
+      position: absolute;
+      left: 7px;
+      top: 7px;
+      font-size: 10px;
+      color: white;
+      background: var(--orange);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .product-info { padding: 9px; }
+    .product-name { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-price { color: var(--orange); font-weight: 750; margin-top: 4px; }
+    .right {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .right-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .right-head h2 {
+      margin: 0 0 5px;
+      font-size: 17px;
+    }
+    .right-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .evidence-list {
+      padding: 14px;
+      overflow: auto;
+      display: grid;
+      gap: 10px;
+    }
+    .evidence {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+      transition: 0.18s ease;
+    }
+    .evidence.highlight {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-1px);
+    }
+    .evidence.product-highlight {
+      border-color: var(--orange);
+      background: var(--orange-soft);
+    }
+    .ev-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .ev-type {
+      font-size: 11px;
+      font-weight: 750;
+      color: var(--primary-dark);
+      background: rgba(16,185,129,0.12);
+      padding: 3px 6px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .evidence.product-highlight .ev-type {
+      color: #c2410c;
+      background: rgba(249,115,22,0.13);
+    }
+    .ev-title { font-weight: 750; margin: 0 0 5px; }
+    .ev-text { color: var(--muted); font-size: 12px; line-height: 1.55; margin: 0; }
+    .debug {
+      margin-top: 9px;
+      padding: 9px;
+      border-radius: 6px;
+      background: #16211c;
+      color: #d8eee4;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-wrap;
+    }
+    body.debug-mode .debug { display: block; }
+    body.debug-mode .user-copy { display: none; }
+    .flow {
+      margin: 0 14px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--soft);
+    }
+    .flow-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 750; }
+    .flow-steps {
+      display: grid;
+      gap: 6px;
+    }
+    .flow-step {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 12px;
+      color: #3c4a43;
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .right { min-height: 540px; }
+      .row { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="panel sidebar">
+      <div class="brand">
+        <div class="logo">粮</div>
+        <div>
+          <strong>粮达健康</strong>
+          <span>Agent 证据链原型</span>
+        </div>
+      </div>
+      <div class="sessions">
+        <div class="session active">
+          <div class="session-title">妈妈晚餐建议</div>
+          <div class="session-sub">生成依据 + 商品依据</div>
+        </div>
+        <div class="session">
+          <div class="session-title">爸爸控糖推荐</div>
+          <div class="session-sub">低 GI 商品匹配</div>
+        </div>
+        <div class="session">
+          <div class="session-title">报告解读</div>
+          <div class="session-sub">报告片段追溯</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel main">
+      <div class="topbar">
+        <div class="agent-meta">
+          <div class="agent-avatar">家</div>
+          <div>
+            <div class="agent-title">Agent 管家</div>
+            <div class="agent-status">已连接健康画像、报告、手环、记忆和商城标签</div>
+          </div>
+        </div>
+        <div class="switcher" aria-label="视图切换">
+          <button class="active" id="userView" onclick="setView('user')">用户视图</button>
+          <button id="debugView" onclick="setView('debug')">内部视图</button>
+        </div>
+      </div>
+
+      <section class="messages">
+        <div class="row user">
+          <div class="avatar">张</div>
+          <div>
+            <div class="bubble">我妈最近血压还是高，晚上又没什么胃口，今天晚餐怎么安排？顺便看看有什么适合的商品。</div>
+            <div class="time">19:12</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="avatar">家</div>
+          <div>
+            <div class="bubble">
+              <strong>今晚建议走「低钠、少油、好入口」方向。</strong><br>
+              可以做小米山药粥、清蒸鸡蛋羹，再配一小盘焯青菜。先把盐和重口调味降下来，晚餐不要太油，避免影响睡眠。
+              <div class="evidence-actions">
+                <button class="mini-btn active" onclick="focusGroup('content', this)">生成依据</button>
+                <button class="mini-btn" onclick="focusItem('report', this)">报告片段</button>
+                <button class="mini-btn" onclick="focusItem('device', this)">手环状态</button>
+                <button class="mini-btn" onclick="focusItem('memory', this)">记忆偏好</button>
+              </div>
+            </div>
+            <div class="time">19:12</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="avatar">家</div>
+          <div class="card-message">
+            <div class="card-header">
+              <span>可选商品 · 跟随本次餐单目标</span>
+              <button class="mini-btn" onclick="focusGroup('product', this)">推荐依据</button>
+            </div>
+            <div class="card-body">
+              <div class="product-row">
+                <div class="product active" onclick="focusProduct('p1', this)">
+                  <div class="product-img"><span class="tag">低钠</span>🧂</div>
+                  <div class="product-info">
+                    <div class="product-name">薄盐生抽</div>
+                    <div class="product-price">¥18.9</div>
+                  </div>
+                </div>
+                <div class="product" onclick="focusProduct('p2', this)">
+                  <div class="product-img"><span class="tag">好入口</span>🌾</div>
+                  <div class="product-info">
+                    <div class="product-name">有机小米</div>
+                    <div class="product-price">¥23.9</div>
+                  </div>
+                </div>
+                <div class="product" onclick="focusProduct('p3', this)">
+                  <div class="product-img"><span class="tag">高钙</span>🥛</div>
+                  <div class="product-info">
+                    <div class="product-name">高钙牛奶</div>
+                    <div class="product-price">¥49.0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="evidence-actions">
+                <button class="mini-btn" onclick="focusProduct('p1', this)">薄盐生抽依据</button>
+                <button class="mini-btn" onclick="focusProduct('p2', this)">小米依据</button>
+                <button class="mini-btn" onclick="focusProduct('p3', this)">牛奶依据</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="panel right">
+      <div class="right-head">
+        <h2 id="evidenceTitle">生成依据</h2>
+        <p id="evidenceSubtitle">用户看到的是可解释结论；内部视图会显示来源类型、匹配字段和候选过滤过程。</p>
+      </div>
+      <div class="flow">
+        <div class="flow-title">建议的数据链路</div>
+        <div class="flow-steps">
+          <div class="flow-step"><span class="dot">1</span><span>工具产生结构化依据，不让模型自由编来源。</span></div>
+          <div class="flow-step"><span class="dot">2</span><span>Agent 只负责把依据组织成用户能读懂的话。</span></div>
+          <div class="flow-step"><span class="dot">3</span><span>前端把依据收进可展开区域，默认不打断聊天。</span></div>
+        </div>
+      </div>
+      <div class="evidence-list" id="evidenceList"></div>
+    </aside>
+  </div>
+
+  <script>
+    const evidenceData = {
+      content: {
+        title: "内容生成证据链",
+        subtitle: "这条链解释 Agent 为什么给出「低钠、少油、好入口」的晚餐建议。",
+        items: [
+          {
+            id: "report",
+            type: "报告事实",
+            title: "体检报告提示血压相关风险",
+            text: "5 月体检报告里收缩压偏高，属于本次晚餐建议的首要健康约束。",
+            debug: "source=health_facts fact_type=risk name=血压偏高 status=warning source_document_id=doc_20260512 page=3"
+          },
+          {
+            id: "profile",
+            type: "健康画像",
+            title: "妈妈饮食原则：低钠、少油",
+            text: "健康画像聚合后给出的长期饮食原则是低钠、少油、晚餐轻负担。",
+            debug: "source=HealthProfileService member_id=mem_mom diet_principles=[low_sodium, low_fat, light_dinner]"
+          },
+          {
+            id: "device",
+            type: "手环状态",
+            title: "近 7 天睡眠偏短",
+            text: "近期睡眠不足，所以晚餐避免油腻和刺激性调味，减少睡前负担。",
+            debug: "source=device_recent_state window=7d avg_sleep_hours=5.2 deep_sleep_ratio=low"
+          },
+          {
+            id: "memory",
+            type: "互动记忆",
+            title: "妈妈晚上没胃口",
+            text: "用户历史提到妈妈晚餐胃口差，因此建议粥、蛋羹这类更好入口的食物。",
+            debug: "source=memory_search memory_type=preference query=妈妈 晚餐 胃口 result=晚餐偏好清淡软烂"
+          }
+        ]
+      },
+      product: {
+        title: "商品推荐证据链",
+        subtitle: "这条链解释商品怎么从餐单目标、健康约束和商城标签里被筛出来。",
+        items: [
+          {
+            id: "p1",
+            type: "推荐商品",
+            title: "薄盐生抽：命中低钠目标",
+            text: "本次餐单需要控盐，商品标签命中 low_sodium，适合替代普通酱油。",
+            debug: "product_id=soy_low_sodium matched_tags=[low_sodium, hypertension] score=92 reason=契合低钠清淡方向"
+          },
+          {
+            id: "p2",
+            type: "推荐商品",
+            title: "有机小米：匹配好入口晚餐",
+            text: "餐单里有小米山药粥，小米商品直接匹配本次 meal_plan_text。",
+            debug: "product_id=millet_organic matched_from=meal_plan_text keywords=[小米, 粥, 好入口] score=80"
+          },
+          {
+            id: "p3",
+            type: "推荐商品",
+            title: "高钙牛奶：来自报告补充建议",
+            text: "妈妈既往报告有骨密度关注点，高钙牛奶可作为晚间或早餐补充选择。",
+            debug: "product_id=milk_high_calcium matched_tags=[high_calcium, nutrients] source_fact=骨密度T值-2.1 score=72"
+          },
+          {
+            id: "filter",
+            type: "安全过滤",
+            title: "先过滤禁忌，再排序推荐",
+            text: "如果家人有过敏或健康禁忌，商品会先被过滤掉，再进入排序。",
+            debug: "pipeline=allergy_filter -> health_constraint_match -> meal_goal_match -> business_sort"
+          }
+        ]
+      }
+    };
+
+    function renderEvidence(group, focusId) {
+      const data = evidenceData[group];
+      document.getElementById("evidenceTitle").textContent = data.title;
+      document.getElementById("evidenceSubtitle").textContent = data.subtitle;
+      document.getElementById("evidenceList").innerHTML = data.items.map(item => {
+        const cls = item.id === focusId ? (group === "product" ? "evidence product-highlight" : "evidence highlight") : "evidence";
+        return `
+          <article class="${cls}" data-id="${item.id}">
+            <div class="ev-top">
+              <div>
+                <div class="ev-title">${item.title}</div>
+                <p class="ev-text user-copy">${item.text}</p>
+              </div>
+              <span class="ev-type">${item.type}</span>
+            </div>
+            <div class="debug">${item.debug}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function clearActiveButtons() {
+      document.querySelectorAll(".mini-btn").forEach(btn => btn.classList.remove("active"));
+    }
+
+    function focusGroup(group, btn) {
+      clearActiveButtons();
+      if (btn) btn.classList.add("active");
+      renderEvidence(group, null);
+    }
+
+    function focusItem(id, btn) {
+      clearActiveButtons();
+      if (btn) btn.classList.add("active");
+      renderEvidence("content", id);
+    }
+
+    function focusProduct(id, el) {
+      clearActiveButtons();
+      document.querySelectorAll(".product").forEach(item => item.classList.remove("active"));
+      if (el && el.classList.contains("product")) el.classList.add("active");
+      renderEvidence("product", id);
+    }
+
+    function setView(view) {
+      const debug = view === "debug";
+      document.body.classList.toggle("debug-mode", debug);
+      document.getElementById("userView").classList.toggle("active", !debug);
+      document.getElementById("debugView").classList.toggle("active", debug);
+    }
+
+    renderEvidence("content", null);
+  </script>
+</body>
+</html>

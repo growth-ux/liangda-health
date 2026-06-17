@@ -55,7 +55,16 @@ def test_mall_home_returns_zones_categories_and_daily(db_session):
     assert "low_purine" in zone_codes
     assert "nutrients" in zone_codes
 
-    assert len(data["categories"]) >= 4
+    assert len(data["categories"]) == 12
+    category_codes = [item["zone_code"] for item in data["categories"]]
+    assert category_codes[:6] == [
+        "rice_flour",
+        "grains",
+        "vegetables",
+        "meat_eggs",
+        "soy_products",
+        "fruits",
+    ]
 
     assert len(data["daily_products"]) > 0
     product = data["daily_products"][0]
@@ -253,6 +262,26 @@ def test_mall_products_zone_filters_new_health_zones(db_session):
 
     for zone_code, keywords in cases:
         response = client.get(f"/api/mall/products?zone_code={zone_code}")
+        assert response.status_code == 200
+        products = response.json()["products"]
+        assert len(products) > 0
+        assert any(any(keyword in product["name"] for keyword in keywords) for product in products)
+
+
+def test_mall_products_category_filters_new_food_categories(db_session):
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: db_session
+    client = TestClient(app)
+
+    cases = {
+        "vegetables": ["紫甘蓝", "小油菜", "黄瓜", "黄姜"],
+        "meat_eggs": ["里脊肉", "猪肉", "排骨", "五花肉"],
+        "soy_products": ["豆腐", "豆干", "豆浆", "纳豆"],
+        "fruits": ["苹果", "蓝莓", "橙子", "猕猴桃"],
+    }
+
+    for category_code, keywords in cases.items():
+        response = client.get(f"/api/mall/products?category_code={category_code}")
         assert response.status_code == 200
         products = response.json()["products"]
         assert len(products) > 0
