@@ -1,0 +1,37 @@
+backend/app/services/langchain_agent.py
+  s_e3528b5acd720a::t_45c9ae3caf34fe 30-32,34,54
+  s_e3528b5acd720a::t_92ed73c46c9673 16
+  s_e3528b5acd720a::t_975769d4264d39 33,55,325,330,333,338,344
+backend/tests/test_meal_product_recommendation_service.py
+  s_e3528b5acd720a::t_204313634a26c5 152-169
+backend/tests/test_langchain_agent.py
+  s_e3528b5acd720a::t_30b07edf408a05 439-448
+  s_e3528b5acd720a::t_edd4ce721571d4 45-46,116
+backend/tests/test_agent_tools.py
+  s_e3528b5acd720a::t_98573483ffd72a 123-124,156,188,193-209
+backend/app/services/meal_product_recommendation_service.py
+  s_e3528b5acd720a::t_9e1c3b7e648da3 39-52,72,106,110,124,131,137,144,151,157,168,171-174,183-185,226-230
+backend/app/services/agent_tools.py
+  s_e3528b5acd720a::t_79ab9f4cf748a7 138,158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "43f98a3b27c22792cdc9594d15cb2dc2b0a6ca85",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_e3528b5acd720a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed4bd-485f-7192-a21d-121d3ca043f3",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
