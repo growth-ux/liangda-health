@@ -1,0 +1,51 @@
+backend/tests/test_langchain_agent.py
+  s_2b0ba39bcb7865::t_6cd9103017ec64 131-136,139-140
+  s_2b0ba39bcb7865::t_06c4d2d7fe1d10 137-138
+  s_759fdafa1b9bc2::t_9e1258f861bce5 10,141-156
+  s_759fdafa1b9bc2::t_0f81208eb7ac29 545-580
+  s_759fdafa1b9bc2::t_dcd8e827137167 191-219
+  s_759fdafa1b9bc2::t_8ed6b19af726e4 581-582,589
+backend/app/services/meal_plan_service.py
+  s_2b0ba39bcb7865::t_3d26c82f99941e 100-102,125,127-128,144-146,167,169-170
+  s_2b0ba39bcb7865::t_286a4f19bc2a62 103-104,147-148
+backend/app/services/langchain_agent.py
+  s_759fdafa1b9bc2::t_b357b62c33c971 24-26
+  s_2b0ba39bcb7865::t_125d3f165b68fd 27
+  s_759fdafa1b9bc2::t_f48477a0769260 451,472,475-503
+  s_2b0ba39bcb7865::t_989890f2303da8 28
+  s_759fdafa1b9bc2::t_1b5f223bf33e0e 50-54,99
+  s_759fdafa1b9bc2::t_8fc3a4e319af03 577-580
+  s_759fdafa1b9bc2::t_98c6271b932965 450,452-458,460-471,473-474
+backend/tests/test_meal_plan_service.py
+  s_2b0ba39bcb7865::t_e5f1586f259f04 66-67,105-106
+  s_2b0ba39bcb7865::t_27d3c3021c052c 63-65,102-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "6a634137884666cd8c3ed79419674ace1046d2fb",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_2b0ba39bcb7865": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed345-ec3f-79b0-ba61-ff2ac66be031",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_759fdafa1b9bc2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed319-d1c3-7d80-8584-bb4e8dda80b0",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
