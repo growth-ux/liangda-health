@@ -1,0 +1,53 @@
+backend/app/services/langchain_agent.py
+  s_e473334f054374::t_fec19000a46351 49-50
+  s_711056137a1982::t_b8fef043945c04 150-154,188,194,203-206,219,249-255,264-268,274,283-287,507-512,514-519,528,542-548,550,635-636,670-676,685-689
+  s_41000a2a3c7541::t_82a62cdc6948f5 10,155-166,207-218
+  s_e473334f054374::t_cfebcef3dc5bdb 319,322-325
+backend/tests/test_agent_tools.py
+  s_e473334f054374::t_04e369d95f95f3 175-192
+backend/app/services/health_fact_extractor.py
+  s_41000a2a3c7541::t_82a62cdc6948f5 4,14-16,56-69
+backend/app/services/agent_service.py
+  s_711056137a1982::t_798a1afa1e1918 111-115,121-124,130,154,160-161
+backend/app/services/llm_logging.py
+  s_41000a2a3c7541::t_82a62cdc6948f5 1-13
+backend/app/services/meal_plan_service.py
+  s_41000a2a3c7541::t_82a62cdc6948f5 9,33-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "75677bf33c31d5e182b7f07af988e7900ee156de",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_41000a2a3c7541": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed4ad-44cc-7a32-a0a2-155b8e506559",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_711056137a1982": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ed481-41f8-7301-b426-5ceac7f13636",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_e473334f054374": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "db0faa76-12bd-4901-8923-eb45fe7f93a0",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
