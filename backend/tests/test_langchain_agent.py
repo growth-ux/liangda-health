@@ -7,6 +7,7 @@ from app.services.langchain_agent import (
     LangChainAgentRunner,
     LlmConfigError,
     _build_members_block,
+    _format_summary_text,
 )
 
 
@@ -127,6 +128,34 @@ def test_langchain_agent_requires_api_key(monkeypatch):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
+def test_langchain_agent_system_prompt_prefers_daily_portions():
+    prompt = LangChainAgentRunner()._system_prompt()
+
+    assert "餐单份量默认用日常说法" in prompt
+    assert "不要写成配料表" in prompt
+    assert "只有用户明确要求精确克数、营养计算、热量估算或详细食谱时才给克数" in prompt
+    assert "餐单回复不要复述完整健康画像" in prompt
+    assert "原因最多 2-3 条短句" in prompt
+
+
+def test_format_summary_text_adds_markdown_for_meal_sections():
+    text = """家人和健康关注
+张志远（爸爸），50岁，血脂偏高。
+
+晚餐安排
+主菜：清蒸鸡胸肉配西兰花
+配菜：糙米藜麦杂粮饭
+汤品：冬瓜汤
+水果：苹果"""
+
+    formatted = _format_summary_text(text)
+
+    assert "**家人和健康关注**" in formatted
+    assert "**晚餐安排**" in formatted
+    assert "✅ **主菜**：清蒸鸡胸肉配西兰花" in formatted
+    assert "✅ **汤品**：冬瓜汤" in formatted
+
+
 def test_langchain_agent_stream_emits_summary_text_deltas_from_respond_tool_call(monkeypatch):
     """LLM 调 respond 工具时，summary_text 字段在 tool_call_chunks 里逐渐生成，stream() 把它的 token 作为 delta 发出。"""
     from langchain_core.messages import AIMessageChunk
@@ -157,6 +186,35 @@ def test_langchain_agent_stream_emits_summary_text_deltas_from_respond_tool_call
 
     deltas = [p for k, p in runner.stream([{"role": "user", "content": "x"}]) if k == "delta"]
     assert "".join(deltas) == "你好"
+
+
+def test_langchain_agent_stream_summary_delta_preserves_markdown_and_chinese(monkeypatch):
+    """summary_text 含 Markdown、emoji、换行时，流式 delta 不应把中文解成乱码。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name="respond", args='{"kind":"qa","summary_text":"📌 **爸爸晚餐**', index=0, id="call_1"),
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name=None, args='\\n✅ 清淡少油","payload":{"question_topic":"t","answer":"a","tips":[]}}', index=0, id=""),
+                ],
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [p for k, p in runner.stream([{"role": "user", "content": "x"}]) if k == "delta"]
+
+    assert "".join(deltas) == "📌 **爸爸晚餐**\n✅ 清淡少油"
 
 
 def test_langchain_agent_stream_emits_structured_events(monkeypatch):
@@ -484,15 +542,51 @@ def test_langchain_agent_stream_extracts_card_from_respond_tool_call_args(monkey
     assert card_events[0]["payload"]["answer"] == "高蛋白"
 
 
-def test_langchain_agent_stream_raises_on_invalid_respond_payload(monkeypatch):
-    """respond 工具的 ToolMessage 解析失败抛 ResponseSchemaError。"""
+def test_langchain_agent_stream_uses_generic_card_when_payload_shape_invalid(monkeypatch):
+    """respond 有 summary_text 但卡片细节不合 schema 时，退成 general_advice，避免整段聊天失败。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args=(
+                            '{"kind": "meal_plan", "summary_text": "爸爸今晚建议清淡一点。", '
+                            '"payload": {"scope": "member", "target_member_name": "爸爸", '
+                            '"meal_items": [{"slot": "main_meal", "title": "清蒸鸡胸肉", "summary": "少油"}]}}'
+                        ),
+                        index=0,
+                        id="call_1",
+                    ),
+                ],
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_1", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "爸爸今晚吃什么"}]))
+    card = next(payload for kind, payload in events if kind == "card")
+
+    assert card["kind"] == "general_advice"
+    assert card["summary_text"] == "爸爸今晚建议清淡一点。"
+    assert card["payload"]["advice"] == "爸爸今晚建议清淡一点。"
+
+
+def test_langchain_agent_stream_raises_on_invalid_respond_without_summary(monkeypatch):
+    """respond 没有可展示 summary_text 时才抛 ResponseSchemaError。"""
     from langchain_core.messages import ToolMessage
     from app.services.langchain_agent import ResponseSchemaError
 
     class FakeAgent:
         def stream(self, payload, stream_mode):
             yield ToolMessage(
-                content='{"kind": "nonsense", "summary_text": "x", "payload": {}}',
+                content='{"kind": "nonsense", "payload": {}}',
                 tool_call_id="call_1",
                 name="respond",
             ), {}

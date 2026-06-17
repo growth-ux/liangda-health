@@ -60,6 +60,11 @@ def test_meal_plan_member_outputs_day_meals_and_avoid_items(db_session):
     assert "低钠" in generator.prompts[0]
     assert "避免：" in result
     assert "咸菜" in generator.prompts[0]
+    assert "不要先写一大段健康画像" in generator.prompts[0]
+    assert "健康背景最多一句话" in generator.prompts[0]
+    assert "原因解释最多 2-3 条短句" in generator.prompts[0]
+    assert "一小碗、一碗、一盘、一杯、一掌心、一个" in generator.prompts[0]
+    assert "不要展开每个食材的克数、毫升数或配方级用量" in generator.prompts[0]
 
 
 def test_meal_plan_family_outputs_shared_menu_and_adjustments(db_session):
@@ -94,6 +99,11 @@ def test_meal_plan_family_outputs_shared_menu_and_adjustments(db_session):
     assert "爸爸" in generator.prompts[0]
     assert "低钠" in generator.prompts[0]
     assert "控糖" in generator.prompts[0]
+    assert "不要先写一大段家庭健康画像" in generator.prompts[0]
+    assert "健康背景最多一句话" in generator.prompts[0]
+    assert "原因解释最多 2-3 条短句" in generator.prompts[0]
+    assert "一小碗、一碗、一盘、一杯、一掌心、一个" in generator.prompts[0]
+    assert "只有用户明确要求精确克数、营养计算、热量估算或详细食谱时，才给克数" in generator.prompts[0]
 
 
 class FakeMemoryService:
