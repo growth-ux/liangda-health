@@ -16,10 +16,23 @@ import { ChatInput } from '../components/chat/ChatInput';
 import { MessageList } from '../components/chat/MessageList';
 import { SessionList } from '../components/chat/SessionList';
 import { UploadReportDialog } from '../components/UploadReportDialog';
+import { EvidenceModal } from '../components/chat/evidence/EvidenceModal';
+import type { EvidenceModalState } from '../components/chat/evidence/EvidenceActions';
 
 function nowIso() {
   return new Date().toISOString();
 }
+
+function isMobileViewport() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768;
+}
+
+const CLOSED_EVIDENCE_MODAL: EvidenceModalState = {
+  open: false,
+  messageId: null,
+  group: null
+};
 
 export function ChatPage() {
   const queryClient = useQueryClient();
@@ -30,6 +43,7 @@ export function ChatPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [modalState, setModalState] = useState<EvidenceModalState>(CLOSED_EVIDENCE_MODAL);
 
   const sessionsQuery = useQuery({ queryKey: ['agent-sessions'], queryFn: listAgentSessions });
   const quickActionsQuery = useQuery({ queryKey: ['agent-quick-actions'], queryFn: listQuickActions });
@@ -70,6 +84,11 @@ export function ChatPage() {
   const messages = useMemo(() => {
     return [...(messagesQuery.data ?? []), ...localMessages];
   }, [messagesQuery.data, localMessages]);
+
+  const selectedEvidenceMessage = useMemo(() => {
+    if (!modalState.open) return null;
+    return messages.find((item) => item.message_id === modalState.messageId) ?? null;
+  }, [messages, modalState]);
 
   const sendMutation = useMutation({
     mutationFn: async ({ content, messageAttachments = [] }: { content: string; messageAttachments?: Attachment[] }) => {
@@ -262,7 +281,7 @@ export function ChatPage() {
 
   return (
     <AppShell title="与管家对话" activeId="chat">
-      <div className="chat-layout">
+      <div className="chat-layout chat-layout-with-evidence">
         <SessionList
           sessions={sessionsQuery.data ?? []}
           activeSessionId={activeSessionId}
@@ -292,6 +311,9 @@ export function ChatPage() {
             overview={overviewQuery.data}
             overviewLoading={overviewQuery.isLoading}
             overviewError={overviewQuery.isError}
+            modalState={modalState}
+            onModalChange={setModalState}
+            mobileEvidenceMode={isMobileViewport()}
           />
           <ChatInput
             value={draft}
@@ -308,6 +330,12 @@ export function ChatPage() {
           />
         </section>
       </div>
+      <EvidenceModal
+        message={selectedEvidenceMessage}
+        modalState={modalState}
+        onChange={setModalState}
+        onClose={() => setModalState(CLOSED_EVIDENCE_MODAL)}
+      />
       <UploadReportDialog
         open={uploadDialogOpen}
         uploading={uploadMutation.isPending}

@@ -50,9 +50,20 @@ class GreetingPayload(BaseModel):
 
 # ===== 健康解读 payload =====
 
+EvidenceType = Literal["report_fact", "device", "memory", "product"]
+
+
 class EvidenceItem(BaseModel):
-    source: str = Field(..., min_length=1, max_length=80)
-    excerpt: str = Field(..., min_length=1, max_length=300)
+    type: EvidenceType
+    title: str = Field(..., min_length=1, max_length=80)
+    excerpt: str = Field(..., min_length=1, max_length=200)
+    source_id: str = Field(..., min_length=1, max_length=80)
+    source_label: str = Field(..., min_length=1, max_length=120)
+
+
+class MessageEvidence(BaseModel):
+    content_items: list[EvidenceItem] = Field(default_factory=list)
+    product_items: list[EvidenceItem] = Field(default_factory=list)
 
 
 class SuggestionItem(BaseModel):
@@ -109,6 +120,7 @@ class StructuredResponse(BaseModel):
         | KbInterpretationPayload
         | GeneralAdvicePayload
     )
+    evidence: MessageEvidence | None = None
 
     @model_validator(mode="before")
     @classmethod

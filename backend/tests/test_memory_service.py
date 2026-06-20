@@ -95,6 +95,69 @@ def test_memory_service_skips_ambiguous_message_without_owner():
     assert client.add_calls == []
 
 
+def test_memory_service_skips_one_off_recommendation_request():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("用户希望为全家推荐一款适合的食用油")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_health_fact_risk_question():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("用户关注爸爸的血脂情况，担心其血脂偏高是否需要干预，希望了解相关健康风险")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_goal_like_message():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("爸爸最近想控糖")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_preference_question_what_does_dad_not_eat():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("爸爸不喜欢吃什么")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_preference_question_what_does_mom_like():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("妈妈喜欢什么水果")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_avoidance_question_what_is_dad_allergic_to():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("爸爸对什么过敏")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_preference_question_can_dad_eat_seafood():
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("爸爸可以吃海鲜吗")
+
+    assert client.add_calls == []
+
+
 def test_memory_service_searches_and_formats_results():
     client = FakeMem0Client(
         search_result=[
@@ -114,6 +177,33 @@ def test_memory_service_searches_and_formats_results():
     assert items[0].memory_type == "avoidance"
     assert "[avoidance] 爸爸不喜欢鱼" in text
     assert "[goal] 妈妈最近想控糖" in text
+
+
+def test_memory_service_dedupes_similar_search_results():
+    client = FakeMem0Client(
+        search_result=[
+            {
+                "memory": "用户关注父亲的血脂情况，担心其血脂偏高是否需要干预，希望了解相关健康风险，且父亲对鱼有回避倾向，不喜欢吃鱼。",
+                "metadata": {"memory_type": "goal", "member_id": "mem_dad"},
+            },
+            {
+                "memory": "用户关注父亲最近的血脂情况，担心其血脂偏高是否需要干预，且父亲对鱼有回避倾向，不喜欢吃鱼，因此晚餐安排中需避免鱼类食材。",
+                "metadata": {"memory_type": "goal", "member_id": "mem_dad"},
+            },
+            {
+                "memory": "爸爸最近想控糖",
+                "metadata": {"memory_type": "goal", "member_id": "mem_dad"},
+            },
+        ]
+    )
+    service = MemoryService(client=client, family_user_id="default_family", enabled=True)
+
+    items = service.search("爸爸 血脂 晚餐", member_id="mem_dad", limit=5)
+    text = service.search_text("爸爸 血脂 晚餐", member_id="mem_dad", limit=5)
+
+    assert len(items) == 2
+    assert "爸爸最近想控糖" in text
+    assert text.count("血脂情况") + text.count("血脂偏高是否需要干预") >= 1
 
 
 def test_memory_service_searches_family_memory_when_member_id_missing():
@@ -207,6 +297,7 @@ def test_mem0_config_uses_dashscope_openai_compatible_llm_and_embedding(monkeypa
     assert config["vector_store"]["config"]["embedding_model_dims"] == 1024
     assert config["vector_store"]["config"]["metric_type"] == "COSINE"
     assert config["history_db_path"] == str(settings.memory_dir / "history.db")
-    assert "preference、avoidance、goal、marketing_feedback" in config["custom_instructions"]
+    assert "preference、avoidance、marketing_feedback" in config["custom_instructions"]
     assert "不要记录健康禁忌" in config["custom_instructions"]
+    assert "不要记录长期目标、阶段目标、照护意图" in config["custom_instructions"]
     assert "memory 字段必须使用简体中文" in config["custom_instructions"]

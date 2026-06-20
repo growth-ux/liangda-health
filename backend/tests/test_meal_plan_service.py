@@ -1,5 +1,8 @@
 import json
+from datetime import date, timedelta
 
+from app.models.device import DeviceDailyMetric
+from app.models.health_fact import HealthFact
 from app.models.member import Member
 from app.services.meal_plan_service import MealPlanService
 from app.services.memory_service import MemoryItem
@@ -161,3 +164,57 @@ def test_meal_plan_member_keeps_health_safety_above_memory(db_session):
     assert "低钠" in result
     assert "爸爸喜欢咸口" in generator.prompts[0]
     assert "重盐调味" in generator.prompts[0]
+
+
+def test_meal_plan_service_builds_report_and_device_evidence_items(db_session):
+    _add_member(
+        db_session,
+        member_id="mem_dad",
+        name="李建国",
+        relation="爸爸",
+        gender="男",
+        health_tags=[],
+    )
+    db_session.add(
+        HealthFact(
+            fact_id="fact_bp",
+            member_id="mem_dad",
+            fact_type="metric",
+            name="血压偏高",
+            value="152",
+            unit="mmHg",
+            reference_range="90-140",
+            status="warning",
+            source_document_id="doc_checkup",
+            source_page_no=3,
+            source_chunk_id="chunk_1",
+            evidence_text="收缩压高于参考范围",
+        )
+    )
+    for days_ago in range(7):
+        db_session.add(
+            DeviceDailyMetric(
+                member_id="mem_dad",
+                metric_date=date.today() - timedelta(days=days_ago),
+                steps=4200,
+                avg_heart_rate=72,
+                systolic_bp=136,
+                diastolic_bp=88,
+                sleep_hours=5.2,
+                blood_oxygen=98,
+                sync_status="success",
+                sync_source="test",
+            )
+        )
+    db_session.commit()
+
+    items = MealPlanService(db_session, generator=FakeMealPlanGenerator("ok")).get_evidence_items(
+        scope="member",
+        member_id="mem_dad",
+    )
+
+    assert [item.type for item in items] == ["report_fact", "device"]
+    assert items[0].title == "李建国·血压偏高"
+    assert items[0].source_label == "doc_checkup p3"
+    assert "睡眠不足" in items[1].excerpt
+    assert "步数偏低" in items[1].excerpt

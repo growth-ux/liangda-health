@@ -1,0 +1,230 @@
+<mxfile host="app.diagrams.net" modified="2026-06-17T12:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="liangda-health-architecture" name="系统架构图">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="粮达健康 AI 智能营销系统架构图" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="面向竞赛展示：业务闭环 + AI 核心能力 + 技术底座" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="40" y="42" width="560" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="entry_lane" value="用户与业务入口" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=32;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1120" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="user_family" value="家庭用户" style="ellipse;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#60a5fa;fontSize=15;fontStyle=1;" vertex="1" parent="entry_lane">
+          <mxGeometry x="20" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="user_advisor" value="健康顾问" style="ellipse;html=1;whiteSpace=wrap;fillColor=#ede9fe;strokeColor=#8b5cf6;fontSize=15;fontStyle=1;" vertex="1" parent="entry_lane">
+          <mxGeometry x="160" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="entry_report" value="健康报告上传&#xa;PDF / OCR / 检验单" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=14;" vertex="1" parent="entry_lane">
+          <mxGeometry x="320" y="50" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="entry_member" value="家庭成员档案&#xa;基础信息 / 健康标签" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#0ea5e9;fontSize=14;" vertex="1" parent="entry_lane">
+          <mxGeometry x="500" y="50" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="entry_device" value="手环近 7 天数据&#xa;步数 / 睡眠 / 血压趋势" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#14b8a6;fontSize=14;" vertex="1" parent="entry_lane">
+          <mxGeometry x="690" y="50" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="entry_chat" value="Agent 对话交互&#xa;问答 / 咨询 / 推荐引导" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#8b5cf6;fontSize=14;" vertex="1" parent="entry_lane">
+          <mxGeometry x="890" y="50" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ai_lane" value="AI 核心引擎" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=32;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="290" width="1120" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_report" value="报告理解引擎&#xa;文本抽取 / OCR / 健康事实识别" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#e0f2fe;strokeColor=#0284c7;fontSize=14;fontStyle=1;" vertex="1" parent="ai_lane">
+          <mxGeometry x="40" y="70" width="190" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_rag" value="RAG 证据检索&#xa;Chunk / Embedding / 片段召回 / 原文追溯" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#e0f2fe;strokeColor=#0369a1;fontSize=14;fontStyle=1;" vertex="1" parent="ai_lane">
+          <mxGeometry x="270" y="70" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_profile" value="健康画像聚合&#xa;档案 + 健康事实 + 设备状态" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=14;fontStyle=1;" vertex="1" parent="ai_lane">
+          <mxGeometry x="520" y="70" width="190" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_memory" value="记忆系统&#xa;偏好 / 目标 / 营销反馈 / 跨会话个性化" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f3e8ff;strokeColor=#9333ea;fontSize=14;fontStyle=1;" vertex="1" parent="ai_lane">
+          <mxGeometry x="750" y="70" width="190" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_agent" value="推荐决策 Agent&#xa;意图识别 / 工具编排 / 自然语言生成" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#ef4444;fontSize=14;fontStyle=1;" vertex="1" parent="ai_lane">
+          <mxGeometry x="450" y="190" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_note" value="核心定位：&#xa;报告抽取 -> 健康事实&#xa;RAG -> 查证据&#xa;记忆 -> 做个性化&#xa;Agent -> 编排与转化" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fff7ed;strokeColor=#f59e0b;fontSize=13;" vertex="1" parent="ai_lane">
+          <mxGeometry x="960" y="65" width="130" height="210" as="geometry" />
+        </mxCell>
+
+        <mxCell id="output_lane" value="业务输出与营销转化" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=32;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="610" width="1120" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="output_advice" value="饮食建议" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#16a34a;fontSize=14;" vertex="1" parent="output_lane">
+          <mxGeometry x="50" y="60" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="output_meal" value="个性化餐单" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#22c55e;fontSize=14;" vertex="1" parent="output_lane">
+          <mxGeometry x="230" y="60" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="output_product" value="健康商品推荐&#xa;营养品 / 杂粮 / 调理方案" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#f97316;fontSize=14;" vertex="1" parent="output_lane">
+          <mxGeometry x="410" y="50" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="output_reason" value="推荐依据展示&#xa;报告证据 + 画像理由 + 对话解释" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#0ea5e9;fontSize=14;" vertex="1" parent="output_lane">
+          <mxGeometry x="630" y="50" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="output_feedback" value="用户反馈回写&#xa;点击 / 购买 / 跳过 / 偏好变化" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#8b5cf6;fontSize=14;" vertex="1" parent="output_lane">
+          <mxGeometry x="870" y="50" width="190" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tech_lane" value="技术底座" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=32;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="830" width="1120" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_frontend" value="前端应用&#xa;React + Vite&#xa;成员 / 报告 / Chat / 商城页面" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="30" y="70" width="150" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_backend" value="后端服务&#xa;FastAPI&#xa;members / kb / agent / mall / device" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="210" y="70" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_mysql" value="业务数据库&#xa;MySQL&#xa;成员 / 报告 / 商城 / 会话数据" style="shape=cylinder3;html=1;whiteSpace=wrap;boundedLbl=1;fillColor=#fef3c7;strokeColor=#d97706;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="420" y="65" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_milvus" value="向量检索&#xa;Milvus&#xa;报告切片 / 向量召回" style="shape=cylinder3;html=1;whiteSpace=wrap;boundedLbl=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="590" y="65" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_mem0" value="长期记忆&#xa;mem0&#xa;偏好 / 目标 / 营销反馈" style="shape=cylinder3;html=1;whiteSpace=wrap;boundedLbl=1;fillColor=#f3e8ff;strokeColor=#9333ea;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="760" y="65" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_llm" value="模型服务&#xa;DashScope / 百炼兼容接口&#xa;Qwen + Embedding" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#ef4444;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="930" y="70" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_ocr" value="OCR 服务&#xa;云端 PDF / 图片识别" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fff7ed;strokeColor=#f59e0b;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="420" y="190" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_service" value="关键服务模块&#xa;health_analysis / kb_service / memory_service / mall_recommendation / meal_plan" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#64748b;fontSize=13;" vertex="1" parent="tech_lane">
+          <mxGeometry x="620" y="190" width="470" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="loop_lane" value="AI 智能营销闭环" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=34;container=1;collapsible=0;horizontal=1;fillColor=#fffaf0;strokeColor=#f59e0b;fontSize=18;fontStyle=1;fontColor=#9a3412;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="80" width="420" height="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_1" value="1. 理解&#xa;解析健康报告&#xa;识别可营销的健康问题" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffedd5;strokeColor=#fb923c;fontSize=15;fontStyle=1;" vertex="1" parent="loop_lane">
+          <mxGeometry x="90" y="60" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_2" value="2. 洞察&#xa;聚合家庭画像、设备状态、长期记忆" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=15;fontStyle=1;" vertex="1" parent="loop_lane">
+          <mxGeometry x="90" y="240" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_3" value="3. 推荐&#xa;生成餐单、建议和商品方案" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#22c55e;fontSize=15;fontStyle=1;" vertex="1" parent="loop_lane">
+          <mxGeometry x="90" y="420" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_4" value="4. 转化&#xa;在商城与对话中完成种草和下单" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=15;fontStyle=1;" vertex="1" parent="loop_lane">
+          <mxGeometry x="90" y="600" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_5" value="5. 反馈&#xa;将点击、购买、跳过沉淀为新记忆" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f3e8ff;strokeColor=#9333ea;fontSize=15;fontStyle=1;" vertex="1" parent="loop_lane">
+          <mxGeometry x="90" y="780" width="240" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="loop_text" value="比赛表达重点：&#xa;不是单点问答，而是把“健康理解”转成“可解释、可追溯、可持续优化”的智能营销转化系统。" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#f59e0b;fontSize=13;fontColor=#7c2d12;" vertex="1" parent="loop_lane">
+          <mxGeometry x="50" y="915" width="320" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;endArrow=block;endFill=1;" edge="1" parent="1" source="entry_report" target="engine_report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;endArrow=block;endFill=1;" edge="1" parent="1" source="entry_member" target="engine_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;endArrow=block;endFill=1;" edge="1" parent="1" source="entry_device" target="engine_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;endArrow=block;endFill=1;" edge="1" parent="1" source="entry_chat" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="健康事实" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#0ea5e9;fontColor=#0369a1;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_report" target="engine_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="证据片段" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#0284c7;fontColor=#0369a1;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_report" target="engine_rag">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#16a34a;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_profile" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#9333ea;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_memory" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="原文依据" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#0369a1;fontColor=#0369a1;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_rag" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#ef4444;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_agent" target="output_advice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#ef4444;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_agent" target="output_meal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#ef4444;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_agent" target="output_product">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="可解释推荐" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#0ea5e9;fontColor=#0369a1;endArrow=block;endFill=1;" edge="1" parent="1" source="engine_agent" target="output_reason">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#9333ea;endArrow=block;endFill=1;" edge="1" parent="1" source="output_feedback" target="engine_memory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e15" value="支持" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#f59e0b;fontColor=#9a3412;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_ocr" target="engine_report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="存储/召回" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#0284c7;fontColor=#0369a1;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_milvus" target="engine_rag">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="长期偏好" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#9333ea;fontColor=#6b21a8;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_mem0" target="engine_memory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="推理/生成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#ef4444;fontColor=#991b1b;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_llm" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="Embedding" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#ef4444;fontColor=#991b1b;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_llm" target="engine_rag">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="业务数据" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#d97706;fontColor=#92400e;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_mysql" target="engine_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="接口承载" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#16a34a;fontColor=#166534;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_backend" target="engine_agent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="页面承载" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#2563eb;fontColor=#1d4ed8;endArrow=block;endFill=1;" edge="1" parent="1" source="tech_frontend" target="entry_chat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#fb923c;endArrow=block;endFill=1;" edge="1" parent="1" source="loop_1" target="loop_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#f59e0b;endArrow=block;endFill=1;" edge="1" parent="1" source="loop_2" target="loop_3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#22c55e;endArrow=block;endFill=1;" edge="1" parent="1" source="loop_3" target="loop_4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#3b82f6;endArrow=block;endFill=1;" edge="1" parent="1" source="loop_4" target="loop_5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="持续优化" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#9333ea;fontColor=#6b21a8;endArrow=block;endFill=1;" edge="1" parent="1" source="loop_5" target="loop_1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1290" y="1020" />
+              <mxPoint x="1230" y="1020" />
+              <mxPoint x="1230" y="190" />
+              <mxPoint x="1290" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e28" value="对应业务入口" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#94a3b8;fontColor=#475569;endArrow=oval;endFill=0;" edge="1" parent="1" source="entry_report" target="loop_1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" value="对应核心能力" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#94a3b8;fontColor=#475569;endArrow=oval;endFill=0;" edge="1" parent="1" source="engine_profile" target="loop_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" value="对应业务输出" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeColor=#94a3b8;fontColor=#475569;endArrow=oval;endFill=0;" edge="1" parent="1" source="output_product" target="loop_4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

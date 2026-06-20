@@ -15,7 +15,7 @@ export function KbInterpretationCard({ payload }: Props) {
         <ul className="space-y-1.5 text-stone-700">
           {payload.evidence.map((e, i) => (
             <li key={i} className="leading-relaxed">
-              <span className="text-stone-500 text-xs">[{e.source}]</span> {e.excerpt}
+              <span className="text-stone-500 text-xs">[{e.source_label}]</span> {e.excerpt}
             </li>
           ))}
         </ul>

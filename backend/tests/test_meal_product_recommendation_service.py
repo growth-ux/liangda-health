@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from app.models.health_fact import HealthFact
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
 from app.services.meal_product_recommendation_service import MealProductRecommendationService
@@ -167,3 +168,42 @@ def test_recommend_family_filters_to_requested_category_when_query_mentions_oil(
     assert result["is_error"] is False
     assert result["items"], "问油时应返回油品推荐"
     assert all(item["product_id"].startswith("oil-") for item in result["items"])
+
+
+def test_recommend_product_includes_report_based_evidence_source(db_session, monkeypatch):
+    member = _add_member(db_session)
+    db_session.add(
+        HealthFact(
+            fact_id="fact_1",
+            member_id=member.member_id,
+            fact_type="risk",
+            name="血脂偏高",
+            value=None,
+            unit=None,
+            reference_range=None,
+            status="warning",
+            source_document_id="doc_1",
+            source_page_no=3,
+            source_chunk_id="chunk_1",
+            evidence_text="总胆固醇偏高，建议少油饮食",
+            created_at=datetime.utcnow(),
+        )
+    )
+    db_session.commit()
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+    monkeypatch.setattr(service.profile_service.device_service, "ensure_recent_7_days", lambda member_id: None)
+
+    result = service.recommend(
+        scope="member",
+        member_id=member.member_id,
+        meal_plan_text="晚餐希望清淡少油，搭配杂粮和蔬菜。",
+        query_text="推荐适合爸爸的油",
+        limit=3,
+    )
+
+    assert result["is_error"] is False
+    assert result["items"]
+    assert any(item["evidence_source"] == "报告健康事实 + 商品标签" for item in result["items"])
+    assert any("血脂偏高" in item["reason"] or "少油" in item["reason"] for item in result["items"])

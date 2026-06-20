@@ -280,3 +280,36 @@ def test_agent_service_stream_message_emits_card_event(monkeypatch):
     done_events = [e for e in events if "event: assistant_done" in e]
     assert len(done_events) == 1
     assert '"card"' in done_events[0]
+
+
+def test_agent_service_stream_message_emits_card_with_evidence(db_session):
+    card_dict = {
+        "kind": "qa",
+        "summary_text": "你好",
+        "payload": {"question_topic": "x", "answer": "y", "tips": []},
+        "evidence": {
+            "content_items": [
+                {
+                    "type": "memory",
+                    "title": "互动记忆",
+                    "excerpt": "爸爸不喜欢鱼",
+                    "source_id": "memory:1",
+                    "source_label": "互动记忆",
+                }
+            ],
+            "product_items": [],
+        },
+    }
+
+    class FakeRunner:
+        def stream(self, messages):
+            yield ("delta", "先回")
+            yield ("card", card_dict)
+
+    service = AgentService(SqlAlchemyAgentRepository(db_session), FakeRunner())
+    session = service.create_session("新对话")
+
+    events = "".join(service.stream_message(session.session_id, "x"))
+
+    assert '"evidence"' in events
+    assert '"title": "互动记忆"' in events

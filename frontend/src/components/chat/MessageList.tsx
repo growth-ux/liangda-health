@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { AgentMessage } from '../../api/agent';
 import type { HealthAnalysisOverview } from '../../api/healthAnalysis';
 import { MessageBubble } from './MessageBubble';
+import type { EvidenceModalState } from './evidence/EvidenceActions';
 
 type Props = {
   messages: AgentMessage[];
@@ -9,6 +10,9 @@ type Props = {
   overview?: HealthAnalysisOverview | null;
   overviewLoading?: boolean;
   overviewError?: boolean;
+  modalState: EvidenceModalState;
+  onModalChange: (next: EvidenceModalState) => void;
+  mobileEvidenceMode?: boolean;
 };
 
 const STICK_TO_BOTTOM_THRESHOLD = 64;
@@ -64,7 +68,16 @@ function WelcomeSummary({
   );
 }
 
-export function MessageList({ messages, loading, overview, overviewLoading, overviewError }: Props) {
+export function MessageList({
+  messages,
+  loading,
+  overview,
+  overviewLoading,
+  overviewError,
+  modalState,
+  onModalChange,
+  mobileEvidenceMode = false,
+}: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   // 记录是否“贴底”：用户主动上滑读历史时不再被流式输出拽回底部
   const stickToBottomRef = useRef(true);
@@ -93,7 +106,13 @@ export function MessageList({ messages, loading, overview, overviewLoading, over
         <WelcomeSummary overview={overview} loading={overviewLoading} error={overviewError} />
       )}
       {messages.map((message) => (
-        <MessageBubble key={message.message_id} message={message} />
+        <MessageBubble
+          key={message.message_id}
+          message={message}
+          modalState={modalState}
+          onModalChange={onModalChange}
+          mobileEvidenceMode={mobileEvidenceMode}
+        />
       ))}
     </div>
   );

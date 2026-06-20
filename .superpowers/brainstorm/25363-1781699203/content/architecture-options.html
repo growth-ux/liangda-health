@@ -1,0 +1,90 @@
+<h2>竞赛版系统架构图方案</h2>
+<p class="subtitle">目标：评委先看懂业务闭环，再看到 AI 编排与技术可信度</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 A · 纯技术分层图</div>
+        <div class="mockup-body">
+          <div class="section">
+            <div class="placeholder" style="height:42px;">前端层</div>
+          </div>
+          <div class="section">
+            <div class="placeholder" style="height:72px;">API / Agent / Service</div>
+          </div>
+          <div class="split">
+            <div class="placeholder" style="height:110px;">MySQL / Milvus / mem0</div>
+            <div class="placeholder" style="height:110px;">DashScope / OCR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 技术分层</h3>
+      <p>最像研发汇报图，技术清楚，但营销闭环不够突出。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 B · 业务闭环图</div>
+        <div class="mockup-body">
+          <div class="split">
+            <div class="placeholder" style="height:48px;">报告 / 档案 / 设备</div>
+            <div class="placeholder" style="height:48px;">推荐 / 下单 / 反馈</div>
+          </div>
+          <div class="placeholder" style="height:88px;">健康画像 + Agent 决策引擎</div>
+          <div class="placeholder" style="height:48px;">用户反馈回写记忆，形成转化闭环</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 业务闭环</h3>
+      <p>评委最容易懂，但底层技术可信度会偏弱。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">方案 C · 主闭环 + 侧技术</div>
+        <div class="mockup-body">
+          <div class="placeholder" style="height:44px;">多源输入：报告 / 档案 / 手环 / 记忆</div>
+          <div class="placeholder" style="height:92px;">AI 核心：健康画像聚合 + Agent 工具编排</div>
+          <div class="placeholder" style="height:44px;">输出：餐单建议 / 商品推荐 / 推荐依据</div>
+          <div class="split">
+            <div class="placeholder" style="height:72px;">技术底座：FastAPI / MySQL / Milvus / mem0</div>
+            <div class="placeholder" style="height:72px;">外部能力：Qwen / Embedding / OCR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 主闭环 + 侧技术</h3>
+      <p>先讲智能营销闭环，再补技术实现，最适合比赛答辩和材料展示。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>我推荐</h4>
+      <ul>
+        <li>主图采用方案 C</li>
+        <li>中心突出“健康画像 + Agent 编排”</li>
+        <li>底部补“数据层 / 外部模型能力 / 证据链”</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>取舍</h4>
+      <ul>
+        <li>不会把所有表和接口都塞进去</li>
+        <li>重点服务于比赛展示，不是研发部署图</li>
+        <li>如果需要，可再补一张技术实现详图</li>
+      </ul>
+    </div>
+  </div>
+</div>

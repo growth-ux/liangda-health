@@ -1,4 +1,4 @@
-import type { StructuredCard } from '../schemas/agentResponse';
+import type { MessageEvidence, StructuredCard } from '../schemas/agentResponse';
 
 export type AgentSession = {
   session_id: string;
@@ -26,7 +26,7 @@ export type AgentMessage = {
   created_at: string;
   attachments?: Attachment[];
   product_recommendations?: ProductRecommendationItem[];
-  card?: StructuredCard;
+  card?: StructuredCard & { evidence?: MessageEvidence | null };
 };
 
 export type Attachment = {

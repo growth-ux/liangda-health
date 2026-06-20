@@ -9,7 +9,7 @@ from app.models.mall import MallProduct
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
-from app.services.mall_recommendation import score_product_for_member
+from app.services.mall_recommendation import build_recommend_reason, score_product_for_member
 
 
 @dataclass(frozen=True)
@@ -17,6 +17,7 @@ class MealProductRecommendation:
     product: MallProduct
     score: int
     reason: str
+    evidence_source: str
 
 
 TAG_RULES: list[tuple[tuple[str, ...], tuple[str, ...], str]] = [
@@ -134,7 +135,7 @@ class MealProductRecommendationService:
                 " ".join(profile.goals),
             ]
         )
-        return self._rank(products, context, [member], query_text, limit)
+        return self._rank(products, context, [member], query_text, limit, profile=profile)
 
     def _recommend_for_family(
         self,
@@ -154,7 +155,7 @@ class MealProductRecommendationService:
                 " ".join(profile.family_goals),
             ]
         )
-        return self._rank(products, context, members, query_text, limit)
+        return self._rank(products, context, members, query_text, limit, family_profile=profile)
 
     def _products(self) -> list[MallProduct]:
         self.mall_repository.seed_default_data()
@@ -167,6 +168,9 @@ class MealProductRecommendationService:
         members: list[Member],
         query_text: str,
         limit: int,
+        *,
+        profile: HealthProfile | None = None,
+        family_profile: FamilyHealthProfile | None = None,
     ) -> list[MealProductRecommendation]:
         requested_category, requested_reason = _match_requested_category(query_text)
         if requested_category:
@@ -182,9 +186,24 @@ class MealProductRecommendationService:
             member_score = sum(max(0, score_product_for_member(member, product)) for member in members)
             requested_score = 200 if requested_category and product.category_code == requested_category else 0
             score = requested_score + category_score + tag_score + member_score
-            reason = requested_reason or category_reason or tag_reason
+            reason, evidence_source = _build_evidence_reason(
+                product=product,
+                members=members,
+                profile=profile,
+                family_profile=family_profile,
+                requested_reason=requested_reason,
+                category_reason=category_reason,
+                tag_reason=tag_reason,
+            )
             if score > 0:
-                scored.append(MealProductRecommendation(product=product, score=score, reason=reason))
+                scored.append(
+                    MealProductRecommendation(
+                        product=product,
+                        score=score,
+                        reason=reason,
+                        evidence_source=evidence_source,
+                    )
+                )
         scored.sort(key=lambda item: (-item.score, item.product.product_id))
         return _pick_diverse_reasons(scored, max(1, limit))
 
@@ -195,6 +214,7 @@ class MealProductRecommendationService:
             "product_id": product.product_id,
             "name": product.name,
             "reason": rec.reason,
+            "evidence_source": rec.evidence_source,
             "price_text": MealProductRecommendationService._format_price(product.price_cents),
             "image_url": product.image_url,
             "image_emoji": product.image_emoji,
@@ -250,6 +270,94 @@ def _pick_diverse_reasons(
         if len(selected) >= limit:
             return selected
     return selected
+
+
+def _build_evidence_reason(
+    *,
+    product: MallProduct,
+    members: list[Member],
+    profile: HealthProfile | None,
+    family_profile: FamilyHealthProfile | None,
+    requested_reason: str,
+    category_reason: str,
+    tag_reason: str,
+) -> tuple[str, str]:
+    tags = set(_json_list(product.recommend_tags))
+    generic_reason = requested_reason or category_reason or tag_reason or "匹配本次商品标签"
+
+    if profile is not None:
+        device_reason = _member_device_reason(profile, tags)
+        if device_reason:
+            return _merge_reasons(device_reason, generic_reason), "最近7天手环 + 商品标签"
+        report_reason = _member_report_reason(profile, tags)
+        if report_reason:
+            return _merge_reasons(report_reason, generic_reason), "报告健康事实 + 商品标签"
+        member_reason = build_recommend_reason(members[0], product)
+        if not member_reason.startswith("该商品适合全家"):
+            return _merge_reasons(member_reason, generic_reason), "健康档案 + 商品标签"
+
+    if family_profile is not None:
+        family_device_reason = _family_device_reason(family_profile, tags)
+        if family_device_reason:
+            return _merge_reasons(family_device_reason, generic_reason), "最近7天手环 + 商品标签"
+        family_report_reason = _family_report_reason(family_profile, tags)
+        if family_report_reason:
+            return _merge_reasons(family_report_reason, generic_reason), "报告健康事实 + 商品标签"
+
+    if requested_reason:
+        return generic_reason, "当前问题 + 商品标签"
+    return generic_reason, "商品标签匹配"
+
+
+def _merge_reasons(primary: str, secondary: str) -> str:
+    if not secondary or secondary in primary:
+        return primary
+    return f"{primary}；{secondary}"
+
+
+def _member_report_reason(profile: HealthProfile, tags: set[str]) -> str:
+    if not profile.evidence_notes:
+        return ""
+    return _risk_reason(profile.long_term_risks, tags)
+
+
+def _family_report_reason(profile: FamilyHealthProfile, tags: set[str]) -> str:
+    if not profile.evidence_notes:
+        return ""
+    return _risk_reason(profile.shared_risks, tags)
+
+
+def _member_device_reason(profile: HealthProfile, tags: set[str]) -> str:
+    return _device_reason(profile.recent_states, tags)
+
+
+def _family_device_reason(profile: FamilyHealthProfile, tags: set[str]) -> str:
+    return _device_reason(profile.family_modifiers, tags)
+
+
+def _risk_reason(risks: list[str], tags: set[str]) -> str:
+    if "血脂偏高" in risks and {"low_fat", "high_fiber", "high_protein"} & tags:
+        return "报告提示血脂偏高，这次推荐优先少油和高纤维方向"
+    if "血压偏高" in risks and {"low_sodium", "hypertension"} & tags:
+        return "报告提示血压偏高，这次推荐优先低钠方向"
+    if "血糖风险" in risks and {"sugar_control", "low_gi"} & tags:
+        return "报告提示控糖风险，这次推荐优先低 GI 方向"
+    if "骨密度风险" in risks and {"high_calcium", "nutrients"} & tags:
+        return "报告提示骨密度风险，这次推荐优先高钙营养方向"
+    if "尿酸风险" in risks and {"low_purine"} & tags:
+        return "报告提示尿酸风险，这次推荐优先低嘌呤方向"
+    return ""
+
+
+def _device_reason(states: list[str], tags: set[str]) -> str:
+    state_text = " ".join(states)
+    if "血压近期偏高" in state_text and {"low_sodium", "hypertension"} & tags:
+        return "手环显示近期血压偏高，这次推荐继续收紧低钠方向"
+    if "步数偏低" in state_text and {"low_fat", "high_fiber", "low_gi"} & tags:
+        return "手环显示近期步数偏低，这次推荐更偏向轻负担商品"
+    if "睡眠不足" in state_text and {"low_fat", "high_fiber"} & tags:
+        return "手环显示近期睡眠不足，这次推荐更偏向清淡轻负担商品"
+    return ""
 
 
 def _json_list(raw: str | None) -> list[str]:

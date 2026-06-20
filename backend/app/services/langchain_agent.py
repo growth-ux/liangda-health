@@ -7,6 +7,7 @@ from typing import Literal
 from langchain.tools import tool
 
 from app.core.config import settings
+from app.services.agent_evidence import AgentEvidenceCollector
 from app.services.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
@@ -75,14 +76,25 @@ SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent�
 def _build_members_block(members: list) -> str:
     if not members:
         return "15. 当前没有可用家人，无法检索报告。\n"
+    # 统计每个关系称呼出现次数：唯一就直接用，多个才反问
+    relation_count: dict[str, int] = {}
+    for member in members:
+        relation = member.relation if hasattr(member, "relation") else member.get("relation", "")
+        if relation:
+            relation_count[relation] = relation_count.get(relation, 0) + 1
     lines = ["15. 当前可用家人列表："]
     for index, member in enumerate(members, start=1):
         member_id = member.member_id if hasattr(member, "member_id") else member["member_id"]
         name = member.name if hasattr(member, "name") else member["name"]
         relation = member.relation if hasattr(member, "relation") else member.get("relation", "")
         lines.append(f"   {index}. {name}（member_id={member_id}，{relation}）")
-    lines.append('   如果用户问"爸爸"对应到相应的家人，以此类推。')
-    lines.append('   如果指代不明（如"他/她"无上下文），必须先反问"您说的\'他/她\'是指哪位家人？"，不要主动猜测。')
+    lines.append("   称呼解析规则（不要机械反问，按顺序判断）：")
+    lines.append('   - 用户用称呼（"爸爸/妈妈/儿子/女儿/爷爷/奶奶/外公/外婆/本人"等）时，先在列表里按关系字段匹配。')
+    lines.append('   - 列表里**只有一个**家人对应该称呼时，直接把那位的 member_id 传给工具（kb_search / memory_search / meal_plan / mall_recommend），**不要反问**。')
+    lines.append('   - 列表里有**多个**家人对应该称呼时（如同一个家既有亲爷爷也有外公都被叫"爷爷"），才反问"您说的XX是列表里哪一位？"，不要猜。')
+    lines.append('   - 用户用姓名（如"张志远"）时按姓名精确匹配；匹配不到再反问。')
+    lines.append('   - 用户用"他/她"时，优先看最近几条历史消息里点过名的家人；当前消息上下文能定位到具体家人就直接用，**完全没有上下文才反问**。')
+    lines.append('   - 用户说"全家/我们家/家里人"时不传 member_id，走家庭级记忆/报告。')
     return "\n".join(lines) + "\n"
 
 
@@ -133,6 +145,7 @@ class LangChainAgentRunner:
         self.memory_tool = memory_tool
         self.mall_recommend_tool = mall_recommend_tool
         self.member_provider = member_provider or (lambda: [])
+        self._evidence_collector: AgentEvidenceCollector | None = None
 
     def _system_prompt(self) -> str:
         members = self.member_provider()
@@ -147,9 +160,28 @@ class LangChainAgentRunner:
         # This auto-injection path is retained as a no-op for backward compatibility.
         return messages
 
+    def _attach_evidence_collector(self) -> AgentEvidenceCollector:
+        collector = AgentEvidenceCollector()
+        self._evidence_collector = collector
+        for tool in (self.kb_tool, self.meal_plan_tool, self.memory_tool, self.mall_recommend_tool):
+            if tool is not None:
+                tool.evidence_collector = collector
+        return collector
+
+    def _apply_evidence_to_card(self, card: dict) -> dict:
+        collector = self._evidence_collector
+        if collector is None:
+            return card
+        evidence = collector.dump()
+        if evidence is None:
+            return card
+        card["evidence"] = evidence.model_dump()
+        return card
+
     def run(self, messages: list[dict[str, str]]) -> dict[str, object]:
         self._ensure_api_key()
         logger.info("agent run start message_count=%s model=%s", len(messages), settings.llm_model)
+        self._attach_evidence_collector()
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
         logger.info(
@@ -181,6 +213,7 @@ class LangChainAgentRunner:
         if card is None:
             logger.warning("agent run no respond tool call in messages; raising")
             raise ResponseSchemaError("LLM 未调用 respond 工具")
+        card = self._apply_evidence_to_card(card)
         result = {
             "content": card.get("summary_text", ""),
             "token_prompt": token_usage.get("prompt_tokens"),
@@ -203,6 +236,7 @@ class LangChainAgentRunner:
     def stream(self, messages: list[dict[str, str]]) -> Iterable[tuple[Literal["delta", "product_recommendations", "card"], object]]:
         self._ensure_api_key()
         logger.info("agent stream start message_count=%s model=%s", len(messages), settings.llm_model)
+        self._attach_evidence_collector()
         agent = self._agent()
         prepared_messages = self._append_kb_context(messages)
         logger.info(
@@ -251,6 +285,7 @@ class LangChainAgentRunner:
                     )
                     raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
                 respond_done = True
+                card = self._apply_evidence_to_card(card)
                 logger.info(
                     "agent stream emit card kind=%s summary_chars=%s payload_keys=%s args_state_keys=%s",
                     card.get("kind"),
@@ -666,19 +701,41 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
         except (TypeError, json.JSONDecodeError):
             return captured
 
-    for index, tc in enumerate(tool_call_chunks):
-        tc_index = _tc_attr(tc, "index", index)
-        tc_id = f"index:{tc_index}" if tc_index is not None else (_tc_attr(tc, "id") or "default")
+    def _resolve_state_keys(tc, current_state: dict[str, str]) -> list[str]:
         name = _tc_attr(tc, "name")
-        if name != "respond" and tc_id not in state:
+        tc_index = _tc_attr(tc, "index")
+        tc_id = _tc_attr(tc, "id")
+        index_key = f"index:{tc_index}" if tc_index is not None else None
+        candidate_keys = [key for key in (index_key, tc_id) if key]
+
+        if name == "respond":
+            if candidate_keys:
+                return candidate_keys
+            return ["default"]
+
+        existing = [key for key in candidate_keys if key in current_state]
+        if existing:
+            return existing
+
+        # 某些兼容层后续 chunk 不再带 name/index，只剩下 call_id；此时沿用唯一活跃 respond 缓冲。
+        if name is None and len(current_state) == 1:
+            return [next(iter(current_state.keys()))]
+        return []
+
+    for index, tc in enumerate(tool_call_chunks):
+        state_keys = _resolve_state_keys(tc, state)
+        if not state_keys:
             continue
-        prev_args = state.get(tc_id, "")
-        new_args = prev_args + (_tc_attr(tc, "args", "") or "")
-        state[tc_id] = new_args
+        raw_delta = _tc_attr(tc, "args", "") or ""
+        primary_key = state_keys[0]
+        prev_args = state.get(primary_key, "")
+        new_args = prev_args + raw_delta
+        for key in dict.fromkeys(state_keys):
+            state[key] = new_args
         logger.info(
-            "respond args chunk appended tc_id=%s name=%s prev_chars=%s new_chars=%s",
-            tc_id,
-            name,
+            "respond args chunk appended state_keys=%s name=%s prev_chars=%s new_chars=%s",
+            state_keys,
+            _tc_attr(tc, "name"),
             len(prev_args),
             len(new_args),
         )
@@ -692,8 +749,8 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
             prev_decoded = _decode(prev_match.group(1))
             delta = decoded[len(prev_decoded):]
             if delta:
-                logger.info("respond summary delta parsed tc_id=%s delta_chars=%s", tc_id, len(delta))
+                logger.info("respond summary delta parsed state_key=%s delta_chars=%s", primary_key, len(delta))
             return delta
-        logger.info("respond summary initial parsed tc_id=%s chars=%s", tc_id, len(decoded))
+        logger.info("respond summary initial parsed state_key=%s chars=%s", primary_key, len(decoded))
         return decoded
     return ""

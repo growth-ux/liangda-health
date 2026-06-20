@@ -1,10 +1,21 @@
 import json
 import logging
+import re
 
 from app.repositories.kb_repository import SqlAlchemyKbRepository
+from app.schemas.agent_response import EvidenceItem
 from app.services.meal_plan_service import MealPlanService
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_evidence_excerpt(text: str, *, max_length: int = 160, strip_square_tags: bool = False) -> str:
+    normalized = text.replace("\n", " ").strip()
+    normalized = re.sub(r"\s+", " ", normalized)
+    if strip_square_tags:
+        normalized = re.sub(r"\[[^\]]+\]\s*", "", normalized)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+    return normalized[:max_length]
 
 
 class KbSearchTool:
@@ -16,6 +27,7 @@ class KbSearchTool:
         allowed_member_ids: list[str] | None = None,
         embedding_service_factory=None,
         vector_store_factory=None,
+        evidence_collector=None,
     ):
         self.repository = repository
         self.embedding_service = embedding_service
@@ -23,6 +35,7 @@ class KbSearchTool:
         self.allowed_member_ids = set(allowed_member_ids or [])
         self.embedding_service_factory = embedding_service_factory
         self.vector_store_factory = vector_store_factory
+        self.evidence_collector = evidence_collector
 
     def search(self, query: str, member_id: str, top_k: int = 5) -> str:
         if not member_id:
@@ -58,6 +71,20 @@ class KbSearchTool:
                 f"页码：{chunk.page_no}\n"
                 f"内容：{chunk.content}"
             )
+        # 证据只收第一条：一次返回多 chunk 时右栏只展示主依据，避免塞满。
+        if self.evidence_collector is not None and chunks:
+            first_chunk = chunks[0]
+            document = self.repository.get_document(first_chunk.document_id)
+            title = document.title or document.file_name if document is not None else first_chunk.document_id
+            self.evidence_collector.add_content(
+                EvidenceItem(
+                    type="report_fact",
+                    title=title,
+                    excerpt=_normalize_evidence_excerpt(first_chunk.content, max_length=180),
+                    source_id=first_chunk.chunk_id,
+                    source_label=f"{title} p{first_chunk.page_no}" if document is not None else first_chunk.document_id,
+                )
+            )
         logger.info("kb_search done member_id=%s hit_count=%s chunk_count=%s", member_id, len(hits), len(chunks))
         return "\n\n".join(parts)
 
@@ -73,9 +100,10 @@ class KbSearchTool:
 
 
 class MealPlanTool:
-    def __init__(self, service: MealPlanService, allowed_member_ids: list[str]):
+    def __init__(self, service: MealPlanService, allowed_member_ids: list[str], evidence_collector=None):
         self.service = service
         self.allowed_member_ids = set(allowed_member_ids)
+        self.evidence_collector = evidence_collector
 
     def build(
         self,
@@ -96,6 +124,9 @@ class MealPlanTool:
                 logger.info("meal_plan rejected reason=member_not_allowed member_id=%s", member_id)
                 return f"Error: member_id={member_id} 不在可用家人列表中，可用：{sorted(self.allowed_member_ids)}"
         result = self.service.build(scope=scope, member_id=member_id, goal=goal, meal_type=meal_type)
+        if self.evidence_collector is not None:
+            for item in self.service.get_evidence_items(scope=scope, member_id=member_id):
+                self.evidence_collector.add_content(item)
         logger.info(
             "meal_plan done scope=%s member_id=%s meal_type=%s output_chars=%s",
             scope,
@@ -107,14 +138,25 @@ class MealPlanTool:
 
 
 class MemorySearchTool:
-    def __init__(self, service):
+    def __init__(self, service, evidence_collector=None):
         self.service = service
+        self.evidence_collector = evidence_collector
 
     def search(self, query: str, member_id: str | None = None, limit: int = 5) -> str:
         if not query.strip():
             logger.info("memory_search rejected reason=blank_query")
             return "Error: query 不能为空"
         result = self.service.search_text(query=query, member_id=member_id, limit=limit)
+        if self.evidence_collector is not None:
+            self.evidence_collector.add_content(
+                EvidenceItem(
+                    type="memory",
+                    title=f"关于「{query}」的互动记忆",
+                    excerpt=_normalize_evidence_excerpt(str(result), strip_square_tags=True),
+                    source_id=f"memory:{member_id or 'family'}:{query}",
+                    source_label="互动记忆",
+                )
+            )
         logger.info(
             "memory_search done member_id=%s limit=%s output_chars=%s",
             member_id,
@@ -125,9 +167,10 @@ class MemorySearchTool:
 
 
 class MallRecommendTool:
-    def __init__(self, service, allowed_member_ids: list[str]):
+    def __init__(self, service, allowed_member_ids: list[str], evidence_collector=None):
         self.service = service
         self.allowed_member_ids = set(allowed_member_ids)
+        self.evidence_collector = evidence_collector
 
     def recommend(
         self,
@@ -158,6 +201,17 @@ class MallRecommendTool:
             query_text=query_text,
             limit=limit,
         )
+        if self.evidence_collector is not None:
+            for item in result.get("items") or []:
+                self.evidence_collector.add_product(
+                    EvidenceItem(
+                        type="product",
+                        title=item["name"],
+                        excerpt=_normalize_evidence_excerpt(item.get("reason", "")),
+                        source_id=item["product_id"],
+                        source_label=item.get("evidence_source") or "商城标签匹配",
+                    )
+                )
         payload = json.dumps(result, ensure_ascii=False)
         logger.info(
             "mall_recommend done scope=%s member_id=%s item_count=%s is_error=%s",

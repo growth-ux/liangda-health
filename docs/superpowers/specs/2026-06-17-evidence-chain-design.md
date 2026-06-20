@@ -1,538 +1,419 @@
-# Agent 生成与推荐证据链设计
+# Agent 证据链设计
 
 日期：2026-06-17
 
-## 1. 背景与目标
+## 1. 目标
 
-项目原型 `@.superpowers/brainstorm/14240-1781663378/content/evidence-chain-chat.html` 已经把证据链的视觉方向定下来了：右栏展示生成依据（4 类）和推荐依据（每商品 1 项），与 prototype 信条——"工具产生结构化依据，不让模型自由编来源；Agent 只负责把依据组织成用户能读懂的话；前端把依据收进可展开区域，默认不打断聊天"。
+给聊天页加入证据链能力，但桌面端不再采用固定三栏，而是改为：
 
-本设计把这个原型落成可实现的代码，连接到现有 `LangChainAgentRunner` 的工具链和 SSE 流。
+- 桌面端保持两栏主布局：会话列表 / 聊天流
+- 证据链以中心弹窗 `EvidenceModal` 展示
+- 弹窗跟随当前选中的 assistant 回复
+- 证据分两组：
+  - 生成链：这条建议为什么这样生成
+  - 推荐链：为什么推荐这批商品
+- 移动端不渲染弹窗，退化为消息内展开
 
-目标：
+这个功能的核心不是做复杂解释系统，而是让用户在看到建议和商品推荐后，能立刻回答两个问题：
 
-- 后端：5 种 assistant 回复 kind 全部支持 `evidence`；工具调用时维护 evidence 候选池；`respond` 工具 schema 加可选 `evidence_refs`；SSE 增加 `evidence` / `evidence_final` 事件
-- 前端：右栏 `EvidencePanel`、切钮行 `EvidenceActions`、静态 `EvidenceItemCard`；流式阶段实时更新右栏；空状态按需展示
-- 移动端：< 768px 不显示切钮，不渲染右栏（不做适配，避免范围蔓延）
+1. 这条建议依据了什么
+2. 这批商品为什么会被推荐
 
-不在范围：
+## 2. 本期范围
 
-- debug 视图（`?debug=1` 那种内部调试 UI）
-- 会话级 evidence 概览
-- "安全过滤" pipeline 描述作为 evidence 项
-- 点击 evidence 跳转到报告/记忆/商品详情页
-- 商品详情弹窗 / 抽屉
-- 多语言
+### 包含
 
-## 2. 约束
+- 聊天页桌面端两栏布局保持不变
+- 中心 `EvidenceModal`
+- assistant 消息下的证据切换入口
+- 选中某条 assistant 回复后，打开弹窗展示该消息的证据链
+- 证据先支持 3 类：
+  - `report_fact`
+  - `memory`
+  - `product`
+- 移动端卡片内展开版证据展示
 
-- 后端：FastAPI + SQLAlchemy + LangChain（已有）
-- 前端：React + Vite + TypeScript + Tailwind + TanStack Query（已有）
-- 不引入新依赖
-- 不引入回退层 / 并行实现（遵循项目 "no over-design or fallback layers" 原则）
-- 视觉风格沿用 prototype HTML（绿 = 生成链，橙 = 推荐链，浅色背景高亮）
-- `meal_plan` / `memory_search` / `kb_search` / `mall_recommend` 工具的内部逻辑不重写，只在完成钩子里加 `EvidencePool.push`
+### 不包含
 
-## 3. 核心原则
+- 设备证据
+- 独立 `health_profile` 证据类型
+- 会话级证据总览
+- 证据点击跳转报告页 / 商品页 / 记忆详情
+- 新增数据库表
+- 新增复杂回放、调试、审计界面
 
-1. **证据来源铁板钉钉**。`EvidenceItem.source_id` 必须指向一个真实存在的后端数据（HealthFact.id / Memory.id / Product.id 等）。LLM 不能自己编来源。
-2. **LLM 选主次**。`respond` 工具接受 `evidence_refs`（ref_id + sort），LLM 表达"这条建议主要靠 X"；后端不做主次排序逻辑。
-3. **不降级**：JSON 解析失败 / `ref_id` 不存在 / 候选池为空 → 静默跳过对应项；消息本身继续走，不抛错。
-4. **按需展示**：右栏默认空；切钮出现条件是消息有 evidence；用户不点切钮，右栏保持空状态文案。
-5. **静态 evidence**：右栏里的 evidence 项不可点击。摘要 + 来源标签就够回答"为什么"。
+## 3. 设计原则
 
-## 4. 整体架构
+1. **证据只服务当前消息**
+   证据层不做全局汇总，只看当前选中的 assistant 回复，避免信息混杂。
+
+2. **聊天流仍然是主轴**
+   中间聊天区仍然是第一阅读焦点。证据是按需打开的解释层，不常驻抢空间。
+
+3. **先看证据，再回到聊天**
+   用户点击入口后应进入一个清晰、聚焦的阅读状态，看完直接关闭回到对话，不需要在长页面里来回找位置。
+
+4. **证据必须来自真实工具输出**
+   证据由后端工具链收集，不允许模型自由编来源。
+
+5. **先做真，再做全**
+   第一期只把 `报告事实 / 互动记忆 / 商品匹配` 做通，再考虑设备和画像扩展。
+
+6. **桌面端和移动端分开处理**
+   桌面端使用中心弹窗；移动端回到消息内展开，避免复杂布局硬塞。
+
+## 4. 交互方案
+
+## 4.1 桌面端布局
+
+聊天页保持现有左侧会话列表和中间聊天主区，不新增固定右栏：
 
 ```text
-用户消息
-   ↓
-[前端] POST /api/agent/sessions/{id}/messages:stream
-   ↓
-[后端] LangChainAgentRunner.stream()
-   ├─ 创建 EvidencePool（绑本次 run 上下文，in-memory，不落库）
-   ├─ tools = [kb_search, memory_search, meal_plan, mall_recommend, respond]
-   ├─ respond 工具的 description 动态注入 EvidencePool.snapshot()
-   └─ Agent 内部工具链：
-        ├─ kb_search 完成 → push report_fact → emit("evidence", ...)
-        ├─ memory_search 完成 → push memory → emit("evidence", ...)
-        ├─ meal_plan 完成 → push profile → emit("evidence", ...)
-        ├─ mall_recommend 完成 → push product → emit("evidence", ...)
-        └─ respond(StructuredResponse{evidence_refs}) 完成
-              ↓ resolve(ref_ids) → EvidenceItem[]
-              ↓ emit("evidence_final", items)
-              ↓ 入库 assistant_message.evidence = json.dumps(items)
-   ↓
-[前端] 累积 message.evidence_stream + message.evidence_final
-   ↓
-EvidenceActions（紧贴主消息下面）渲染切钮
-EvidencePanel（右栏）默认 EvidenceEmpty，点切钮切换到对应 group
+| 会话列表 | 聊天流 |
 ```
 
-## 5. Schemas
+只有当用户点击某条 assistant 消息下的证据入口时，页面中间才弹出证据弹窗。
 
-### 5.1 后端 Pydantic
+### 中间聊天流
 
-新增到 `backend/app/schemas/agent_response.py`：
+- assistant 消息正常展示摘要、结构化卡片、商品推荐卡片
+- 在 assistant 消息下增加证据入口
+- 点击入口后，打开中心弹窗并切换到对应消息、对应组别
 
-```python
-class EvidenceItem(BaseModel):
-    type: Literal["report_fact", "profile", "device", "memory", "product"]
-    title: str                  # "体检报告提示血压相关风险"
-    excerpt: str                # 一句自然语言摘要（用户视图文案）
-    source_id: str              # 后端真实 ID
-    source_label: str           # "5月体检报告 p3" / "健康画像聚合" 等
+### 中心证据弹窗
 
-class RespondEvidenceRef(BaseModel):
-    ref_id: str                 # EvidencePool 里的候选 ID
-    sort: int = 0               # 0-based，0 = 最主要
+- 默认关闭
+- 标题固定为“证据链”
+- 顶部有两个切换：
+  - `生成链`
+  - `推荐链`
+- 面板内容跟随当前选中的 assistant 消息变化
+- 支持关闭，关闭后回到纯聊天阅读
+- 弹窗打开时，背景聊天内容保留但弱化
 
-class EvidenceStreamEvent(BaseModel):
-    message_id: str             # 占位 ID（assistant_start 时已分配）
-    ref_id: str
-    type: Literal["report_fact", "profile", "device", "memory", "product"]
-    title: str
-    excerpt: str
-    source_label: str
-    sort_hint: int              # 候选池 push 顺序
+## 4.2 弹窗状态
 
-class EvidenceFinalEvent(BaseModel):
-    message_id: str
-    items: list[EvidenceItem]
+### 关闭状态
+
+默认不显示证据层。
+
+### 打开状态
+
+当用户点某条 assistant 消息的证据入口：
+
+- 页面中间弹出模态层
+- 锁定到该消息
+- 切到对应 group
+- 高亮当前选中的入口
+
+### 切换状态
+
+同一条消息可在 `生成链 / 推荐链` 之间切换。
+
+如果该消息只有生成链，没有推荐链，则只显示一个入口，不渲染另一个入口。
+
+如果用户在弹窗打开状态下点击另一条消息的证据入口，弹窗内容直接切换到新消息，无需先关闭再打开。
+
+### 空状态
+
+如果消息存在证据入口但对应组暂时没有有效数据，则弹窗内显示空态文案：
+
+```text
+当前回复暂时没有可展示的真实依据。
 ```
 
-`StructuredResponse` 加字段：
+## 4.3 移动端
 
-```python
-class StructuredResponse(BaseModel):
-    kind: Literal["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]
-    summary_text: str = Field(..., max_length=400)
-    payload: "PayloadUnion"
-    evidence_refs: list[RespondEvidenceRef] = []   # 可空
-```
+移动端不渲染弹窗。
 
-5 种 kind 的 payload 统一加 `evidence: list[EvidenceItem] | None = None`。`kb_interpretation` 已有 `evidence: list[EvidenceItem]`（kb_interpretation payload 内的 evidence）—— 现有实现是 LLM 直接在 payload 里填，新设计统一改成"后端从 `evidence_refs` resolve 后覆盖写入"，让所有 kind 走同一条规则。
+交互改为：
 
-**存储**：evidence 嵌入到 `assistant_messages.card` 列的 JSON 里（沿用现有 `card` 列存储模式），**不**新增 `evidence` 列、不写迁移脚本。
+- assistant 消息下仍有 `生成依据 / 推荐依据` 入口
+- 点击后在当前消息卡片内展开对应证据块
+- 不做弹窗，不做新页面
 
-### 5.2 前端 TypeScript
+## 5. 数据模型
 
-`frontend/src/schemas/agentResponse.ts`（手写同步）：
+第一期统一证据项结构：
 
 ```ts
-export type EvidenceType = "report_fact" | "profile" | "device" | "memory" | "product";
+type EvidenceType = "report_fact" | "memory" | "product";
 
-export interface EvidenceItem {
+interface EvidenceItem {
   type: EvidenceType;
   title: string;
   excerpt: string;
   source_id: string;
   source_label: string;
 }
+```
 
-export interface EvidenceStreamItem extends EvidenceItem {
-  ref_id: string;
-  sort_hint: number;
+说明：
+
+- `title`：证据标题，给用户第一眼看
+- `excerpt`：一句用户能看懂的摘要
+- `source_id`：真实后端来源 ID
+- `source_label`：来源标签，例如“5 月体检报告 p3”“互动记忆”“商城标签匹配”
+
+assistant 消息最终需要区分两组证据：
+
+```ts
+interface MessageEvidence {
+  content_items: EvidenceItem[];
+  product_items: EvidenceItem[];
 }
-
-export interface EvidencePanelState {
-  messageId: string;
-  group: "content" | "product";
-  focusRefId?: string;
-} | null;
 ```
 
-## 6. Evidence 候选池
+其中：
 
-`backend/app/services/evidence_pool.py`（新增文件）：
+- `content_items` 对应生成链
+- `product_items` 对应推荐链
 
-```python
-from dataclasses import dataclass, field
-from threading import Lock
+## 6. 后端方案
 
-@dataclass
-class EvidenceCandidate:
-    ref_id: str
-    type: str
-    title: str
-    excerpt: str
-    source_label: str
-    source_id: str
-    raw: dict = field(default_factory=dict)
+本期不引入新的表和复杂事件模型，直接沿用现有 assistant message / card 返回链路。
 
-class EvidencePool:
-    def __init__(self):
-        self._candidates: dict[str, EvidenceCandidate] = {}
-        self._counter: int = 0
-        self._lock = Lock()
+### 6.1 证据收集方式
 
-    def push(self, type_: str, title: str, excerpt: str,
-             source_id: str, source_label: str, raw: dict | None = None) -> str:
-        with self._lock:
-            self._counter += 1
-            ref_id = f"ref_{self._counter:03d}"
-            self._candidates[ref_id] = EvidenceCandidate(
-                ref_id=ref_id, type=type_, title=title, excerpt=excerpt,
-                source_id=source_id, source_label=source_label, raw=raw or {},
-            )
-            return ref_id
+后端在一次 agent 回复过程中，按工具结果收集真实证据：
 
-    def snapshot(self) -> list[EvidenceCandidate]:
-        # 按 push 顺序返回，给 LLM 看的清单
-        with self._lock:
-            return list(self._candidates.values())
+- `kb_search` 产出 `report_fact`
+- `memory_search` 产出 `memory`
+- `mall_recommend` 产出 `product`
 
-    def resolve(self, ref_ids: list[str]) -> list[EvidenceItem]:
-        # 静默跳过不存在的 ref_id
-        with self._lock:
-            return [
-                EvidenceItem(
-                    type=c.type, title=c.title, excerpt=c.excerpt,
-                    source_id=c.source_id, source_label=c.source_label,
-                )
-                for c in (self._candidates.get(rid) for rid in ref_ids)
-                if c is not None
-            ]
+`meal_plan` 本期不单独产生一种新 evidence type。它只消费前面的真实依据来组织建议。
+
+### 6.2 证据挂载位置
+
+不新建表，不单独建 evidence 列。
+
+证据最终写入 assistant 消息的 `card` JSON 中，建议结构为：
+
+```json
+{
+  "kind": "meal_plan",
+  "summary_text": "今晚建议更清淡一点。",
+  "payload": { ... },
+  "evidence": {
+    "content_items": [],
+    "product_items": []
+  }
+}
 ```
 
-`EvidencePool` **不落库**，绑在 `LangChainAgentRunner.stream()` 入口的局部变量上，`assistant_message` 入库后即销毁。
+这样前端只需要跟着现有 `card` 读取，不引入第二套持久化结构。
 
-### 6.1 工具完成钩子
+### 6.3 第一版后端边界
 
-各工具 `_arun` 完成后调用 `EvidencePool.push`（伪代码）：
+第一版不要求：
 
-```python
-# KbSearchTool
-for fact in result.facts:
-    pool.push(
-        type_="report_fact",
-        title=fact.name,
-        excerpt=fact.evidence_text,
-        source_id=fact.id,
-        source_label=f"{fact.source_document_id} p{fact.source_page_no}",
-        raw={"page": fact.source_page_no, "doc_id": fact.source_document_id},
-    )
+- LLM 填 `evidence_refs`
+- 新增 `evidence` / `evidence_final` SSE 事件
+- 动态注入 respond tool description
 
-# MemorySearchTool
-for mem in result.memories:
-    pool.push(type_="memory", title=..., excerpt=mem.text,
-              source_id=mem.id, source_label="互动记忆", raw={...})
+第一版直接由后端根据本次真实工具调用结果写入证据即可。
 
-# MealPlanTool
-profile = result.profile
-if profile.evidence_notes:
-    for note in profile.evidence_notes:
-        pool.push(type_="profile", title="健康画像", excerpt=note,
-                  source_id=profile.id, source_label="健康画像聚合")
+原因：
 
-# MallRecommendTool
-for item in result["items"]:
-    pool.push(type_="product", title=item["name"],
-              excerpt=item["reason"], source_id=item["product_id"],
-              source_label=f"商城 · {item['name']}",
-              raw={"score": item["score"], "tags": item.get("matched_tags", [])})
-```
+- 范围更小
+- 更稳
+- 更符合当前项目“先跑通最简流程”的原则
 
-设备状态由 `member_provider` 提供入口时 push（具体方法名以项目现有 API 为准，参考 `MemberProvider` 已有的 device 暴露方法；如果项目没有现成方法，按"在工具 description 注入前从 `MemberContext` 拿一次 device state"的最简实现）：
+## 7. 前端方案
 
-```python
-# in LangChainAgentRunner.stream() 入口（不假设具体方法名）
-device_state = self._member_provider.get_member_context(member_id).device_state
-if device_state:
-    pool.push(type_="device", title="近 7 天手环状态",
-              excerpt=f"平均睡眠 {device_state.avg_sleep_hours}h，深度睡眠占比 {device_state.deep_sleep_ratio}",
-              source_id=device_state.id, source_label="手环 · 7d",
-              raw={"window": "7d"})
-```
+## 7.1 页面结构
 
-> 具体 API 以实施时 `MemberProvider` 实际暴露的方法为准；如果完全没有现成方法，则**省略** `device` 类型——本设计不要求新增 device 状态采集能力，只接已经有的。
-
-### 6.2 `pool.snapshot()` 注入 `respond` 工具 description 的格式
-
-`LangChainAgentRunner` 在每次调 `respond` 工具前，动态拼一段 Markdown 注入到工具 description 末尾：
+当前聊天页继续保持两栏：
 
 ```text
-## 当前可引用的 evidence（respond 时通过 evidence_refs 引用）
-
-- ref_001 [report_fact] 体检报告提示血压相关风险 — 5月体检报告 p3
-- ref_002 [memory] 妈妈晚上没胃口 — 互动记忆
-- ref_003 [profile] 妈妈饮食原则：低钠、少油 — 健康画像聚合
-- ref_004 [device] 近 7 天睡眠偏短 — 手环 · 7d
-- ref_005 [product] 薄盐生抽：命中 low_sodium — 商城 · 薄盐生抽
-
-## 规则
-
-- 只允许引用上述 ref_id；其他 ID 视为非法，respond 时跳过
-- 0 = 这条建议最主要依据，1 = 次要，以此类推
-- evidence_refs 可空（不传时后端取前 3 条）
+会话列表 | 聊天主区
 ```
 
-LLM 看到 description 后自然在 `respond` 工具调用里填 `evidence_refs`。**不修改 system prompt**——只在工具 description 末尾动态追加。
+在桌面端新增一个按需打开的 `EvidenceModal`，覆盖在聊天主区上方，不占常驻布局列。
 
-## 7. SSE 事件扩展
+其中：
 
-`backend/app/services/agent_service.py` 处理新事件。
+- 左栏宽度保持现有风格
+- 中栏仍是聊天流和输入框
+- 桌面端点击消息证据入口后，弹出 `EvidenceModal`
 
-事件序列（一次 assistant 回复）：
+## 7.2 组件拆分
+
+新增或调整组件：
 
 ```text
-assistant_start
-  ├─ tool_call: kb_search
-  ├─ evidence   {ref_id, type, title, excerpt, source_label, sort_hint}
-  ├─ tool_call: memory_search
-  ├─ evidence   ...
-  ├─ tool_call: meal_plan
-  ├─ evidence   ...
-  ├─ tool_call: mall_recommend
-  ├─ evidence   ...
-  ├─ delta      (summary_text 流式)
-  ├─ product_recommendations  (商品流)
-  ├─ card       (StructuredResponse 解析结果，payload.evidence 已填充)
-  ├─ evidence_final   {message_id, items: EvidenceItem[]}
-  └─ assistant_done {message_id}
-```
-
-**关键不变量**：
-
-- `evidence` 事件在工具完成时**立即推**，不等 `respond`
-- `evidence_final` 事件只触发一次，在 `card` 事件之后、`assistant_done` 之前
-- `assistant_message` 入库时 `card` 列的 JSON 里 `payload.evidence` 已包含 `evidence_final.items`（在 `_extract_card` 时由后端覆盖写入）
-- `assistant_done` 事件**不带** evidence 字段——前端从 `card.evidence` 读，避免双轨存储
-
-## 8. 切钮 & 右栏规则
-
-### 8.1 切钮渲染规则
-
-- `message.card?.payload?.evidence` 长度 > 0 → "**生成依据**" 切钮
-- `message.product_recommendations` 长度 > 0 → "**推荐依据**" 切钮
-- 推荐链额外有子切钮 "**{p.name} 依据**"（每个商品 1 个，触发时 `focusRefId = product_ref_id`）
-- 切钮都为空 → 整行不渲染
-
-### 8.2 右栏状态机
-
-```text
-IDLE (默认空状态) ─用户点切钮→ STREAMING (流式累积) ─assistant_done→ COMPLETE
-```
-
-- **IDLE**：`EvidenceEmpty` 渲染 "提出问题后，点聊天区里的「生成依据」或「推荐依据」查看 AI 参考依据"
-- **STREAMING**：用 `message.evidence_stream` 渲染（按 `sort_hint` 升序）；无对应 group 的流式项时回到 `EvidenceEmpty`
-- **COMPLETE**：用 `message.card.payload.evidence` 渲染（按 LLM 传的 `sort` 升序）；同时 `message.evidence_final` 前端 state 留作备份（不展示给用户）
-- **未选中**：`EvidenceEmpty` 渲染（不出现但已选中的旧切钮点击会重新激活）
-
-### 8.3 选中态
-
-当前 `evidencePanelState` 匹配切钮 → 切钮边框 + 背景变浅绿/浅橙。右栏对应 evidence 项同样高亮。
-
-## 9. 前端组件
-
-新增 `frontend/src/components/chat/evidence/`：
-
-```
-evidence/
-  EvidencePanel.tsx
+frontend/src/components/chat/evidence/
+  EvidenceModal.tsx
   EvidenceEmpty.tsx
-  EvidenceList.tsx
+  EvidenceSection.tsx
   EvidenceItemCard.tsx
   EvidenceActions.tsx
-  types.ts
-  __tests__/
-    EvidenceEmpty.test.tsx
-    EvidenceActions.test.tsx
-    EvidenceItemCard.test.tsx
 ```
 
-### EvidencePanel
+### `EvidenceActions`
 
-```tsx
-interface Props {
-  state: EvidencePanelState;
-  message: ChatMessage | null;  // 切到未生成消息时为 null
-}
+挂在每条 assistant 消息下面。
 
-export function EvidencePanel({ state, message }: Props) {
-  if (!state || !message) return <EvidenceEmpty />;
-  if (isMobile()) return null;  // 移动端不渲染
+职责：
 
-  const items = state.group === "content"
-    ? getContentEvidence(message)
-    : getProductEvidence(message, state.focusRefId);
+- 根据当前消息是否有 `content_items` / `product_items` 决定展示哪些入口
+- 点击后通知页面打开弹窗并切换状态
+- 当前选中态高亮
 
-  if (items.length === 0) return <EvidenceEmpty />;
-  return <EvidenceList items={items} focusRefId={state.focusRefId} />;
-}
+### `EvidenceModal`
+
+挂在聊天页上层。
+
+职责：
+
+- 根据当前选中的消息和 group 渲染弹窗内容
+- 支持关闭
+- 无选中时不渲染
+
+### `EvidenceSection`
+
+职责：
+
+- 渲染一组 evidence 列表
+- 顶部带分组标题
+
+### `EvidenceItemCard`
+
+职责：
+
+- 渲染单条 evidence
+- 样式保持克制，不做跳转按钮
+
+## 7.3 页面状态
+
+聊天页维护一个证据弹窗状态：
+
+```ts
+type EvidenceModalState =
+  | {
+      open: true;
+      messageId: string;
+      group: "content" | "product";
+    }
+  | {
+      open: false;
+      messageId: null;
+      group: null;
+    };
 ```
 
-### EvidenceActions
+行为规则：
 
-```tsx
-interface Props {
-  message: ChatMessage;
-  onActivate: (state: EvidencePanelState) => void;
-  currentState: EvidencePanelState;
-}
+- 初始为关闭态
+- 点击某条 assistant 消息下的入口后写入 `{ open: true, messageId, group }`
+- 再点另一条消息，切换到新的 `messageId`
+- 如果当前消息没有对应组别数据，不允许进入该组别
+- 点击关闭按钮或遮罩后回到关闭态
 
-export function EvidenceActions({ message, onActivate, currentState }: Props) {
-  if (isMobile()) return null;
-  const hasContent = (message.evidence_final?.length ?? 0) > 0;
-  const hasProducts = (message.product_recommendations?.length ?? 0) > 0;
-  if (!hasContent && !hasProducts) return null;
+## 8. 样式要求
 
-  return (
-    <div className="evidence-actions-row">
-      {hasContent && (
-        <button
-          className={isActive("content", currentState, message.id) ? "active" : ""}
-          onClick={() => onActivate({ messageId: message.id, group: "content" })}
-        >生成依据</button>
-      )}
-      {hasProducts && (
-        <button
-          className={isActive("product", currentState, message.id) ? "active" : ""}
-          onClick={() => onActivate({ messageId: message.id, group: "product" })}
-        >推荐依据</button>
-      )}
-      {hasProducts && message.product_recommendations.map(p => (
-        <button
-          className={isActive("product", currentState, message.id, p.ref_id) ? "active" : ""}
-          onClick={() => onActivate({ messageId: message.id, group: "product", focusRefId: p.ref_id })}
-        >{p.name} 依据</button>
-      ))}
-    </div>
-  );
-}
-```
+整体风格沿用当前聊天页和 prototype 的绿色健康系，不另起视觉体系。
 
-### EvidenceItemCard
+### 中栏
 
-```tsx
-interface Props {
-  item: EvidenceItem | EvidenceStreamItem;
-  isHighlight: boolean;
-}
+- 证据入口放在 assistant 卡片下方
+- 用轻按钮或胶囊按钮表现
+- 选中态使用浅绿背景
 
-export function EvidenceItemCard({ item, isHighlight }: Props) {
-  return (
-    <article className={`evidence ${isHighlight ? "highlight" : ""}`}>
-      <div>
-        <h3>{item.title}</h3>
-        <p>{item.excerpt}</p>
-      </div>
-      <span className="ev-type">{TYPE_LABEL[item.type]}</span>
-    </article>
-  );
-}
-```
+### 弹窗
 
-### MessageBubble 集成
+- 白底
+- 居中显示
+- 顶部固定标题和关闭按钮
+- 组别切换按钮紧凑
+- 证据项列表分块展示
+- 每条证据重点突出：
+  - 标题
+  - 摘要
+  - 来源标签
 
-```tsx
-function MessageBubble({ message }: { message: ChatMessage }) {
-  return (
-    <div className="message-bubble">
-      {message.card ? <StructuredCard ... /> : <TextBubble ... />}
-      {message.product_recommendations && <ProductRecommendationCards ... />}
+### 移动端
 
-      {!isMobile() && <EvidenceActions
-        message={message}
-        onActivate={setPanelState}
-        currentState={panelState}
-      />}
-    </div>
-  );
-}
-```
+- 不显示弹窗
+- 证据块放进消息内
+- 展开后的证据样式沿用弹窗卡片样式缩小版
 
-## 10. 错误处理（无回退层）
+## 9. 实施顺序
 
-| 场景 | 行为 |
-|---|---|
-| 工具调用抛异常 | 该工具的 `EvidenceCandidate` 不入池（`try/except` 包裹 push），`evidence` 事件不发 |
-| LLM 没传 `evidence_refs` | 从 `EvidencePool.snapshot()` 按 push 顺序取前 3 条（**不是回退，是默认排序**） |
-| LLM 传了不存在的 `ref_id` | 静默跳过；`EvidenceItem` 列表里没有它 |
-| 候选池为空 | `card.payload.evidence = null`；前端切钮不渲染；右栏对应 group 显示 `EvidenceEmpty` |
-| 入库失败（`card` JSON 写不进去） | `assistant_message` 入库本身失败时整条消息回滚（不引入新回退路径） |
-| 前端收到 `evidence` 事件但 ref_id 在最终 `evidence_final` 里没有 | 流式阶段显示过的项在 `assistant_done` 时从前端 state 移除（**不**保留为"曾经有过的证据"） |
+### 第一步：前端静态接入
 
-## 11. 文件改动清单
+- 保持聊天页两栏布局
+- 做 `EvidenceModal`
+- 做 `EvidenceActions`
+- 用 mock 数据把桌面端弹窗交互和移动端消息内展开跑通
 
-### 后端
+目标：先把体验定型。
 
-| 文件 | 改动 |
-|---|---|
-| `backend/app/schemas/agent_response.py` | 新增 `EvidenceItem` / `RespondEvidenceRef` / `EvidenceStreamEvent` / `EvidenceFinalEvent`；5 种 payload 都加 `evidence: list[EvidenceItem] \| None`；`StructuredResponse` 加 `evidence_refs` |
-| `backend/app/services/evidence_pool.py` | **新增**：`EvidenceCandidate` dataclass + `EvidencePool` class |
-| `backend/app/services/langchain_agent.py` | `stream()` 入口创建 `EvidencePool`；`respond` 工具 description 动态注入 `pool.snapshot()`；`_extract_card` 在解析 `StructuredResponse` 后用 `pool.resolve(evidence_refs)` 覆盖写入 `payload.evidence`；SSE yield 新增 `evidence` / `evidence_final` 事件；`member_provider` push `device` 候选（如有） |
-| `backend/app/services/agent_tools.py` | 4 个工具的 `_arun` 完成钩子 `try/except` 包裹 `pool.push` |
-| `backend/app/services/agent_service.py` | `stream_message` 处理新事件类型 |
-| `backend/tests/test_evidence_pool.py` | **新增**：单元测试 |
-| `backend/tests/test_respond_evidence_refs.py` | **新增**：5 种 kind roundtrip |
-| `backend/tests/test_evidence_fallback.py` | **新增**：LLM 不传 ref_ids → 前 3 条 |
-| `backend/tests/test_agent_evidence_stream.py` | **新增**：端到端 SSE 事件序列断言 |
+### 第二步：前端读取真实 `card.evidence`
 
-**不新增表 / 不写迁移**——evidence 嵌入 `assistant_messages.card` JSON 字符串里，沿用 `card` 列存储。
+- 把真实 assistant message 的 `card.evidence` 接到弹窗
+- 移动端同步支持消息内展开
 
-### 前端
+目标：把真实证据展示出来。
 
-| 文件 | 改动 |
-|---|---|
-| `frontend/src/schemas/agentResponse.ts` | 新增 `EvidenceItem` / `EvidenceStreamItem` / `EvidencePanelState` TS 类型 |
-| `frontend/src/components/chat/evidence/EvidencePanel.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/EvidenceEmpty.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/EvidenceList.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/EvidenceItemCard.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/EvidenceActions.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/types.ts` | **新增** |
-| `frontend/src/components/chat/MessageBubble.tsx` | 集成 `EvidenceActions` + 移动端判断 |
-| `frontend/src/components/chat/MessageList.tsx` | 维护 `evidencePanelState` state + 接收 `onEvidence` / `onEvidenceFinal` 回调 |
-| `frontend/src/api/agent.ts` | `sendAgentMessageStream` 加 `onEvidence` / `onEvidenceFinal` 回调 |
-| `frontend/src/components/chat/ChatPage.tsx` | 桌面端三栏布局增加 `EvidencePanel`（移动端不渲染） |
-| `frontend/src/components/chat/evidence/__tests__/EvidenceEmpty.test.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/__tests__/EvidenceActions.test.tsx` | **新增** |
-| `frontend/src/components/chat/evidence/__tests__/EvidenceItemCard.test.tsx` | **新增** |
+### 第三步：后端补最小证据聚合
 
-## 12. 测试
+- agent 回复完成后把本次真实证据写进 `card.evidence`
+- 不做新 SSE 类型
+- 不做复杂 ref 选择逻辑
 
-### 单元测试
+目标：前后端闭环。
 
-- `test_evidence_pool.py` — push 顺序、ref_id 唯一、snapshot 不重复、resolve 跳过未知 ref_id
-- `test_respond_evidence_refs.py` — 5 种 kind 的 `StructuredResponse` roundtrip
-- `test_evidence_fallback.py` — 候选池 push 3 条 + LLM 不传 ref_ids → resolve 出前 3 条
+## 10. 风险与取舍
 
-### 集成测试
+### 风险 1：弹窗遮挡聊天上下文
 
-- `test_kb_search_evidence.py` — 跑 kb_search → EvidencePool 收到 `report_fact`
-- `test_product_evidence.py` — 跑 mall_recommend → EvidencePool 收到 `product` × N
-- `test_agent_evidence_stream.py` — 端到端跑 meal_plan + mall_recommend 工具链，断言 SSE 事件序列：`assistant_start` → `evidence` × N → `card` → `evidence_final` × 1 → `assistant_done` × 1
+处理：
 
-### 前端测试
+- 弹窗只在用户主动点击时打开
+- 弹窗宽度克制
+- 关闭后立即回到原聊天位置
 
-- `EvidenceEmpty.test.tsx` — 默认空状态渲染
-- `EvidenceActions.test.tsx` — 切钮显示规则（有/无 content evidence、有/无 product evidence）
-- `EvidenceItemCard.test.tsx` — 静态展示 + 高亮态
-- `MessageList.test.tsx` — 切钮点击 → `evidencePanelState` 更新；流式事件 → `evidence_stream` 累积
+### 风险 2：弹窗和聊天流切换频繁
 
-### 手工 E2E
+处理：
 
-- 跑一次真实 meal_plan 工具链 + mall_recommend，观察前端：消息生成中右栏实时出现 evidence；完成后切到稳定态
-- 移动端尺寸（< 768px）确认切钮和右栏都不渲染
-- 故意构造 LLM 不传 `evidence_refs` 的场景，确认候选池前 3 条兜底
+- 弹窗只跟随用户主动点击的消息
+- 不做“自动跟最后一条消息跳动”
 
-## 13. 实施分步
+### 风险 3：证据类型过早扩张
 
-1. **后端 schema + EvidencePool** — `evidence_pool.py` + `agent_response.py` 改造 + 迁移脚本
-2. **工具钩子 + 候选池填充** — 4 个工具的 `_arun` 完成钩子加 `try/except pool.push`
-3. **`respond` 工具改造** — schema 加 `evidence_refs`、description 动态注入、resolve → `EvidenceItem`
-4. **SSE 事件** — `agent_service.py` yield `evidence` / `evidence_final`
-5. **后端测试** — 单元 + 集成测试
-6. **前端 TS 类型 + 组件** — `types.ts` + 5 个组件
-7. **集成到 MessageBubble + ChatPage** — 三栏布局 + 状态管理 + 移动端判断
-8. **前端测试**
-9. **手工 E2E 验证** — 跑真实 meal_plan + mall_recommend 链路
+处理：
 
-## 14. 风险 & 决策记录
+- 第一版只做 3 类
+- `device` 和更细分的 `profile` 留到后续
 
-- **决策**：移动端不做证据链 → **理由**：避免范围蔓延；桌面端已经覆盖核心 demo 场景
-- **决策**：debug 视图不做 → **理由**：证据字段后端已经存好 raw 数据，需要时通过 DB 查询即可
-- **决策**：evidence 不可点击 → **理由**：摘要 + 来源标签足够回答"为什么"；增加详情会引入弹窗/抽屉复杂度
-- **决策**：流式阶段 evidence 实时推、`evidence_final` 单独推 → **理由**：实时反馈给用户"AI 在工作"；最终一致性靠 `assistant_done` 覆盖
-- **决策**：候选池不落库 → **理由**：候选池是中间态，最终 `EvidenceItem` 才入库；不增加复杂度
-- **风险**：LLM 不遵守 `evidence_refs` schema 约束（传未知 ref_id）→ **缓解**：resolve 静默跳过，不抛错
-- **风险**：前端流式累积的 evidence 在 `evidence_final` 后顺序错乱 → **缓解**：`evidence_final` 覆盖 `evidence_stream`，不合并
+## 11. 验收标准
+
+满足以下条件即视为完成本设计：
+
+1. 桌面端聊天页保持两栏主布局
+2. assistant 消息下出现证据入口
+3. 点击 `生成依据` 后，中心弹窗展示当前消息的生成链
+4. 点击 `推荐依据` 后，中心弹窗展示当前消息的推荐链
+5. 切到另一条 assistant 消息，弹窗内容正确切换
+6. 关闭弹窗后，不影响聊天主流程阅读
+7. 移动端不显示弹窗，而是在消息内展开证据
+8. 证据全部来自真实后端数据，不是模型自由生成来源
+
+## 12. 结论
+
+本次正式放弃固定三栏方案，改为：
+
+- 桌面端两栏主布局
+- 中心按需打开的证据弹窗
+- 生成链 / 推荐链分开展示
+- 移动端退化为消息内展开
+
+实现上坚持最简闭环：
+
+- 先定弹窗体验
+- 再接真实 `card.evidence`
+- 最后补后端最小证据聚合
+
+不在第一版里引入复杂 evidence ref 选择、额外 SSE 事件和新表结构。

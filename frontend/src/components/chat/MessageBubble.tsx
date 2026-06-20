@@ -2,9 +2,14 @@ import type { AgentMessage } from '../../api/agent';
 import { MarkdownContent } from './markdown';
 import { ProductRecommendationCards } from './ProductRecommendationCards';
 import { StructuredCard } from './StructuredCard';
+import { EvidenceActions, type EvidenceModalState } from './evidence/EvidenceActions';
+import { EvidenceSection } from './evidence/EvidenceSection';
 
 type Props = {
   message: AgentMessage;
+  modalState: EvidenceModalState;
+  onModalChange: (next: EvidenceModalState) => void;
+  mobileEvidenceMode?: boolean;
 };
 
 function PlaceholderDots() {
@@ -17,14 +22,25 @@ function PlaceholderDots() {
   );
 }
 
-export function MessageBubble({ message }: Props) {
+export function MessageBubble({
+  message,
+  modalState,
+  onModalChange,
+  mobileEvidenceMode = false,
+}: Props) {
   const isUser = message.role === 'user';
+  const isAssistant = message.role === 'assistant';
   const time = new Date(message.created_at).toLocaleTimeString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit'
   });
   const isPlaceholder = !isUser && !message.content && message.status === 'sending';
   const productItems = message.product_recommendations ?? [];
+  const isInlineEvidenceOpen =
+    mobileEvidenceMode &&
+    modalState.open &&
+    modalState.messageId === message.message_id &&
+    !!message.card?.evidence;
 
   return (
     <div className={`message-row ${isUser ? 'user' : ''}`}>
@@ -41,6 +57,24 @@ export function MessageBubble({ message }: Props) {
             <StructuredCard card={message.card} />
           )}
         </div>
+        {isAssistant && (
+          <EvidenceActions
+            message={message}
+            modalState={modalState}
+            onChange={onModalChange}
+            mobile={mobileEvidenceMode}
+          />
+        )}
+        {isInlineEvidenceOpen && (
+          <div className="msg-inline-evidence">
+            {modalState.group === 'content' && (
+              <EvidenceSection title="本次生成依据" items={message.card?.evidence?.content_items ?? []} />
+            )}
+            {modalState.group === 'product' && (
+              <EvidenceSection title="本次推荐依据" items={message.card?.evidence?.product_items ?? []} />
+            )}
+          </div>
+        )}
         <div className="msg-time">{message.status === 'failed' ? '发送失败' : time}</div>
       </div>
     </div>

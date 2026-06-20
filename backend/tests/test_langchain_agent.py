@@ -217,6 +217,127 @@ def test_langchain_agent_stream_summary_delta_preserves_markdown_and_chinese(mon
     assert "".join(deltas) == "📌 **爸爸晚餐**\n✅ 清淡少油"
 
 
+def test_langchain_agent_stream_extracts_card_when_respond_id_appears_late(monkeypatch):
+    """部分兼容层先按 index 送 args，后面 ToolMessage 才带 call_id，stream() 仍应还原 card。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"晚餐建议","payload":{"question_topic":"晚餐",',
+                        index=0,
+                        id="",
+                    ),
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name=None,
+                        args='"answer":"清淡少油","tips":[]}}',
+                        index=0,
+                        id="call_9",
+                    ),
+                ],
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_9", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "晚餐吃什么"}]))
+    card = next(payload for kind, payload in events if kind == "card")
+
+    assert card["kind"] == "qa"
+    assert card["summary_text"] == "晚餐建议"
+    assert card["payload"]["answer"] == "清淡少油"
+
+
+def test_langchain_agent_stream_extracts_card_when_respond_chunks_switch_from_index_to_id(monkeypatch):
+    """同一次 respond 的 args 片段如果从 index key 切到 call_id，stream() 也应把两段拼起来。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"晚餐建议","payload":{"question_topic":"晚餐",',
+                        index=0,
+                        id="",
+                    ),
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name=None,
+                        args='"answer":"清淡少油","tips":[]}}',
+                        index=None,
+                        id="call_11",
+                    ),
+                ],
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_11", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "晚餐吃什么"}]))
+    card = next(payload for kind, payload in events if kind == "card")
+
+    assert card["kind"] == "qa"
+    assert card["summary_text"] == "晚餐建议"
+    assert card["payload"]["answer"] == "清淡少油"
+
+
+def test_langchain_agent_stream_extracts_card_from_additional_kwargs_tool_calls(monkeypatch):
+    """部分模型不走 tool_call_chunks，而把工具调用增量放进 additional_kwargs.tool_calls。"""
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                additional_kwargs={
+                    "tool_calls": [
+                        {
+                            "index": 0,
+                            "id": "call_10",
+                            "function": {
+                                "name": "respond",
+                                "arguments": '{"kind":"qa","summary_text":"早餐建议","payload":{"question_topic":"早餐","answer":"高蛋白","tips":[]}}',
+                            },
+                        }
+                    ]
+                },
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_10", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
+    card = next(payload for kind, payload in events if kind == "card")
+
+    assert card["kind"] == "qa"
+    assert card["summary_text"] == "早餐建议"
+    assert card["payload"]["answer"] == "高蛋白"
+
+
 def test_langchain_agent_stream_emits_structured_events(monkeypatch):
     from langchain_core.messages import AIMessageChunk, ToolMessage
 
@@ -391,6 +512,30 @@ def test_build_members_block_empty():
     assert "当前没有可用家人" in block
 
 
+def test_build_members_block_unique_relation_says_use_directly():
+    """家里只有一个"爸爸"时，prompt 必须告诉 LLM 直接用、别反问。"""
+    members = [FakeMember("mem_dad", "张志远", "爸爸")]
+    block = _build_members_block(members)
+
+    assert "只有一个" in block
+    assert "不要反问" in block
+    assert "mem_dad" in block
+    assert "张志远" in block
+
+
+def test_build_members_block_duplicate_relation_says_ask():
+    """多个家人共享同一称呼（如两个"爷爷"）时，prompt 必须告诉 LLM 反问、别猜。"""
+    members = [
+        FakeMember("mem_paternal", "爷爷张", "爷爷"),
+        FakeMember("mem_maternal", "外公李", "爷爷"),
+    ]
+    block = _build_members_block(members)
+
+    assert "多个" in block
+    assert "反问" in block
+    assert "不要猜" in block
+
+
 def test_runner_system_prompt_includes_member_list():
     runner = LangChainAgentRunner(
         member_provider=lambda: [FakeMember("mem_1", "张三", "本人")],
@@ -400,7 +545,9 @@ def test_runner_system_prompt_includes_member_list():
 
     assert "张三" in prompt
     assert "mem_1" in prompt
-    assert "必须先反问" in prompt
+    # 新规则：唯一称呼直接用，多个才反问（不再机械"必须先反问"）
+    assert "称呼解析规则" in prompt
+    assert "不要反问" in prompt
     assert "家庭健康智能营销 Agent" in prompt
     assert "餐单建议" in prompt
     assert "商品推荐" in prompt
@@ -802,3 +949,94 @@ def test_runner_system_prompt_documents_kinds():
     prompt = runner._system_prompt()
     for kind in ["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]:
         assert kind in prompt
+
+
+def test_langchain_agent_stream_attaches_collected_evidence_to_card(monkeypatch):
+    from langchain_core.messages import ToolMessage
+    from app.schemas.agent_response import EvidenceItem
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield ToolMessage(
+                content='{"kind":"qa","summary_text":"你好","payload":{"question_topic":"x","answer":"y","tips":[]}}',
+                tool_call_id="call_1",
+                name="respond",
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    from app.services.agent_evidence import AgentEvidenceCollector
+
+    collector = AgentEvidenceCollector()
+    collector.add_content(
+        EvidenceItem(
+            type="report_fact",
+            title="体检报告",
+            excerpt="血压偏高",
+            source_id="chunk_1",
+            source_label="体检报告 p3",
+        )
+    )
+    runner._evidence_collector = collector
+    monkeypatch.setattr(runner, "_attach_evidence_collector", lambda: collector)
+
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+    card_payloads = [payload for kind, payload in events if kind == "card"]
+
+    assert card_payloads[0]["evidence"]["content_items"][0]["type"] == "report_fact"
+
+
+def test_langchain_agent_run_attaches_collected_content_and_product_evidence(monkeypatch):
+    from langchain_core.messages import AIMessage, ToolMessage
+    from app.schemas.agent_response import EvidenceItem
+    from app.services.agent_evidence import AgentEvidenceCollector
+
+    class FakeAgent:
+        def invoke(self, payload):
+            respond_payload = json.dumps(
+                {
+                    "kind": "qa",
+                    "summary_text": "你好",
+                    "payload": {"question_topic": "x", "answer": "y", "tips": []},
+                },
+                ensure_ascii=False,
+            )
+            return {
+                "messages": [
+                    ToolMessage(content=respond_payload, tool_call_id="call_1", name="respond"),
+                    AIMessage(content="你好"),
+                ]
+            }
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    collector = AgentEvidenceCollector()
+    collector.add_content(
+        EvidenceItem(
+            type="report_fact",
+            title="体检报告",
+            excerpt="血压偏高",
+            source_id="chunk_1",
+            source_label="体检报告 p3",
+        )
+    )
+    collector.add_product(
+        EvidenceItem(
+            type="product",
+            title="低钠盐",
+            excerpt="契合低钠方向",
+            source_id="prod_1",
+            source_label="商城标签匹配",
+        )
+    )
+    runner._evidence_collector = collector
+    monkeypatch.setattr(runner, "_attach_evidence_collector", lambda: collector)
+
+    result = runner.run([{"role": "user", "content": "x"}])
+
+    assert result["card"]["evidence"]["content_items"][0]["type"] == "report_fact"
+    assert result["card"]["evidence"]["product_items"][0]["type"] == "product"

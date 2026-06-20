@@ -61,13 +61,19 @@ def test_kb_interpretation_payload_validates():
         "summary_text": "爸爸血脂轻度偏高。",
         "payload": {
             "topic": "血脂",
-            "evidence": [{"source": "2024 体检", "excerpt": "LDL-C 3.8"}],
+            "evidence": [{
+                "type": "report_fact",
+                "title": "2024 体检",
+                "excerpt": "LDL-C 3.8",
+                "source_id": "fact_1",
+                "source_label": "2024 体检",
+            }],
             "suggestions": [{"text": "调整饮食", "priority": "primary"}],
             "red_flags": ["胸闷"],
         },
     }
     response = StructuredResponse.model_validate(payload)
-    assert response.payload.evidence[0].source == "2024 体检"
+    assert response.payload.evidence[0].title == "2024 体检"
 
 
 def test_structured_response_payload_follows_kind():
@@ -78,8 +84,11 @@ def test_structured_response_payload_follows_kind():
             "topic": "爸爸血脂情况",
             "evidence": [
                 {
-                    "source": "2024年体检报告 第3页",
+                    "type": "report_fact",
+                    "title": "2024年体检报告 第3页",
                     "excerpt": "总胆固醇 6.8 mmol/L，甘油三酯 2.1 mmol/L。",
+                    "source_id": "fact_1",
+                    "source_label": "2024年体检报告 第3页",
                 }
             ],
             "suggestions": [
@@ -102,7 +111,13 @@ def test_kb_interpretation_suggestions_accept_string_items():
         "summary_text": "爸爸血脂偏高，建议先从饮食和运动调整。",
         "payload": {
             "topic": "血脂偏高",
-            "evidence": [{"source": "2024年体检报告 第3页", "excerpt": "总胆固醇 6.8 mmol/L。"}],
+            "evidence": [{
+                "type": "report_fact",
+                "title": "2024年体检报告 第3页",
+                "excerpt": "总胆固醇 6.8 mmol/L。",
+                "source_id": "fact_1",
+                "source_label": "2024年体检报告 第3页",
+            }],
             "suggestions": ["减少动物油、肥肉摄入", "定期复查血脂"],
             "red_flags": ["胸痛胸闷时及时就医"],
         },
@@ -158,3 +173,48 @@ def test_meal_plan_missing_meal_items_rejected():
     }
     with pytest.raises(ValidationError):
         StructuredResponse.model_validate(payload)
+
+
+def test_structured_response_accepts_top_level_evidence():
+    payload = {
+        "kind": "qa",
+        "summary_text": "建议清淡一点。",
+        "payload": {
+            "question_topic": "晚餐",
+            "answer": "清淡、少油、少盐。",
+            "tips": [],
+        },
+        "evidence": {
+            "content_items": [
+                {
+                    "type": "report_fact",
+                    "title": "体检提示血压偏高",
+                    "excerpt": "5 月体检报告提示收缩压偏高。",
+                    "source_id": "fact_1",
+                    "source_label": "5 月体检报告 p3",
+                },
+                {
+                    "type": "device",
+                    "title": "最近7天手环",
+                    "excerpt": "最近7天手环显示睡眠不足、步数偏低。",
+                    "source_id": "device:mem_1:recent_7d",
+                    "source_label": "最近7天手环",
+                }
+            ],
+            "product_items": [
+                {
+                    "type": "product",
+                    "title": "低钠酱油匹配控盐方向",
+                    "excerpt": "商品标签命中 low_sodium。",
+                    "source_id": "prod_1",
+                    "source_label": "商城标签匹配",
+                }
+            ],
+        },
+    }
+
+    response = StructuredResponse.model_validate(payload)
+
+    assert response.evidence.content_items[0].type == "report_fact"
+    assert response.evidence.content_items[1].type == "device"
+    assert response.evidence.product_items[0].source_label == "商城标签匹配"

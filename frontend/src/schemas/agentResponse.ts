@@ -42,9 +42,19 @@ export interface GreetingPayload {
   suggested_topics: string[];
 }
 
+export type EvidenceType = 'report_fact' | 'device' | 'memory' | 'product';
+
 export interface EvidenceItem {
-  source: string;
+  type: EvidenceType;
+  title: string;
   excerpt: string;
+  source_id: string;
+  source_label: string;
+}
+
+export interface MessageEvidence {
+  content_items: EvidenceItem[];
+  product_items: EvidenceItem[];
 }
 
 export interface SuggestionItem {
@@ -80,6 +90,7 @@ export interface StructuredResponse<K extends ResponseKind = ResponseKind> {
     : K extends 'greeting' ? GreetingPayload
     : K extends 'kb_interpretation' ? KbInterpretationPayload
     : GeneralAdvicePayload;
+  evidence?: MessageEvidence | null;
 }
 
 // 简化版：前端大多数场景只关心 kind + summary_text + payload，松类型即可
@@ -87,4 +98,5 @@ export type StructuredCard = {
   kind: ResponseKind;
   summary_text: string;
   payload: PayloadUnion;
+  evidence?: MessageEvidence | null;
 };

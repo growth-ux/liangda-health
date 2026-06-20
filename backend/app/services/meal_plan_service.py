@@ -5,6 +5,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.schemas.agent_response import EvidenceItem
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
 from app.services.llm_logging import log_llm_request
 
@@ -89,6 +90,15 @@ class MealPlanService:
         )
         return self._generate(prompt)
 
+    def get_evidence_items(self, *, scope: str, member_id: str | None = None) -> list[EvidenceItem]:
+        if scope == "member":
+            if not member_id:
+                return []
+            return self._member_evidence_items(member_id)
+        if scope == "family":
+            return self._family_evidence_items()
+        return []
+
     def _generate(self, prompt: str) -> str:
         try:
             result = self.generator.generate(prompt)
@@ -100,6 +110,58 @@ class MealPlanService:
             return "Error: 模型生成餐单失败"
         logger.info("meal_plan llm_generate done output_chars=%s", len(result))
         return result
+
+    def _member_evidence_items(self, member_id: str) -> list[EvidenceItem]:
+        profile = self.profile_service.get_member_profile(member_id)
+        facts = self.profile_service.fact_repository.list_by_member(member_id)
+        items = self._report_fact_items(facts, member_name=profile.name, limit=2)
+        device_item = _device_evidence_item(
+            source_id=f"device:{member_id}:recent_7d",
+            title=f"{profile.name}最近7天手环",
+            states=profile.recent_states,
+        )
+        if device_item is not None:
+            items.append(device_item)
+        return items
+
+    def _family_evidence_items(self) -> list[EvidenceItem]:
+        profile = self.profile_service.get_family_profile()
+        items: list[EvidenceItem] = []
+        for member_profile in profile.members:
+            facts = self.profile_service.fact_repository.list_by_member(member_profile.member_id or "")
+            items.extend(self._report_fact_items(facts, member_name=member_profile.name, limit=1))
+            if len([item for item in items if item.type == "report_fact"]) >= 2:
+                break
+        for member_profile in profile.members:
+            device_item = _device_evidence_item(
+                source_id=f"device:{member_profile.member_id}:recent_7d",
+                title=f"{member_profile.name}最近7天手环",
+                states=member_profile.recent_states,
+            )
+            if device_item is not None:
+                items.append(device_item)
+            if len([item for item in items if item.type == "device"]) >= 2:
+                break
+        return items
+
+    @staticmethod
+    def _report_fact_items(facts, *, member_name: str, limit: int) -> list[EvidenceItem]:
+        items: list[EvidenceItem] = []
+        for fact in facts:
+            if fact.status not in {"warning", "danger"}:
+                continue
+            items.append(
+                EvidenceItem(
+                    type="report_fact",
+                    title=f"{member_name}·{fact.name}",
+                    excerpt=_truncate_text(f"{fact.name}：{fact.evidence_text}", max_length=180),
+                    source_id=fact.fact_id,
+                    source_label=f"{fact.source_document_id} p{fact.source_page_no}",
+                )
+            )
+            if len(items) >= limit:
+                break
+        return items
 
 
 def _member_prompt(profile: HealthProfile, *, goal: str | None, meal_type: str) -> str:
@@ -209,3 +271,21 @@ def _content_to_text(content) -> str:
                 parts.append(item["text"])
         return "".join(parts)
     return str(content) if content is not None else ""
+
+
+def _device_evidence_item(*, source_id: str, title: str, states: list[str]) -> EvidenceItem | None:
+    if not states:
+        return None
+    return EvidenceItem(
+        type="device",
+        title=title,
+        excerpt=_truncate_text(f"最近7天手环显示：{'、'.join(states)}。", max_length=180),
+        source_id=source_id,
+        source_label="最近7天手环",
+    )
+
+
+def _truncate_text(text: str, *, max_length: int) -> str:
+    if len(text) <= max_length:
+        return text
+    return text[: max_length - 1].rstrip() + "…"

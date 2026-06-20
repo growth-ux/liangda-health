@@ -1,0 +1,88 @@
+<h2>粮达健康 · AI 智能营销系统架构图</h2>
+<p class="subtitle">最终预览稿：主闭环突出业务价值，底部补技术底座与差异化能力</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">① 业务主闭环</div>
+    <div class="mockup-body">
+      <div class="split">
+        <div class="mockup">
+          <div class="mockup-header">多源健康输入</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:40px;">健康报告：PDF 上传 / OCR / 原文留痕</div>
+            <div class="placeholder" style="height:40px;">家庭档案：成员关系 / 过敏 / 健康标签</div>
+            <div class="placeholder" style="height:40px;">手环数据：近 7 天睡眠 / 步数 / 心率 / 血压</div>
+            <div class="placeholder" style="height:40px;">互动记忆：偏好 / 排斥 / 目标 / 营销反馈</div>
+          </div>
+        </div>
+        <div class="mockup">
+          <div class="mockup-header">AI 决策中枢</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:58px;">健康画像聚合器</div>
+            <div class="placeholder" style="height:72px;">Agent 工具编排：kb_search / memory_search / meal_plan / mall_recommend / respond</div>
+            <div class="placeholder" style="height:58px;">可解释决策：证据追溯 / 健康事实 / 推荐理由</div>
+          </div>
+        </div>
+        <div class="mockup">
+          <div class="mockup-header">营销输出与转化</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:40px;">健康建议与报告解读</div>
+            <div class="placeholder" style="height:40px;">个性化餐单生成</div>
+            <div class="placeholder" style="height:40px;">健康商品推荐</div>
+            <div class="placeholder" style="height:40px;">推荐依据展示</div>
+          </div>
+        </div>
+      </div>
+      <div class="placeholder" style="height:44px; margin-top: 14px;">用户点击、咨询、购买与反馈再次写入互动记忆，形成持续优化闭环</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">② 技术实现支撑</div>
+    <div class="mockup-body">
+      <div class="split">
+        <div class="mockup">
+          <div class="mockup-header">前端交互层</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:42px;">React 19 + TypeScript + Vite</div>
+            <div class="placeholder" style="height:42px;">Chat / Members / Reports / Device / Mall</div>
+          </div>
+        </div>
+        <div class="mockup">
+          <div class="mockup-header">应用与编排层</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:42px;">FastAPI：agent / kb / members / device / mall</div>
+            <div class="placeholder" style="height:42px;">KbService / HealthProfileService / AgentService</div>
+          </div>
+        </div>
+        <div class="mockup">
+          <div class="mockup-header">数据与记忆层</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:42px;">MySQL：members / health_facts / mall_products ...</div>
+            <div class="placeholder" style="height:42px;">Milvus + mem0：报告检索与长期记忆</div>
+          </div>
+        </div>
+        <div class="mockup">
+          <div class="mockup-header">外部模型能力</div>
+          <div class="mockup-body">
+            <div class="placeholder" style="height:42px;">DashScope Qwen-plus</div>
+            <div class="placeholder" style="height:42px;">Embedding + PDF 解析 + OCR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">③ 差异化价值</div>
+    <div class="mockup-body">
+      <div class="placeholder" style="height:56px;">
+        不是普通问答，也不是普通商城，而是把“报告理解、健康画像、Agent 编排、商品转化、反馈记忆”串成一个家庭健康智能营销系统
+      </div>
+    </div>
+  </div>
+</div>

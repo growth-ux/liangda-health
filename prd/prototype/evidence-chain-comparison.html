@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>证据链原型对比 · 粮达健康</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .evidence-proto-page {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .proto-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 18px 20px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .proto-hero-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .proto-hero-desc {
+            font-size: 13px;
+            color: var(--text-2);
+            line-height: 1.7;
+            max-width: 760px;
+        }
+
+        .proto-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .proto-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #047857;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 999px;
+        }
+
+        .proto-rec {
+            min-width: 220px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+            border: 1px solid #a7f3d0;
+        }
+
+        .proto-rec-label {
+            font-size: 11px;
+            color: #047857;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .proto-rec-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .proto-rec-desc {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .proto-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .proto-variant {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .proto-variant-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .proto-variant-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .proto-variant-desc {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .proto-tag {
+            flex-shrink: 0;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .proto-tag.recommended {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .proto-canvas {
+            padding: 16px;
+            background: #f5f7f5;
+        }
+
+        .proto-chat-shell {
+            display: flex;
+            min-height: 720px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .proto-session-rail {
+            width: 160px;
+            border-right: 1px solid var(--border);
+            background: #fbfbfb;
+            padding: 12px 8px;
+        }
+
+        .proto-session-rail .session-item {
+            margin-bottom: 6px;
+        }
+
+        .proto-chat-stage {
+            flex: 1;
+            display: flex;
+            min-width: 0;
+            background: #f5f7f5;
+        }
+
+        .proto-modal-stage {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            background: #f5f7f5;
+            overflow: hidden;
+        }
+
+        .proto-chat-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+
+        .proto-chat-main.no-side {
+            border-right: 0;
+        }
+
+        .proto-chat-top {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            background: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .proto-chat-top-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .proto-chat-top-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .proto-chat-top-sub {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .proto-chat-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .proto-action {
+            padding: 5px 9px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-2);
+            font-size: 12px;
+        }
+
+        .proto-action.active {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .proto-chat-stream {
+            flex: 1;
+            padding: 16px 14px;
+            overflow: hidden;
+        }
+
+        .proto-card {
+            margin-top: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .proto-card-head {
+            padding: 12px 14px;
+            background: #f0fdf4;
+            border-bottom: 1px solid #dcfce7;
+            font-size: 13px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        .proto-card-body {
+            padding: 14px;
+        }
+
+        .proto-card-list {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-2);
+        }
+
+        .proto-card-list li + li {
+            margin-top: 6px;
+        }
+
+        .evidence-toggle-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .evidence-toggle {
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #a7f3d0;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .evidence-toggle.secondary {
+            background: #ffffff;
+            color: #4b5563;
+            border-color: var(--border);
+        }
+
+        .proto-callout {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px dashed #cbd5e1;
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+
+        .proto-space-hint {
+            margin-top: 18px;
+            min-height: 180px;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.82)),
+                repeating-linear-gradient(
+                    180deg,
+                    rgba(148, 163, 184, 0.06) 0px,
+                    rgba(148, 163, 184, 0.06) 10px,
+                    transparent 10px,
+                    transparent 22px
+                );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 16px;
+            line-height: 1.7;
+        }
+
+        .proto-side-panel {
+            width: 268px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .proto-side-head {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            background: #ffffff;
+        }
+
+        .proto-side-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .proto-side-sub {
+            font-size: 12px;
+            color: var(--text-3);
+            line-height: 1.5;
+        }
+
+        .proto-side-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .side-group {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .side-group-head {
+            padding: 9px 10px;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-1);
+        }
+
+        .side-item {
+            padding: 10px;
+            background: #ffffff;
+        }
+
+        .side-item + .side-item {
+            border-top: 1px solid var(--border-light);
+        }
+
+        .side-item-type {
+            font-size: 11px;
+            color: #047857;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .side-item-main {
+            font-size: 12px;
+            color: var(--text-1);
+            line-height: 1.55;
+        }
+
+        .side-item-sub {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .proto-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .proto-modal {
+            width: min(620px, calc(100% - 48px));
+            max-height: calc(100% - 48px);
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .proto-modal-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .proto-modal-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-2);
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .proto-modal-body {
+            padding: 12px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: auto;
+        }
+
+        .proto-verdict {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 16px;
+        }
+
+        .proto-note-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .proto-note {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .proto-note strong {
+            color: var(--text-1);
+        }
+
+        .proto-note-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        @media (max-width: 1200px) {
+            .proto-verdict {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app" data-active="chat" data-title="证据链原型对比">
+    <div class="evidence-proto-page">
+        <section class="proto-hero">
+            <div>
+                <div class="proto-hero-title">Agent 证据链原型对比</div>
+                <div class="proto-hero-desc">
+                    这次我把方向收成“旧的固定右栏”对比“新的中心弹窗”。核心判断不是花样，而是最简流程下，用户点了依据之后，能不能更聚焦地读完证据，再回到聊天。
+                </div>
+                <div class="proto-pills">
+                    <span class="proto-pill">健康事实</span>
+                    <span class="proto-pill">互动记忆</span>
+                    <span class="proto-pill">商品匹配</span>
+                    <span class="proto-pill">两栏主布局保留</span>
+                </div>
+            </div>
+            <div class="proto-rec">
+                <div class="proto-rec-label">本次推荐</div>
+                <div class="proto-rec-title">方案 D：中心证据弹窗</div>
+                <div class="proto-rec-desc">
+                    桌面端继续保持聊天主流不动。点击证据入口后，直接在中间弹出一层，聚焦看依据，看完关闭即可。
+                </div>
+            </div>
+        </section>
+
+        <section class="proto-grid">
+            <article class="proto-variant">
+                <div class="proto-variant-head">
+                    <div>
+                        <div class="proto-variant-title">旧方案 B · 固定右栏证据面板</div>
+                        <div class="proto-variant-desc">证据独立成栏，但聊天一长就和当前阅读位置拉开，而且右边会长期占一列。</div>
+                    </div>
+                    <span class="proto-tag">已放弃</span>
+                </div>
+                <div class="proto-canvas">
+                    <div class="proto-chat-shell">
+                        <aside class="proto-session-rail">
+                            <div class="session-item active">
+                                <div class="session-title">💬 给爸爸的晚餐建议</div>
+                                <div class="session-preview">低钠、少油、易执行</div>
+                            </div>
+                            <div class="session-item">
+                                <div class="session-title">📄 报告解读</div>
+                                <div class="session-preview">血脂相关片段</div>
+                            </div>
+                            <div class="session-item">
+                                <div class="session-title">🛒 调味品推荐</div>
+                                <div class="session-preview">控盐专区</div>
+                            </div>
+                        </aside>
+                        <div class="proto-chat-stage">
+                            <div class="proto-chat-main">
+                                <div class="proto-chat-top">
+                                    <div class="proto-chat-top-left">
+                                        <div class="chat-agent-avatar">家</div>
+                                        <div>
+                                            <div class="proto-chat-top-title">Agent 管家</div>
+                                            <div class="proto-chat-top-sub">聊天继续往下读，证据固定停在右边</div>
+                                        </div>
+                                    </div>
+                                    <div class="proto-chat-actions">
+                                        <span class="proto-action active">生成链</span>
+                                        <span class="proto-action">推荐链</span>
+                                    </div>
+                                </div>
+                                <div class="proto-chat-stream">
+                                    <div class="message-row user">
+                                        <div class="msg-avatar user">张</div>
+                                        <div class="msg-bubble">
+                                            <div class="msg-text">爸爸今晚吃什么？顺便推荐点调味品。</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="message-row" style="max-width: 100%;">
+                                        <div class="msg-avatar agent">家</div>
+                                        <div style="width: min(500px, 100%);">
+                                            <div class="msg-bubble">
+                                                <div class="msg-text">今晚建议爸爸吃得更清淡一点，主食减半碗，配鸡胸肉、冬瓜和杂粮饭更合适。</div>
+                                            </div>
+                                            <div class="proto-card">
+                                                <div class="proto-card-head">🍽️ 今晚安排</div>
+                                                <div class="proto-card-body">
+                                                    <ul class="proto-card-list">
+                                                        <li>晚餐主食：半碗杂粮饭</li>
+                                                        <li>主菜：清蒸鸡胸肉 + 冬瓜汤</li>
+                                                        <li>调味方向：低钠、少油、不要重口</li>
+                                                    </ul>
+                                                    <div class="evidence-toggle-row">
+                                                        <span class="evidence-toggle">生成依据 3</span>
+                                                        <span class="evidence-toggle secondary">推荐商品依据 2</span>
+                                                    </div>
+                                                    <div class="proto-callout">入口在消息下，但证据内容固定在右侧。会话变长后，用户读到下面时还得斜着找回右栏。</div>
+                                                </div>
+                                            </div>
+                                            <div class="proto-space-hint">继续新增多轮聊天后，中间内容持续变长，右栏仍固定存在。右边这列很多时刻只是占位，价值不高。</div>
+                                            <div class="msg-time">现在</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <aside class="proto-side-panel">
+                                <div class="proto-side-head">
+                                    <div class="proto-side-title">证据链</div>
+                                    <div class="proto-side-sub">默认跟随当前选中的 assistant 回复，但栏位会一直存在。</div>
+                                </div>
+                                <div class="proto-side-body">
+                                    <div class="side-group">
+                                        <div class="side-group-head">本次生成依据</div>
+                                        <div class="side-item">
+                                            <div class="side-item-type">报告事实</div>
+                                            <div class="side-item-main">2026 体检报告提示血压偏高、血脂偏高</div>
+                                            <div class="side-item-sub">5 月体检报告第 3 页</div>
+                                        </div>
+                                        <div class="side-item">
+                                            <div class="side-item-type">互动记忆</div>
+                                            <div class="side-item-main">爸爸不喜欢鱼，晚饭更愿意接受鸡肉和豆制品</div>
+                                            <div class="side-item-sub">互动记忆 · 6 月 8 日对话</div>
+                                        </div>
+                                        <div class="side-item">
+                                            <div class="side-item-type">健康画像</div>
+                                            <div class="side-item-main">当前饮食原则是低钠、少油、控脂</div>
+                                            <div class="side-item-sub">家庭健康画像聚合</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="proto-variant">
+                <div class="proto-variant-head">
+                    <div>
+                        <div class="proto-variant-title">新方案 D · 中心证据弹窗</div>
+                        <div class="proto-variant-desc">聊天页仍然是两栏主布局。用户点入口后直接聚焦看证据，读完关闭，主聊天结构完全不变。</div>
+                    </div>
+                    <span class="proto-tag recommended">本次推荐</span>
+                </div>
+                <div class="proto-canvas">
+                    <div class="proto-chat-shell">
+                        <aside class="proto-session-rail">
+                            <div class="session-item active">
+                                <div class="session-title">💬 给爸爸的晚餐建议</div>
+                                <div class="session-preview">低钠、少油、易执行</div>
+                            </div>
+                            <div class="session-item">
+                                <div class="session-title">📄 报告解读</div>
+                                <div class="session-preview">血脂相关片段</div>
+                            </div>
+                            <div class="session-item">
+                                <div class="session-title">🛒 调味品推荐</div>
+                                <div class="session-preview">控盐专区</div>
+                            </div>
+                        </aside>
+                        <div class="proto-modal-stage">
+                            <div class="proto-chat-main no-side">
+                                <div class="proto-chat-top">
+                                    <div class="proto-chat-top-left">
+                                        <div class="chat-agent-avatar">家</div>
+                                        <div>
+                                            <div class="proto-chat-top-title">Agent 管家</div>
+                                            <div class="proto-chat-top-sub">平时只看聊天，点一下再集中看依据</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="proto-chat-stream">
+                                    <div class="message-row user">
+                                        <div class="msg-avatar user">张</div>
+                                        <div class="msg-bubble">
+                                            <div class="msg-text">爸爸今晚吃什么？顺便推荐点调味品。</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="message-row" style="max-width: 100%;">
+                                        <div class="msg-avatar agent">家</div>
+                                        <div style="width: min(640px, 100%);">
+                                            <div class="msg-bubble">
+                                                <div class="msg-text">今晚建议爸爸吃得更清淡一点，主食减半碗，配鸡胸肉、冬瓜和杂粮饭更合适。</div>
+                                            </div>
+                                            <div class="proto-card">
+                                                <div class="proto-card-head">🍽️ 今晚安排</div>
+                                                <div class="proto-card-body">
+                                                    <ul class="proto-card-list">
+                                                        <li>晚餐主食：半碗杂粮饭</li>
+                                                        <li>主菜：清蒸鸡胸肉 + 冬瓜汤</li>
+                                                        <li>调味方向：低钠、少油、不要重口</li>
+                                                    </ul>
+                                                    <div class="evidence-toggle-row">
+                                                        <span class="evidence-toggle">生成依据 3</span>
+                                                        <span class="evidence-toggle secondary">推荐商品依据 2</span>
+                                                    </div>
+                                                    <div class="proto-callout">用户点“生成依据”后，页面中间弹出一层；证据读完直接关掉，聊天布局不会被改写。</div>
+                                                </div>
+                                            </div>
+                                            <div class="proto-space-hint">继续聊天时，中间主流始终保持原样。证据是临时浮层，不会像右栏那样长期挤占空间，也不需要把证据塞回消息正文。</div>
+                                            <div class="msg-time">现在</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="proto-modal-backdrop">
+                                <div class="proto-modal">
+                                    <div class="proto-modal-head">
+                                        <div>
+                                            <div class="proto-side-title">证据链</div>
+                                            <div class="proto-side-sub">来自当前这条 assistant 回复。看完关闭，回到聊天。</div>
+                                        </div>
+                                        <span class="proto-modal-close">×</span>
+                                    </div>
+                                    <div class="proto-modal-body">
+                                        <div class="proto-chat-actions">
+                                            <span class="proto-action active">生成链</span>
+                                            <span class="proto-action">推荐链</span>
+                                        </div>
+                                        <div class="side-group">
+                                            <div class="side-group-head">本次生成依据</div>
+                                            <div class="side-item">
+                                                <div class="side-item-type">报告事实</div>
+                                                <div class="side-item-main">2026 体检报告提示血压偏高、血脂偏高</div>
+                                                <div class="side-item-sub">5 月体检报告第 3 页</div>
+                                            </div>
+                                            <div class="side-item">
+                                                <div class="side-item-type">互动记忆</div>
+                                                <div class="side-item-main">爸爸不喜欢鱼，晚饭更愿意接受鸡肉和豆制品</div>
+                                                <div class="side-item-sub">互动记忆 · 6 月 8 日对话</div>
+                                            </div>
+                                            <div class="side-item">
+                                                <div class="side-item-type">商品匹配</div>
+                                                <div class="side-item-main">低钠调味方向更贴合“控盐 + 家常烹饪”场景</div>
+                                                <div class="side-item-sub">商品标签匹配</div>
+                                            </div>
+                                        </div>
+                                        <div class="proto-callout">这个版本的重点不是“同时对照消息和证据”，而是让用户在一个干净、聚焦的状态里快速看完依据，再回去继续聊。</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="proto-verdict">
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-title">这次会落成什么样</div>
+                <div class="proto-note-list">
+                    <div class="proto-note">
+                        <span class="proto-note-badge">1</span>
+                        <div><strong>桌面端继续保持两栏</strong>：聊天主流不再被固定右栏长期占宽。</div>
+                    </div>
+                    <div class="proto-note">
+                        <span class="proto-note-badge">2</span>
+                        <div><strong>每条 assistant 卡片下保留证据入口</strong>：只有有真实证据时才显示。</div>
+                    </div>
+                    <div class="proto-note">
+                        <span class="proto-note-badge">3</span>
+                        <div><strong>点击后打开 `EvidenceModal`</strong>：桌面端用中心弹窗，移动端继续消息内展开。</div>
+                    </div>
+                    <div class="proto-note">
+                        <span class="proto-note-badge">4</span>
+                        <div><strong>证据仍先做 3 类</strong>：报告事实、互动记忆、商品匹配。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-title">为什么中心弹窗更合适</div>
+                <div class="proto-note-list">
+                    <div class="proto-note">
+                        <span class="proto-note-badge">A</span>
+                        <div>它比右侧抽屉更简单，和现有页面结构更兼容，不需要额外处理长期占位。</div>
+                    </div>
+                    <div class="proto-note">
+                        <span class="proto-note-badge">B</span>
+                        <div>它比消息内展开更聚焦，适合桌面端快速集中看一组依据。</div>
+                    </div>
+                    <div class="proto-note">
+                        <span class="proto-note-badge">C</span>
+                        <div>它符合当前项目“先做最简闭环”的原则：能看、够清楚、改动面也最可控。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script src="js/common.js"></script>
+</body>
+</html>
