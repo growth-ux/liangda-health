@@ -1,0 +1,25 @@
+docs/superpowers/plans/2026-06-21-prompt-engineering-architecture-drawing.md
+  s_9446162f82285c::t_c303f8c99b8f5b 129
+  s_9446162f82285c::t_892fa0caee2115 1-128,130-814
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "41d5f245daafb3564c9c3c5546bb679a771bf6d5",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_9446162f82285c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a64d9e7-1067-493d-8538-ea71cc118090",
+        "model": "MiniMax-M3"
+      },
+      "human_author": null
+    }
+  }
+}
