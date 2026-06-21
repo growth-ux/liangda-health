@@ -142,6 +142,52 @@ def _root_cells() -> str:
         ))
     parts.append(_arrow("slot_system", "step_think",
                         style_extra="dashed=1;strokeColor=#2563eb;"))
+    # ② Strategy Pool
+    parts.append(_swimlane(
+        "strategy_container",
+        "② Strategy Pool（策略池）",
+        x=40, y=640, w=1320, h=320,
+        fill=PALETTE["container"], stroke=PALETTE["container_b"],
+    ))
+    strategies = [
+        ("strat_zero",  "Zero-shot\n直接回答\n简单问答/查事实"),
+        ("strat_few",   "Few-shot\n样例驱动\n格式化输出"),
+        ("strat_cot",   "CoT\n链式思考\n多步推理"),
+        ("strat_react", "ReAct\n思考+行动\n需调工具的复杂任务"),
+        ("strat_selfc", "Self-Consistency\n多路径投票\n事实性强/答案唯一"),
+        ("strat_refl",  "Reflection\n自我反思\nRe-Think 步骤"),
+        ("strat_tot",   "ToT\n思维树\n多方案探索/对比"),
+        ("strat_safe",  "Safety-Guard\n硬约束 prompt\n触犯禁忌立即终止"),
+    ]
+    strat_w = 152
+    strat_h = 130
+    strat_gap = 8
+    strat_y = 700
+    for i, (rid, label) in enumerate(strategies):
+        col = i % 4
+        row = i // 4
+        x = 56 + col * (strat_w + strat_gap)
+        y = strat_y + row * (strat_h + 12)
+        is_safety = rid == "strat_safe"
+        parts.append(_rounded_box(
+            rid, label, x=x, y=y, w=strat_w, h=strat_h,
+            parent="strategy_container",
+            fill=PALETTE["safety"] if is_safety else PALETTE["strategy"],
+            stroke=PALETTE["safety_b"] if is_safety else PALETTE["strategy_b"],
+            font_size=11, bold=False,
+        ))
+    parts.append(_rounded_box(
+        "strat_selector",
+        "Strategy Selector\n输入: intent + 上下文 + 上轮结果 → 输出: 策略名 + 参数",
+        x=56, y=strat_y + 2 * (strat_h + 12),
+        w=4 * strat_w + 3 * strat_gap,
+        h=70,
+        parent="strategy_container",
+        fill="#e0e7ff", stroke="#4f46e5",
+        font_size=13,
+    ))
+    parts.append(_arrow("strat_selector", "step_think",
+                        style_extra="dashed=1;strokeColor=#16a34a;"))
     return "\n".join(parts)
 
 

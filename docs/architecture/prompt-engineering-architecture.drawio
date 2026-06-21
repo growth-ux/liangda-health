@@ -25,16 +25,16 @@
         <mxCell id="step_decide" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="④ Decide&#xa;证据齐 / Safety / 最大步数" vertex="1">
           <mxGeometry height="80" width="240" x="980" y="180" as="geometry" />
         </mxCell>
-        <mxCell id="f7c5f1705a5e" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
+        <mxCell id="07cce47061d0" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="db6d6138d794" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
+        <mxCell id="c44247ac07f4" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a2fa5890bebc" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
+        <mxCell id="49dc92675ea4" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a7688f2aef69" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
+        <mxCell id="ebfde4ca5f1b" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="assembly_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="① Prompt Assembly（提示词装配层）" vertex="1">
@@ -58,7 +58,40 @@
         <mxCell id="slot_output_fmt" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Output Format Spec&#xa;约束输出 schema" vertex="1">
           <mxGeometry height="140" width="200" x="1096" y="420" as="geometry" />
         </mxCell>
-        <mxCell id="acf916782330" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#2563eb;" value="" edge="1" source="slot_system" target="step_think">
+        <mxCell id="fe89f7608e34" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#2563eb;" value="" edge="1" source="slot_system" target="step_think">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="strategy_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="② Strategy Pool（策略池）" vertex="1">
+          <mxGeometry height="320" width="1320" x="40" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_zero" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="Zero-shot&#xa;直接回答&#xa;简单问答/查事实" vertex="1">
+          <mxGeometry height="130" width="152" x="56" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_few" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="Few-shot&#xa;样例驱动&#xa;格式化输出" vertex="1">
+          <mxGeometry height="130" width="152" x="216" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_cot" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="CoT&#xa;链式思考&#xa;多步推理" vertex="1">
+          <mxGeometry height="130" width="152" x="376" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_react" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="ReAct&#xa;思考+行动&#xa;需调工具的复杂任务" vertex="1">
+          <mxGeometry height="130" width="152" x="536" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_selfc" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="Self-Consistency&#xa;多路径投票&#xa;事实性强/答案唯一" vertex="1">
+          <mxGeometry height="130" width="152" x="56" y="842" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_refl" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="Reflection&#xa;自我反思&#xa;Re-Think 步骤" vertex="1">
+          <mxGeometry height="130" width="152" x="216" y="842" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_tot" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dcfce7;strokeColor=#16a34a;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="ToT&#xa;思维树&#xa;多方案探索/对比" vertex="1">
+          <mxGeometry height="130" width="152" x="376" y="842" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_safe" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fecaca;strokeColor=#dc2626;fontSize=11;fontStyle=0;fontColor=#0f172a;" value="Safety-Guard&#xa;硬约束 prompt&#xa;触犯禁忌立即终止" vertex="1">
+          <mxGeometry height="130" width="152" x="536" y="842" as="geometry" />
+        </mxCell>
+        <mxCell id="strat_selector" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#e0e7ff;strokeColor=#4f46e5;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="Strategy Selector&#xa;输入: intent + 上下文 + 上轮结果 → 输出: 策略名 + 参数" vertex="1">
+          <mxGeometry height="70" width="632" x="56" y="984" as="geometry" />
+        </mxCell>
+        <mxCell id="f285baed180b" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#16a34a;" value="" edge="1" source="strat_selector" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
