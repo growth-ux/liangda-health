@@ -1,0 +1,24 @@
+docs/superpowers/specs/2026-06-21-prompt-engineering-architecture-design.md
+  s_9446162f82285c::t_2bd4739aab80de 1-380
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "a0e2057e7726073f80a4bd9d048a8faa8b41b272",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_9446162f82285c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a64d9e7-1067-493d-8538-ea71cc118090",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
