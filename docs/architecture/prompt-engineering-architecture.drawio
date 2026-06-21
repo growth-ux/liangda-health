@@ -4,7 +4,12 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#0f172a;" value="Prompt Engineering 架构图" vertex="1">
+          <mxGeometry height="36" width="600" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=0;fontColor=#475569;" value="聚焦 LLM 调用链路的提示词工程：Agent 循环 + 策略池 + 工具调用 + 输出解析 + 横切观测" vertex="1">
+          <mxGeometry height="24" width="1320" x="40" y="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

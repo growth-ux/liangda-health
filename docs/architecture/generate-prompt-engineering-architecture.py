@@ -71,7 +71,51 @@ def _wrap_diagram(body: str) -> str:
 
 
 def _root_cells() -> str:
-    return ""  # 占位，后续 Task 填充
+    parts = [
+        _text_cell("title", "Prompt Engineering 架构图",
+                   x=40, y=20, w=600, h=36,
+                   font_size=28, bold=True, color=PALETTE["title"]),
+        _text_cell("subtitle",
+                   "聚焦 LLM 调用链路的提示词工程：Agent 循环 + 策略池 + 工具调用 + 输出解析 + 横切观测",
+                   x=40, y=60, w=1320, h=24,
+                   font_size=14, color=PALETTE["subtitle"]),
+    ]
+    return "\n".join(parts)
+
+
+def _text_cell(rid: str, text: str, x: int, y: int, w: int, h: int,
+               font_size: int = 14, bold: bool = False,
+               color: str = "#0f172a", align: str = "left") -> str:
+    style = (
+        f"text;html=1;strokeColor=none;fillColor=none;align={align};"
+        f"verticalAlign=middle;fontSize={font_size};"
+        f"fontStyle={'1' if bold else '0'};fontColor={color};"
+    )
+    safe = escape(text).replace("\n", "&#xa;")
+    return (
+        f'        <mxCell id="{rid}" parent="1" style="{style}" '
+        f'value="{safe}" vertex="1">\n'
+        f'          <mxGeometry height="{h}" width="{w}" x="{x}" y="{y}" as="geometry" />\n'
+        f'        </mxCell>'
+    )
+
+
+def _swimlane(rid: str, label: str, x: int, y: int, w: int, h: int,
+              parent: str = "1", font_size: int = 16,
+              fill: str = "#f8fafc", stroke: str = "#cbd5e1") -> str:
+    style = (
+        f"swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;"
+        f"container=1;collapsible=0;horizontal=1;"
+        f"fillColor={fill};strokeColor={stroke};"
+        f"fontSize={font_size};fontStyle=1;fontColor=#0f172a;"
+    )
+    safe = escape(label)
+    return (
+        f'        <mxCell id="{rid}" parent="{parent}" style="{style}" '
+        f'value="{safe}" vertex="1">\n'
+        f'          <mxGeometry height="{h}" width="{w}" x="{x}" y="{y}" as="geometry" />\n'
+        f'        </mxCell>'
+    )
 
 
 if __name__ == "__main__":
