@@ -1,0 +1,56 @@
+docs/architecture/harness-engineering-architecture.drawio
+  s_994c1396707939::t_56fc5695531aa7 2
+docs/loop_engineering_arch.md
+  s_994c1396707939::t_2dc3b7208a3bc7 1,5-358,360-987
+docs/architecture/generate-prompt-engineering-architecture.py
+  s_9acca9f37fe5d3::t_a3ef08a6127acf 165
+  s_9acca9f37fe5d3::t_1a8e44d5279013 122,182
+  s_9acca9f37fe5d3::t_9fff1359998eb5 200,207,214,221,228,235,242,265,272,279,286,306,313,320,327
+docs/harness_engineering_arch.md
+  s_994c1396707939::t_053834e95623e0 1-950
+docs/recommendation_engineering_arch.md
+  s_994c1396707939::t_82a4d853c859c7 1-1012
+docs/context_engineering_arch.md
+  s_7a12c55d5812be::t_3dd703b3850b8d 2-4,6,8,14-16,73,89-91,93,99,101,134-135,137,148,150,159,173,175-176,184,187,391-392,394,428,431,436,439,443-444,446,452-453,455-456,463
+  s_7a12c55d5812be::t_a9327cfa960b26 7,9,12-13,17-19,21-42,47,49,51,53,55-60,75,77,79-81,84-86,103-104,106,108,110,112,114-115,122-131,136,138,140-142,145,160-161,163,165,167,171,174,196-388,393,409,421-425,429-430,432-435,437,445,447-451,454,457-462
+  s_7a12c55d5812be::t_38246fa6af25f4 1,5,43-44,46,52,64-68,71-72,102,105,107,185
+  s_7a12c55d5812be::t_71c2dfb74fb22b 48,50,76,78,82-83,109,111,113,139,143-144,146-147,164,166,168-170,172
+  s_7a12c55d5812be::t_66fd9463debf09 10-11,20,45,54,61-63,69-70,74,87-88,92,94-98,100,116-121,132-133,149,151-158,162,177-183,186,188-195,389-390,395-408,410-420,426-427,438,440-442
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "91af53780f5ff8cba31e0be66a07fead31f6eba9",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_7a12c55d5812be": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ee556-894b-7683-b2ed-194f4ed803d9",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_994c1396707939": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eea63-43b0-7a53-af76-39f602486398",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9acca9f37fe5d3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eea40-2f67-7fc3-b6f3-3f5e82b854ed",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
