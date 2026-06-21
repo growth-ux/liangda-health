@@ -79,6 +79,38 @@ def _root_cells() -> str:
                    "聚焦 LLM 调用链路的提示词工程：Agent 循环 + 策略池 + 工具调用 + 输出解析 + 横切观测",
                    x=40, y=60, w=1320, h=24,
                    font_size=14, color=PALETTE["subtitle"]),
+        # Agent Loop 容器
+        _swimlane(
+            "agent_loop_container",
+            "Agent Loop（核心循环）",
+            x=40, y=120, w=1320, h=200,
+            fill=PALETTE["container"], stroke=PALETTE["container_b"],
+        ),
+        _rounded_box(
+            "step_think", "① Think\n选策略 + 生成 plan",
+            x=80, y=180, w=240, h=80,
+            fill=PALETTE["agent_loop"], stroke=PALETTE["agent_loop_b"],
+        ),
+        _rounded_box(
+            "step_act", "② Act\n调用工具 / 给出回答",
+            x=380, y=180, w=240, h=80,
+            fill=PALETTE["agent_loop"], stroke=PALETTE["agent_loop_b"],
+        ),
+        _rounded_box(
+            "step_observe", "③ Observe\n解析工具结果 + 校验",
+            x=680, y=180, w=240, h=80,
+            fill=PALETTE["agent_loop"], stroke=PALETTE["agent_loop_b"],
+        ),
+        _rounded_box(
+            "step_decide", "④ Decide\n证据齐 / Safety / 最大步数",
+            x=980, y=180, w=240, h=80,
+            fill=PALETTE["agent_loop"], stroke=PALETTE["agent_loop_b"],
+        ),
+        _arrow("step_think", "step_act"),
+        _arrow("step_act", "step_observe"),
+        _arrow("step_observe", "step_decide"),
+        _arrow("step_decide", "step_think", label="Re-Think",
+               style_extra="dashed=1;strokeColor=#dc2626;"),
     ]
     return "\n".join(parts)
 
@@ -114,6 +146,41 @@ def _swimlane(rid: str, label: str, x: int, y: int, w: int, h: int,
         f'        <mxCell id="{rid}" parent="{parent}" style="{style}" '
         f'value="{safe}" vertex="1">\n'
         f'          <mxGeometry height="{h}" width="{w}" x="{x}" y="{y}" as="geometry" />\n'
+        f'        </mxCell>'
+    )
+
+
+def _rounded_box(rid: str, label: str, x: int, y: int, w: int, h: int,
+                 parent: str = "1",
+                 fill: str = "#ffffff", stroke: str = "#64748b",
+                 font_size: int = 13, bold: bool = True,
+                 font_color: str = "#0f172a") -> str:
+    style = (
+        f"rounded=1;html=1;whiteSpace=wrap;"
+        f"fillColor={fill};strokeColor={stroke};"
+        f"fontSize={font_size};fontStyle={'1' if bold else '0'};"
+        f"fontColor={font_color};"
+    )
+    safe = escape(label).replace("\n", "&#xa;")
+    return (
+        f'        <mxCell id="{rid}" parent="{parent}" style="{style}" '
+        f'value="{safe}" vertex="1">\n'
+        f'          <mxGeometry height="{h}" width="{w}" x="{x}" y="{y}" as="geometry" />\n'
+        f'        </mxCell>'
+    )
+
+
+def _arrow(src: str, dst: str, label: str = "",
+           style_extra: str = "") -> str:
+    style = (
+        f"endArrow=classic;html=1;rounded=0;strokeColor={PALETTE['edge']};"
+        f"strokeWidth=2;{style_extra}"
+    )
+    safe = escape(label).replace("\n", "&#xa;")
+    return (
+        f'        <mxCell id="{uid()}" parent="1" style="{style}" '
+        f'value="{safe}" edge="1" source="{src}" target="{dst}">\n'
+        f'          <mxGeometry relative="1" as="geometry" />\n'
         f'        </mxCell>'
     )
 

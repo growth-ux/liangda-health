@@ -10,6 +10,33 @@
         <mxCell id="subtitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=0;fontColor=#475569;" value="聚焦 LLM 调用链路的提示词工程：Agent 循环 + 策略池 + 工具调用 + 输出解析 + 横切观测" vertex="1">
           <mxGeometry height="24" width="1320" x="40" y="60" as="geometry" />
         </mxCell>
+        <mxCell id="agent_loop_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="Agent Loop（核心循环）" vertex="1">
+          <mxGeometry height="200" width="1320" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="step_think" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="① Think&#xa;选策略 + 生成 plan" vertex="1">
+          <mxGeometry height="80" width="240" x="80" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="step_act" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="② Act&#xa;调用工具 / 给出回答" vertex="1">
+          <mxGeometry height="80" width="240" x="380" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="step_observe" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="③ Observe&#xa;解析工具结果 + 校验" vertex="1">
+          <mxGeometry height="80" width="240" x="680" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="step_decide" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="④ Decide&#xa;证据齐 / Safety / 最大步数" vertex="1">
+          <mxGeometry height="80" width="240" x="980" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="7b8cc8eddd55" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cb77556e5e55" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5a395c557543" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5e0e0f3bf5ca" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
