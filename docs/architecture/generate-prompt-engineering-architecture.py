@@ -111,7 +111,37 @@ def _root_cells() -> str:
         _arrow("step_observe", "step_decide"),
         _arrow("step_decide", "step_think", label="Re-Think",
                style_extra="dashed=1;strokeColor=#dc2626;"),
+        # ① Prompt Assembly
+        _swimlane(
+            "assembly_container",
+            "① Prompt Assembly（提示词装配层）",
+            x=40, y=360, w=1320, h=240,
+            fill=PALETTE["container"], stroke=PALETTE["container_b"],
+        ),
     ]
+    slot_y = 420
+    slot_h = 140
+    slot_w = 200
+    slot_gap = 8
+    slot_x_start = 56
+    slots_assembly = [
+        ("slot_system",       "System Prompt\n角色 / 能力 / 边界"),
+        ("slot_context",      "Context 注入\n来自 Context Eng Layer\n(硬约束置顶)"),
+        ("slot_strategy_dir", "Strategy Directive\n当前步用啥策略"),
+        ("slot_fewshot",      "Few-shot Examples\n按 intent 选"),
+        ("slot_tool_schema",  "Tool Schema\n当前可用工具描述"),
+        ("slot_output_fmt",   "Output Format Spec\n约束输出 schema"),
+    ]
+    for i, (rid, label) in enumerate(slots_assembly):
+        x = slot_x_start + i * (slot_w + slot_gap)
+        parts.append(_rounded_box(
+            rid, label, x=x, y=slot_y, w=slot_w, h=slot_h,
+            parent="assembly_container",
+            fill=PALETTE["assembly"], stroke=PALETTE["assembly_b"],
+            font_size=12, bold=False,
+        ))
+    parts.append(_arrow("slot_system", "step_think",
+                        style_extra="dashed=1;strokeColor=#2563eb;"))
     return "\n".join(parts)
 
 

@@ -25,16 +25,40 @@
         <mxCell id="step_decide" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="④ Decide&#xa;证据齐 / Safety / 最大步数" vertex="1">
           <mxGeometry height="80" width="240" x="980" y="180" as="geometry" />
         </mxCell>
-        <mxCell id="7b8cc8eddd55" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
+        <mxCell id="f7c5f1705a5e" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="cb77556e5e55" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
+        <mxCell id="db6d6138d794" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="5a395c557543" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
+        <mxCell id="a2fa5890bebc" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="5e0e0f3bf5ca" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
+        <mxCell id="a7688f2aef69" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assembly_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="① Prompt Assembly（提示词装配层）" vertex="1">
+          <mxGeometry height="240" width="1320" x="40" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_system" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="System Prompt&#xa;角色 / 能力 / 边界" vertex="1">
+          <mxGeometry height="140" width="200" x="56" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_context" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Context 注入&#xa;来自 Context Eng Layer&#xa;(硬约束置顶)" vertex="1">
+          <mxGeometry height="140" width="200" x="264" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_strategy_dir" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Strategy Directive&#xa;当前步用啥策略" vertex="1">
+          <mxGeometry height="140" width="200" x="472" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_fewshot" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Few-shot Examples&#xa;按 intent 选" vertex="1">
+          <mxGeometry height="140" width="200" x="680" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_tool_schema" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Tool Schema&#xa;当前可用工具描述" vertex="1">
+          <mxGeometry height="140" width="200" x="888" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="slot_output_fmt" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Output Format Spec&#xa;约束输出 schema" vertex="1">
+          <mxGeometry height="140" width="200" x="1096" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="acf916782330" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#2563eb;" value="" edge="1" source="slot_system" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
