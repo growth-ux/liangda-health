@@ -331,6 +331,28 @@ def _root_cells() -> str:
     ))
     parts.append(_arrow("obs_feedback", "strat_selector",
                         style_extra="dashed=1;strokeColor=#ca8a04;"))
+    # 图例
+    parts.append(_text_cell(
+        "legend_title", "图例",
+        x=40, y=1800, w=80, h=24,
+        font_size=14, bold=True,
+    ))
+    legend_items = [
+        ("legend_agent",    "Agent Loop",      PALETTE["agent_loop"], PALETTE["agent_loop_b"]),
+        ("legend_assembly", "Prompt Assembly", PALETTE["assembly"],   PALETTE["assembly_b"]),
+        ("legend_strategy", "Strategy Pool",   PALETTE["strategy"],   PALETTE["strategy_b"]),
+        ("legend_tool",     "Tool Calling",    PALETTE["tool"],       PALETTE["tool_b"]),
+        ("legend_parse",    "Output Parsing",  PALETTE["parse"],      PALETTE["parse_b"]),
+        ("legend_observe",  "Observe/Eval",    PALETTE["observe"],    PALETTE["observe_b"]),
+        ("legend_safety",   "Safety",          PALETTE["safety"],     PALETTE["safety_b"]),
+    ]
+    for i, (rid, label, fill, stroke) in enumerate(legend_items):
+        x = 40 + i * 180
+        parts.append(_rounded_box(
+            rid, label, x=x, y=1830, w=160, h=40,
+            fill=fill, stroke=stroke,
+            font_size=12,
+        ))
     return "\n".join(parts)
 
 
