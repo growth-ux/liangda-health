@@ -1,0 +1,26 @@
+docs/architecture/generate-prompt-engineering-architecture.py
+  s_9446162f82285c::t_b7897efcb4343c 145-190
+docs/architecture/prompt-engineering-architecture.drawio
+  s_9446162f82285c::t_8b7e9a77cc2df5 28,31,34,37,61-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "bfe2678d9f81013338a217548e798efc1cc73479",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_9446162f82285c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a64d9e7-1067-493d-8538-ea71cc118090",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
