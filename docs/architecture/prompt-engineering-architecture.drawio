@@ -25,16 +25,16 @@
         <mxCell id="step_decide" parent="1" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fee2e2;strokeColor=#dc2626;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="④ Decide&#xa;证据齐 / Safety / 最大步数" vertex="1">
           <mxGeometry height="80" width="240" x="980" y="180" as="geometry" />
         </mxCell>
-        <mxCell id="1d53d3083799" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
+        <mxCell id="2b93ba4b2468" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_think" target="step_act">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="b68b1fe86dc8" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
+        <mxCell id="e1eab8e9fbef" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="step_observe">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="06d49f280dfd" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
+        <mxCell id="1309760fcbdf" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="step_decide">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="2f6f2dd856c5" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
+        <mxCell id="72cfa874ebaa" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="Re-Think" edge="1" source="step_decide" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="assembly_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="① Prompt Assembly（提示词装配层）" vertex="1">
@@ -58,7 +58,7 @@
         <mxCell id="slot_output_fmt" parent="assembly_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#dbeafe;strokeColor=#2563eb;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Output Format Spec&#xa;约束输出 schema" vertex="1">
           <mxGeometry height="140" width="200" x="1096" y="420" as="geometry" />
         </mxCell>
-        <mxCell id="6194b2dbfafa" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#2563eb;" value="" edge="1" source="slot_system" target="step_think">
+        <mxCell id="c3d33e2aa6d2" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#2563eb;" value="" edge="1" source="slot_system" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="strategy_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="② Strategy Pool（策略池）" vertex="1">
@@ -91,7 +91,7 @@
         <mxCell id="strat_selector" parent="strategy_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#e0e7ff;strokeColor=#4f46e5;fontSize=13;fontStyle=1;fontColor=#0f172a;" value="Strategy Selector&#xa;输入: intent + 上下文 + 上轮结果 → 输出: 策略名 + 参数" vertex="1">
           <mxGeometry height="70" width="632" x="56" y="984" as="geometry" />
         </mxCell>
-        <mxCell id="e95caff02467" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#16a34a;" value="" edge="1" source="strat_selector" target="step_think">
+        <mxCell id="f4c49e8b1194" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#16a34a;" value="" edge="1" source="strat_selector" target="step_think">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="tool_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="③ Tool Calling（工具调用层）" vertex="1">
@@ -118,22 +118,52 @@
         <mxCell id="tool_loop_back" parent="tool_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#f1f5f9;strokeColor=#475569;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="→ 返回 Agent Loop Observe 步" vertex="1">
           <mxGeometry height="70" width="300" x="916" y="1150" as="geometry" />
         </mxCell>
-        <mxCell id="a9630a2b00d7" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="tool_registry" target="tool_schema_gen">
+        <mxCell id="1875fa397644" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="tool_registry" target="tool_schema_gen">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="4a80cf187193" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#9333ea;" value="" edge="1" source="tool_schema_gen" target="step_act">
+        <mxCell id="76043ca96c10" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#9333ea;" value="" edge="1" source="tool_schema_gen" target="step_act">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="13e599678a91" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="tool_executor">
+        <mxCell id="01737f8499bc" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_act" target="tool_executor">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="2337fad63b4f" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="tool_executor" target="tool_normalizer">
+        <mxCell id="e942bc41aa32" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="tool_executor" target="tool_normalizer">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="2fc9101a8698" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#9333ea;" value="" edge="1" source="tool_normalizer" target="step_observe">
+        <mxCell id="e5c44751cefd" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#9333ea;" value="" edge="1" source="tool_normalizer" target="step_observe">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="bb26a2f128b9" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="" edge="1" source="tool_router" target="tool_safe_alt">
+        <mxCell id="6393898262c3" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#dc2626;" value="" edge="1" source="tool_router" target="tool_safe_alt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="parse_container" parent="1" style="swimlane;html=1;rounded=1;whiteSpace=wrap;startSize=36;container=1;collapsible=0;horizontal=1;fillColor=#f8fafc;strokeColor=#cbd5e1;fontSize=16;fontStyle=1;fontColor=#0f172a;" value="④ Output Parsing &amp; Validation（输出解析与校验）" vertex="1">
+          <mxGeometry height="200" width="1320" x="40" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="parse_format" parent="parse_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffedd5;strokeColor=#f97316;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Format Parser&#xa;JSON / 结构化字段提取" vertex="1">
+          <mxGeometry height="80" width="300" x="56" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="parse_schema" parent="parse_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffedd5;strokeColor=#f97316;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Schema Validator&#xa;必填字段 / 类型 / 范围" vertex="1">
+          <mxGeometry height="80" width="300" x="376" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="parse_evidence" parent="parse_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#ffedd5;strokeColor=#f97316;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Evidence Link Checker&#xa;检查证据链是否完整" vertex="1">
+          <mxGeometry height="80" width="300" x="696" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="parse_safety" parent="parse_container" style="rounded=1;html=1;whiteSpace=wrap;fillColor=#fecaca;strokeColor=#dc2626;fontSize=12;fontStyle=0;fontColor=#0f172a;" value="Safety Filter&#xa;输出后再次过 Safety Context" vertex="1">
+          <mxGeometry height="80" width="300" x="1016" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="bfa8ffb49a9f" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="step_observe" target="parse_format">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b5ae7cfd422e" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="parse_format" target="parse_schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="72506796a00f" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="parse_schema" target="parse_evidence">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="026e9b1b6ce9" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;" value="" edge="1" source="parse_evidence" target="parse_safety">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4d0287242780" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#94a3b8;strokeWidth=2;dashed=1;strokeColor=#f97316;" value="" edge="1" source="parse_safety" target="step_decide">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

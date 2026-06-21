@@ -253,6 +253,47 @@ def _root_cells() -> str:
                         style_extra="dashed=1;strokeColor=#9333ea;"))
     parts.append(_arrow("tool_router", "tool_safe_alt",
                         style_extra="dashed=1;strokeColor=#dc2626;"))
+    # ④ Output Parsing & Validation
+    parts.append(_swimlane(
+        "parse_container",
+        "④ Output Parsing & Validation（输出解析与校验）",
+        x=40, y=1300, w=1320, h=200,
+        fill=PALETTE["container"], stroke=PALETTE["container_b"],
+    ))
+    parts.append(_rounded_box(
+        "parse_format", "Format Parser\nJSON / 结构化字段提取",
+        x=56, y=1360, w=300, h=80,
+        parent="parse_container",
+        fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "parse_schema", "Schema Validator\n必填字段 / 类型 / 范围",
+        x=376, y=1360, w=300, h=80,
+        parent="parse_container",
+        fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "parse_evidence", "Evidence Link Checker\n检查证据链是否完整",
+        x=696, y=1360, w=300, h=80,
+        parent="parse_container",
+        fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "parse_safety", "Safety Filter\n输出后再次过 Safety Context",
+        x=1016, y=1360, w=300, h=80,
+        parent="parse_container",
+        fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_arrow("step_observe", "parse_format"))
+    parts.append(_arrow("parse_format", "parse_schema"))
+    parts.append(_arrow("parse_schema", "parse_evidence"))
+    parts.append(_arrow("parse_evidence", "parse_safety"))
+    parts.append(_arrow("parse_safety", "step_decide",
+                        style_extra="dashed=1;strokeColor=#f97316;"))
     return "\n".join(parts)
 
 
