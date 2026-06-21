@@ -188,6 +188,71 @@ def _root_cells() -> str:
     ))
     parts.append(_arrow("strat_selector", "step_think",
                         style_extra="dashed=1;strokeColor=#16a34a;"))
+    # ③ Tool Calling
+    parts.append(_swimlane(
+        "tool_container",
+        "③ Tool Calling（工具调用层）",
+        x=40, y=1000, w=1320, h=260,
+        fill=PALETTE["container"], stroke=PALETTE["container_b"],
+    ))
+    parts.append(_rounded_box(
+        "tool_registry", "Tool Registry\n工具元数据 / 参数 schema\n输入输出样例 / 风险等级 / 耗时成本",
+        x=56, y=1060, w=300, h=160,
+        parent="tool_container",
+        fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_schema_gen", "Tool Schema Generator\n把 Registry 转成 JSON Schema\n注入 Prompt",
+        x=376, y=1060, w=240, h=70,
+        parent="tool_container",
+        fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_router", "Tool Router\n- 串行: 报告检索 → 画像 → 推荐\n- 并行: RAG + Memory + Product\n- 条件: 触发禁忌时改调 Safe-Alt",
+        x=376, y=1140, w=300, h=80,
+        parent="tool_container",
+        fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_executor", "Tool Executor\n执行工具调用",
+        x=696, y=1060, w=200, h=70,
+        parent="tool_container",
+        fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_normalizer", "Tool Result Normalizer\n统一格式: 证据 / 状态 / 错误",
+        x=696, y=1140, w=200, h=80,
+        parent="tool_container",
+        fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_safe_alt", "Safe-Alt-Generator\n触发禁忌时调\n生成安全替代方案",
+        x=916, y=1060, w=300, h=80,
+        parent="tool_container",
+        fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "tool_loop_back", "→ 返回 Agent Loop Observe 步",
+        x=916, y=1150, w=300, h=70,
+        parent="tool_container",
+        fill="#f1f5f9", stroke="#475569",
+        font_size=12, bold=False,
+    ))
+    parts.append(_arrow("tool_registry", "tool_schema_gen"))
+    parts.append(_arrow("tool_schema_gen", "step_act",
+                        style_extra="dashed=1;strokeColor=#9333ea;"))
+    parts.append(_arrow("step_act", "tool_executor"))
+    parts.append(_arrow("tool_executor", "tool_normalizer"))
+    parts.append(_arrow("tool_normalizer", "step_observe",
+                        style_extra="dashed=1;strokeColor=#9333ea;"))
+    parts.append(_arrow("tool_router", "tool_safe_alt",
+                        style_extra="dashed=1;strokeColor=#dc2626;"))
     return "\n".join(parts)
 
 
