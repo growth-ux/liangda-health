@@ -294,6 +294,43 @@ def _root_cells() -> str:
     parts.append(_arrow("parse_evidence", "parse_safety"))
     parts.append(_arrow("parse_safety", "step_decide",
                         style_extra="dashed=1;strokeColor=#f97316;"))
+    # ⑤ Observe / Eval / Safety（横切）
+    parts.append(_swimlane(
+        "observe_container",
+        "⑤ Observe / Eval / Safety（横切关注点）",
+        x=40, y=1540, w=1320, h=220,
+        fill=PALETTE["container"], stroke=PALETTE["container_b"],
+    ))
+    parts.append(_rounded_box(
+        "obs_trace", "Prompt Trace Logger\n- 每次调用的 prompt+输出\n- 证据链快照\n- Context 用/弃记录",
+        x=56, y=1600, w=300, h=130,
+        parent="observe_container",
+        fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "obs_eval", "Eval Harness\n固定用例集:\n报告问答 / 成员识别 /\n证据引用 / 健康禁忌 /\n餐单生成 / 商品推荐",
+        x=376, y=1600, w=300, h=130,
+        parent="observe_container",
+        fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "obs_watchdog", "Safety Watchdog\n- 实时检测触犯禁忌的中间步骤\n- 立即终止并回退",
+        x=696, y=1600, w=300, h=130,
+        parent="observe_container",
+        fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_rounded_box(
+        "obs_feedback", "反馈闭环\n用户行为 → 记忆沉淀\n→ 下次 Strategy Selector 输入",
+        x=1016, y=1600, w=300, h=130,
+        parent="observe_container",
+        fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
+        font_size=12, bold=False,
+    ))
+    parts.append(_arrow("obs_feedback", "strat_selector",
+                        style_extra="dashed=1;strokeColor=#ca8a04;"))
     return "\n".join(parts)
 
 
