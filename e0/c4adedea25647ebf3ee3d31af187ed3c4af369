@@ -1,0 +1,24 @@
+docs/superpowers/specs/2026-06-21-harness-engineering-design.md
+  s_70303e0bede42a::t_cb98b793ee176b 1-621
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "e0c4adedea25647ebf3ee3d31af187ed3c4af369",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_70303e0bede42a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c71c5ed4-78d9-4e25-836d-46345e48c723",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
