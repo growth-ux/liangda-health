@@ -119,7 +119,7 @@ def _root_cells() -> str:
             fill=PALETTE["container"], stroke=PALETTE["container_b"],
         ),
     ]
-    slot_y = 420
+    slot_y = 60
     slot_h = 140
     slot_w = 200
     slot_gap = 8
@@ -162,7 +162,7 @@ def _root_cells() -> str:
     strat_w = 152
     strat_h = 130
     strat_gap = 8
-    strat_y = 700
+    strat_y = 60
     for i, (rid, label) in enumerate(strategies):
         col = i % 4
         row = i // 4
@@ -179,7 +179,7 @@ def _root_cells() -> str:
     parts.append(_rounded_box(
         "strat_selector",
         "Strategy Selector\n输入: intent + 上下文 + 上轮结果 → 输出: 策略名 + 参数",
-        x=56, y=strat_y + 2 * (strat_h + 12),
+        x=56, y=238,
         w=4 * strat_w + 3 * strat_gap,
         h=70,
         parent="strategy_container",
@@ -197,49 +197,49 @@ def _root_cells() -> str:
     ))
     parts.append(_rounded_box(
         "tool_registry", "Tool Registry\n工具元数据 / 参数 schema\n输入输出样例 / 风险等级 / 耗时成本",
-        x=56, y=1060, w=300, h=160,
+        x=40, y=60, w=300, h=160,
         parent="tool_container",
         fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_schema_gen", "Tool Schema Generator\n把 Registry 转成 JSON Schema\n注入 Prompt",
-        x=376, y=1060, w=240, h=70,
+        x=360, y=60, w=240, h=70,
         parent="tool_container",
         fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_router", "Tool Router\n- 串行: 报告检索 → 画像 → 推荐\n- 并行: RAG + Memory + Product\n- 条件: 触发禁忌时改调 Safe-Alt",
-        x=376, y=1140, w=300, h=80,
+        x=360, y=140, w=300, h=80,
         parent="tool_container",
         fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_executor", "Tool Executor\n执行工具调用",
-        x=696, y=1060, w=200, h=70,
+        x=680, y=60, w=200, h=70,
         parent="tool_container",
         fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_normalizer", "Tool Result Normalizer\n统一格式: 证据 / 状态 / 错误",
-        x=696, y=1140, w=200, h=80,
+        x=680, y=140, w=200, h=80,
         parent="tool_container",
         fill=PALETTE["tool"], stroke=PALETTE["tool_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_safe_alt", "Safe-Alt-Generator\n触发禁忌时调\n生成安全替代方案",
-        x=916, y=1060, w=300, h=80,
+        x=900, y=60, w=300, h=80,
         parent="tool_container",
         fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "tool_loop_back", "→ 返回 Agent Loop Observe 步",
-        x=916, y=1150, w=300, h=70,
+        x=900, y=150, w=300, h=70,
         parent="tool_container",
         fill="#f1f5f9", stroke="#475569",
         font_size=12, bold=False,
@@ -262,28 +262,28 @@ def _root_cells() -> str:
     ))
     parts.append(_rounded_box(
         "parse_format", "Format Parser\nJSON / 结构化字段提取",
-        x=56, y=1360, w=300, h=80,
+        x=40, y=60, w=300, h=80,
         parent="parse_container",
         fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "parse_schema", "Schema Validator\n必填字段 / 类型 / 范围",
-        x=376, y=1360, w=300, h=80,
+        x=360, y=60, w=300, h=80,
         parent="parse_container",
         fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "parse_evidence", "Evidence Link Checker\n检查证据链是否完整",
-        x=696, y=1360, w=300, h=80,
+        x=680, y=60, w=300, h=80,
         parent="parse_container",
         fill=PALETTE["parse"], stroke=PALETTE["parse_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "parse_safety", "Safety Filter\n输出后再次过 Safety Context",
-        x=1016, y=1360, w=300, h=80,
+        x=1000, y=60, w=300, h=80,
         parent="parse_container",
         fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
         font_size=12, bold=False,
@@ -303,28 +303,28 @@ def _root_cells() -> str:
     ))
     parts.append(_rounded_box(
         "obs_trace", "Prompt Trace Logger\n- 每次调用的 prompt+输出\n- 证据链快照\n- Context 用/弃记录",
-        x=56, y=1600, w=300, h=130,
+        x=40, y=60, w=300, h=130,
         parent="observe_container",
         fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "obs_eval", "Eval Harness\n固定用例集:\n报告问答 / 成员识别 /\n证据引用 / 健康禁忌 /\n餐单生成 / 商品推荐",
-        x=376, y=1600, w=300, h=130,
+        x=360, y=60, w=300, h=130,
         parent="observe_container",
         fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "obs_watchdog", "Safety Watchdog\n- 实时检测触犯禁忌的中间步骤\n- 立即终止并回退",
-        x=696, y=1600, w=300, h=130,
+        x=680, y=60, w=300, h=130,
         parent="observe_container",
         fill=PALETTE["safety"], stroke=PALETTE["safety_b"],
         font_size=12, bold=False,
     ))
     parts.append(_rounded_box(
         "obs_feedback", "反馈闭环\n用户行为 → 记忆沉淀\n→ 下次 Strategy Selector 输入",
-        x=1016, y=1600, w=300, h=130,
+        x=1000, y=60, w=300, h=130,
         parent="observe_container",
         fill=PALETTE["observe"], stroke=PALETTE["observe_b"],
         font_size=12, bold=False,
