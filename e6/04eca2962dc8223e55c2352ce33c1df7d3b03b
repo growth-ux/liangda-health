@@ -1,0 +1,24 @@
+docs/liangda-health-iteration-roadmap.md
+  s_237cea3e76b904::t_c1c05711676bed 439-622
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "e604eca2962dc8223e55c2352ce33c1df7d3b03b",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_237cea3e76b904": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "668c47f7-cd53-42cf-a5e8-19a913373bbf",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
