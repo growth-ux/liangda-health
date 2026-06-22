@@ -1,0 +1,26 @@
+docs/arch/ai-competition-technical-solution.md
+  s_d4c23c5db5f995::t_b46e23c117b546 7,9
+  s_d4c23c5db5f995::t_54e5b3080642f8 3,5
+  s_d4c23c5db5f995::t_86ac1e18fc03bc 1-2,4,6,8,10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "252f45160566e784484dcc94379fc64d020f25e5",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_d4c23c5db5f995": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eed47-74ae-7c30-8ccb-c87ae26cc137",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
