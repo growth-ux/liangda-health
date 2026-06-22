@@ -61,7 +61,7 @@
         <mxCell id="output-loop" value="持续优化闭环&#xa;点击 / 跳过 / 加购 / 换一个" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="output">
           <mxGeometry x="20" y="445" width="220" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="highlight" value="比赛展示亮点&#xa;1. 家庭多成员隔离，避免画像串用&#xa;2. 健康安全优先，偏好和营销不能突破禁忌&#xa;3. 推荐结果可解释、可追溯、可验证&#xa;4. 用户反馈进入长期记忆，形成持续优化闭环" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;" vertex="1" parent="1">
+        <mxCell id="highlight" value="展示亮点&#xa;1. 家庭多成员隔离，避免画像串用&#xa;2. 健康安全优先，偏好和营销不能突破禁忌&#xa;3. 推荐结果可解释、可追溯、可验证&#xa;4. 用户反馈进入长期记忆，形成持续优化闭环" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;" vertex="1" parent="1">
           <mxGeometry x="180" y="720" width="1220" height="130" as="geometry"/>
         </mxCell>
         <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;endArrow=block;endFill=1;" edge="1" parent="1" source="input-report" target="core-kb">

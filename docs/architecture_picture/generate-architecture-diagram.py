@@ -354,7 +354,7 @@ arrow(1530, 1060, 1630, 1060, color="#fa5252", label="OCR / Parse")
 
 
 # ===== 3. 价值总结 =====
-container_box(60, 1190, 1880, 120, "③ 项目差异化价值（比赛答辩可直接引用）", fill="#eef7ff", stroke="#4c6ef5")
+container_box(60, 1190, 1880, 120, "③ 项目差异化价值（演示可直接引用）", fill="#eef7ff", stroke="#4c6ef5")
 box(
     90,
     1230,

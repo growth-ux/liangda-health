@@ -1,0 +1,153 @@
+<mxfile host="Electron" agent="Claude Code">
+  <diagram id="liangda-health-data-flow-b2b2c" name="粮达健康 B2B2C 数据流转图">
+    <mxGraphModel dx="2064" dy="888" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;fontColor=#111827;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;粮达健康 B2B2C 数据流转图&lt;/font&gt;" vertex="1">
+          <mxGeometry height="44" width="1520" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontColor=#4b5563;fontStyle=1" value="从家庭健康需求 → 平台 AI 引擎 → 中粮集团经营反哺&lt;br&gt;实线 = 现状已实现 · 虚线 = 未来规划" vertex="1">
+          <mxGeometry height="40" width="1360" x="120" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="col-family" parent="1" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#4f7ecb;fontSize=14;fontStyle=1;fontColor=#12355f;" value="家庭用户侧 · 数据采集" vertex="1">
+          <mxGeometry height="630" width="320" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="f-report" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f7ecb;fontSize=14;fontColor=#111827;fontStyle=1" value="体检报告&#xa;OCR / 页码证据&#xa;健康事实抽取" vertex="1">
+          <mxGeometry height="60" width="280" x="20" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f-member" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f7ecb;fontSize=14;fontColor=#111827;fontStyle=1" value="家庭成员档案&#xa;member_id / 关系 / 年龄&#xa;基础画像与饮食禁忌" vertex="1">
+          <mxGeometry height="60" width="280" x="20" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="f-device" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f7ecb;fontSize=14;fontColor=#111827;fontStyle=1" value="近期设备数据&#xa;睡眠 / 步数 / 心率&#xa;近 7 天状态" vertex="1">
+          <mxGeometry height="60" width="280" x="20" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="f-mall" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f7ecb;fontSize=14;fontColor=#111827;fontStyle=1" value="商城行为&#xa;浏览 / 加购 / 下单 / 复购" vertex="1">
+          <mxGeometry height="60" width="280" x="20" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="f-chat" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4f7ecb;fontSize=14;fontColor=#111827;fontStyle=1" value="对话日志&#xa;Agent 多轮 / 点赞 / 追问" vertex="1">
+          <mxGeometry height="60" width="280" x="20" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="f-iot" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#4f7ecb;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）IoT 设备网关&lt;br&gt;体重秤 / 血压 / 血糖&amp;nbsp;" vertex="1">
+          <mxGeometry height="55" width="280" x="20" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="f-multimodal" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#4f7ecb;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）多模态入口&#xa;智能音箱 / 车机 / 智能屏" vertex="1">
+          <mxGeometry height="55" width="280" x="20" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="f-member-platform" parent="col-family" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#4f7ecb;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）多数据源对接&lt;br&gt;体检机构 / 医院 / 药店 / 160" vertex="1">
+          <mxGeometry height="55" width="280" x="20" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="col-platform" parent="1" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#d97706;fontSize=14;fontStyle=1;fontColor=#7c2d12;" value="平台中台 · AI 引擎" vertex="1">
+          <mxGeometry height="630" width="820" x="420" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="a-facts" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontColor=#14532d;fontStyle=1" value="health_facts&#xa;健康事实库&#xa;异常指标 / 风险&#xa;evidence 溯源" vertex="1">
+          <mxGeometry height="100" width="155" x="15" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-memory" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontColor=#14532d;fontStyle=1" value="behavior_memory&#xa;行为记忆库&#xa;偏好 / 目标 / 反馈" vertex="1">
+          <mxGeometry height="100" width="155" x="178" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-family" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontColor=#14532d;fontStyle=1" value="family_graph&#xa;家庭健康图谱&#xa;成员关系 / 共享餐&#xa;成员隔离" vertex="1">
+          <mxGeometry height="100" width="155" x="341" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-product" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontColor=#14532d;fontStyle=1" value="product_tag_index&#xa;商品标签索引&#xa;低钠 / 低糖 / 高钙&#xa;健康角色 / 家庭角色" vertex="1">
+          <mxGeometry height="100" width="155" x="504" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-timeline" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontColor=#14532d;fontStyle=1" value="health_timeline&#xa;健康时间线&#xa;趋势 / 节点 / 归因" vertex="1">
+          <mxGeometry height="100" width="138" x="667" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="d-profile" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;fontSize=14;fontColor=#111827;fontStyle=1" value="健康画像聚合&#xa;家庭 / 成员画像" vertex="1">
+          <mxGeometry height="100" width="125" x="15" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d-risk" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;fontSize=14;fontColor=#111827;fontStyle=1" value="健康风险预测&#xa;3 / 6 / 12 月风险" vertex="1">
+          <mxGeometry height="100" width="125" x="148" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d-meal" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;fontSize=14;fontColor=#111827;fontStyle=1" value="餐单生成&#xa;一日 / 一周 / 一桌菜" vertex="1">
+          <mxGeometry height="100" width="125" x="281" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d-recommend" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;fontSize=14;fontColor=#111827;fontStyle=1;dashed=1;" value="商品推荐&#xa;双塔召回 + 规则重排" vertex="1">
+          <mxGeometry height="100" width="125" x="414" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d-strategy" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d97706;fontSize=14;fontColor=#111827;fontStyle=1;dashed=1;" value="营销策略&#xa;UCB / 上下文 bandit" vertex="1">
+          <mxGeometry height="100" width="125" x="547" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="d-safety" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;fontSize=14;fontStyle=1;fontColor=#7f1d1d;" value="健康安全约束&#xa;红线 &amp;gt; 营销&#xa;拦截 / 改写 / 告警" vertex="1">
+          <mxGeometry height="100" width="125" x="680" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="safety-line" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;fontSize=14;fontStyle=1;fontColor=#7f1d1d;" value="⚠ 健康红线横切：禁忌 &amp;gt; 健康事实 &amp;gt; 偏好 &amp;gt; 营销转化（任何个性化都不能突破健康底线）" vertex="1">
+          <mxGeometry height="32" width="790" x="15" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="ag-butler" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;fontSize=14;fontColor=#312e81;fontStyle=1" value="健康管家 Agent&#xa;报告解读 / 餐单 / 提醒" vertex="1">
+          <mxGeometry height="100" width="155" x="15" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="ag-nutri" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;fontSize=14;fontColor=#312e81;fontStyle=1" value="营养师 Agent&#xa;慢病食养 / 阶段性食谱" vertex="1">
+          <mxGeometry height="100" width="155" x="178" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="ag-mkt" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;fontSize=14;fontColor=#312e81;dashed=1;fontStyle=1" value="营销助理 Agent&#xa;推荐 / 券 / 加购引导" vertex="1">
+          <mxGeometry height="100" width="155" x="341" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="ag-risk" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;fontSize=14;fontColor=#312e81;dashed=1;fontStyle=1" value="风控审核 Agent&#xa;合规 / 隐私 / 健康审核" vertex="1">
+          <mxGeometry height="100" width="155" x="504" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="ag-group" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#6366f1;fontSize=14;fontColor=#312e81;dashed=1;fontStyle=1" value="集团运营 Agent&#xa;活动配置 / 人群分群" vertex="1">
+          <mxGeometry height="100" width="138" x="667" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="tool-mkt" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf2f8;strokeColor=#db2777;fontSize=14;fontColor=#831843;dashed=1;fontStyle=1" value="工具市场 Tool Marketplace&#xa;统一注册 / 评测 / 灰度 / 上下线审批" vertex="1">
+          <mxGeometry height="60" width="395" x="15" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#d97706;fontSize=14;fontColor=#7c2d12;fontStyle=1" value="Context Engineering&#xa;RAG 多源检索 / 压缩 / 排序 / 裁剪 / 证据组织" vertex="1">
+          <mxGeometry height="60" width="387" x="418" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="touchpoint" parent="col-platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9fafb;strokeColor=#6b7280;fontSize=14;fontColor=#374151;dashed=1;fontStyle=1" value="应用与触点层：主 App / 微信小程序 / 公众号 / 企业微信 / 智能音箱 / 车机 / 智能屏 / H5 嵌入集团 App / 线下门店屏" vertex="1">
+          <mxGeometry height="55" width="790" x="15" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="col-group" parent="1" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf3;strokeColor=#3b8c59;fontSize=14;fontStyle=1;fontColor=#14532d;" value="品牌/集团侧 · 转化与反哺" vertex="1">
+          <mxGeometry height="630" width="260" x="1300" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="g-sku" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#3b8c59;fontSize=14;fontColor=#111827;fontStyle=3;dashed=1;" value="商城 SKU 接入&lt;br&gt;福临门 / 悦活 /&lt;br&gt;中茶 / 香雪 / 长城" vertex="1">
+          <mxGeometry height="70" width="230" x="15" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="g-tag" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#3b8c59;fontSize=14;fontColor=#111827;fontStyle=3;dashed=1;" value="健康标签体系&#xa;营养维度 / 健康角色&#xa;家庭角色" vertex="1">
+          <mxGeometry height="70" width="230" x="15" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="g-campaign" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#3b8c59;fontSize=14;fontColor=#111827;fontStyle=3;dashed=1;" value="营销策略与活动&#xa;人群分群 / 触达时机 / 文案" vertex="1">
+          <mxGeometry height="70" width="230" x="15" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="g-member" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3F4F6;strokeColor=#3b8c59;fontSize=14;fontColor=#111827;fontStyle=3;dashed=1;" value="健康消费洞察与归因&lt;div&gt;区域健康画像 /&amp;nbsp;复购归因&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="230" x="15" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="g-b2b" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#3b8c59;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）粮达网选品&lt;br&gt;健康消费洞察反哺" vertex="1">
+          <mxGeometry height="55" width="230" x="15" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="g-offline" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#3b8c59;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）大悦城等线下门店&#xa;扫码看健康建议 + 加购" vertex="1">
+          <mxGeometry height="55" width="230" x="15" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="g-research" parent="col-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#3b8c59;dashed=1;fontSize=14;fontColor=#374151;fontStyle=3;" value="（未来）中粮营养健康研究院&#xa;专家知识库 / 慢病食养背书" vertex="1">
+          <mxGeometry height="55" width="230" x="15" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="loop" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#8b5cf6;fontSize=14;fontStyle=1;fontColor=#4c1d95;dashed=1;" value="Loop Engineering · 反馈闭环写回（用户越用越聪明，集团越卖越精准）" vertex="1">
+          <mxGeometry height="44" width="1520" x="40" y="765" as="geometry" />
+        </mxCell>
+        <mxCell id="harness" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;fontSize=14;fontStyle=1;fontColor=#7f1d1d;dashed=1;" value="Harness Engineering · 自动化评测与回归保障（横切全链路）" vertex="1">
+          <mxGeometry height="40" width="1520" x="40" y="848" as="geometry" />
+        </mxCell>
+        <mxCell id="el1" edge="1" parent="1" source="touchpoint" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#8b5cf6;fontSize=14;endArrow=block;endFill=1;fontStyle=1" target="loop" value="用户行为">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el3" edge="1" parent="1" source="loop" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#8b5cf6;fontSize=14;endArrow=block;endFill=1;fontStyle=1" target="f-chat" value="下一轮更精准">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="787" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eh3" edge="1" parent="1" source="harness" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#dc2626;dashed=1;fontSize=14;endArrow=block;endFill=1;fontStyle=1" target="loop" value="回归验证">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="868" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

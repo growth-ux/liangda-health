@@ -1,0 +1,157 @@
+<mxfile host="app.diagrams.net" modified="2026-06-22T16:30:00.000Z" agent="Codex GPT-5" version="24.7.17">
+  <diagram id="liangda-health-b2b2c-function-architecture-outline" name="功能架构图">
+    <mxGraphModel dx="1800" dy="2200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="2100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="粮达健康 B2B2C 集团级功能架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=28;fontStyle=1;fontColor=#1f2937;" vertex="1" parent="1">
+          <mxGeometry x="420" y="20" width="960" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="以家庭健康饮食决策为入口，连接用户、品牌与集团的智能运营平台" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="320" y="62" width="1160" height="28" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer1" value="第一层｜服务对象层" style="swimlane;startSize=34;rounded=1;container=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="1680" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="obj-user" value="家庭用户&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;家庭主账号｜父母｜配偶&lt;br&gt;孩子｜老人&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontColor=#1e3a8a;fontSize=15;spacingTop=10;" vertex="1" parent="layer1">
+          <mxGeometry x="40" y="58" width="500" height="96" as="geometry"/>
+        </mxCell>
+        <mxCell id="obj-brand" value="中粮品牌方&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;福临门｜中茶｜肉食/蛋白&lt;br&gt;乳品/早餐｜健康营养品&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#14532d;fontSize=15;spacingTop=10;" vertex="1" parent="layer1">
+          <mxGeometry x="590" y="58" width="500" height="96" as="geometry"/>
+        </mxCell>
+        <mxCell id="obj-group" value="集团管理方&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;集团数字化｜品牌运营｜品类运营&lt;br&gt;用户运营｜数据治理&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#78350f;fontSize=15;spacingTop=10;" vertex="1" parent="layer1">
+          <mxGeometry x="1140" y="58" width="500" height="96" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer2" value="第二层｜业务触点层" style="swimlane;startSize=34;rounded=1;container=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="330" width="1680" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="touch-user" value="家庭健康入口&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;家庭建档｜报告上传｜健康问答&lt;br&gt;饮食决策｜商品推荐｜购买承接&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0284c7;fontColor=#0c4a6e;fontSize=15;spacingTop=10;" vertex="1" parent="layer2">
+          <mxGeometry x="40" y="58" width="500" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="touch-brand" value="品牌运营入口&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;商品接入｜商品标签配置｜场景活动配置&lt;br&gt;人群运营｜效果分析&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;fontColor=#14532d;fontSize=15;spacingTop=10;" vertex="1" parent="layer2">
+          <mxGeometry x="590" y="58" width="500" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="touch-group" value="集团管理入口&lt;div style=&quot;font-size:12px;line-height:1.6;&quot;&gt;品牌接入管理｜统一经营看板&lt;br&gt;数据治理看板｜统一策略管理&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#78350f;fontSize=15;spacingTop=10;" vertex="1" parent="layer2">
+          <mxGeometry x="1140" y="58" width="500" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer3" value="第三层｜核心业务能力层" style="swimlane;startSize=34;rounded=1;container=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="570" width="1680" height="620" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="core1" value="家庭用户中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;家庭账号体系｜家庭成员管理&lt;br&gt;家庭角色关系｜家庭健康目标&lt;br&gt;饮食偏好与禁忌&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#60a5fa;fontColor=#1e3a8a;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="40" y="58" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core2" value="健康数据中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;体检报告接入｜OCR/报告解析&lt;br&gt;健康事实提取｜设备数据接入&lt;br&gt;问卷与主动录入｜健康数据标准化&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#60a5fa;fontColor=#1e3a8a;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="440" y="58" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core3" value="家庭健康图谱中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;成员健康画像｜家庭健康画像&lt;br&gt;长期健康事实｜近期健康状态&lt;br&gt;消费偏好标签｜饮食原则生成&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#818cf8;fontColor=#3730a3;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="840" y="58" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core4" value="商品与内容中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;商品主数据｜健康营养标签&lt;br&gt;品牌商品池｜套餐/组合&lt;br&gt;食谱/菜谱｜场景专题内容&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfeff;strokeColor=#22d3ee;fontColor=#155e75;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="1240" y="58" width="360" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="core5" value="智能决策与推荐中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;饮食决策引擎｜商品匹配引擎&lt;br&gt;套餐推荐引擎｜复购推荐&lt;br&gt;活动触发策略｜推荐排序与安全过滤&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#8b5cf6;fontColor=#5b21b6;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="40" y="320" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core6" value="Agent 交互中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;家庭健康管家｜饮食决策助手&lt;br&gt;多轮对话｜工具编排&lt;br&gt;推荐解释｜反馈收集&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#a78bfa;fontColor=#6d28d9;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="440" y="320" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core7" value="品牌运营中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;品牌接入管理｜人群分层运营&lt;br&gt;健康场景运营｜活动配置&lt;br&gt;推荐位配置｜品牌效果归因&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#4ade80;fontColor=#166534;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="840" y="320" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="core8" value="数据治理与平台支撑中心&lt;div style=&quot;font-size:12px;line-height:1.55;&quot;&gt;权限与授权｜隐私与脱敏&lt;br&gt;审计留痕｜标签治理&lt;br&gt;数据质量监控｜平台开放接口&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#fb923c;fontColor=#9a3412;fontSize=15;spacingTop=8;" vertex="1" parent="layer3">
+          <mxGeometry x="1240" y="320" width="360" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer4" value="第四层｜平台中台能力层" style="swimlane;startSize=34;rounded=1;container=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1220" width="1680" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="foundation" value="统一能力底座&lt;div style=&quot;font-size:13px;line-height:1.7;&quot;&gt;统一家庭健康标签体系｜统一商品健康标签体系｜统一推荐引擎｜统一证据链能力&lt;br&gt;统一人群分层能力｜统一活动编排能力｜统一品牌接入标准｜统一数据资产沉淀&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;fontColor=#0f172a;fontSize=16;fontStyle=1;spacingTop=10;" vertex="1" parent="layer4">
+          <mxGeometry x="70" y="70" width="1540" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="flow-title" value="主链路" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1f4e79;strokeColor=#1f4e79;fontColor=#ffffff;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1470" width="100" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow-text" value="家庭健康数据 → 家庭健康图谱 → 饮食决策 → 商品/内容匹配 → 品牌运营转化 → 用户反馈回流" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;fontColor=#1e3a8a;fontSize=15;align=left;spacingLeft=18;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1470" width="1560" height="36" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer5" value="第五层｜闭环价值层" style="swimlane;startSize=34;rounded=1;container=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1540" width="1680" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="value1" value="家庭健康资产沉淀" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontColor=#1e3a8a;fontSize=16;fontStyle=1;" vertex="1" parent="layer5">
+          <mxGeometry x="40" y="70" width="360" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="value2" value="品牌精准运营增长" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;fontColor=#166534;fontSize=16;fontStyle=1;" vertex="1" parent="layer5">
+          <mxGeometry x="440" y="70" width="360" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="value3" value="多品牌协同转化" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontColor=#92400e;fontSize=16;fontStyle=1;" vertex="1" parent="layer5">
+          <mxGeometry x="840" y="70" width="360" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="value4" value="集团统一经营能力平台" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede9fe;strokeColor=#8b5cf6;fontColor=#6d28d9;fontSize=16;fontStyle=1;" vertex="1" parent="layer5">
+          <mxGeometry x="1240" y="70" width="360" height="92" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="touch-user" target="core2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="core2" target="core3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="core3" target="core5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="core4" target="core5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="core5" target="core7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="core6" target="core5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="touch-brand" target="core7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="touch-group" target="core8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#94a3b8;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" edge="1" parent="1" source="foundation" target="core3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#94a3b8;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" edge="1" parent="1" source="foundation" target="core5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#94a3b8;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" edge="1" parent="1" source="foundation" target="core7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#94a3b8;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" edge="1" parent="1" source="core7" target="touch-brand">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="反馈回流" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#ef4444;fontColor=#b91c1c;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" edge="1" parent="1" source="core7" target="core2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="1140"/>
+              <mxPoint x="620" y="1140"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="obj-user" target="touch-user">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="obj-brand" target="touch-brand">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeColor=#64748b;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="obj-group" target="touch-group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

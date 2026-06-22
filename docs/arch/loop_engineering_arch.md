@@ -29,7 +29,7 @@ Loop Engineering Layer 负责把粮达健康中的用户反馈、对话表达和
 让反馈闭环可以被 Harness 测试和回归
 ```
 
-比赛展示时，Loop Engineering 可以作为系统持续进化能力：
+Loop Engineering 可以作为系统持续进化能力：
 
 ```text
 粮达健康不是一次性问答系统，而是能把用户反馈转化为长期记忆和推荐策略的持续优化 Agent。
