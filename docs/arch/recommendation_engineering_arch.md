@@ -97,47 +97,7 @@ Output & Feedback Layer 负责输出商品卡片并接入反馈闭环。
 
 ## 3. 架构关系
 
-```text
-User Request / Meal Plan
-    ↓
-Recommendation Input
-    ├─ Intent
-    ├─ Member / Family Scope
-    ├─ Health Profile
-    ├─ Memory
-    ├─ Product Query
-    └─ Meal Plan Context
-    ↓
-Candidate Generation
-    ↓
-Safety Filtering
-    ↓
-Ranking
-    ↓
-Evidence Generation
-    ↓
-Structured Product Cards
-    ↓
-User Feedback
-    ↓
-Loop Write-back
-```
 
-和 Agent 的边界：
-
-```text
-Agent 负责识别意图、调用 mall_recommend 工具和解释结果。
-Recommendation Engineering 负责决定推荐哪些商品、为什么推荐、如何排序。
-Agent 不应绕过推荐引擎自由编造商品。
-```
-
-和安全规则的边界：
-
-```text
-个性化偏好只能影响安全候选内的排序。
-营销转化只能影响安全候选内的排序。
-任何推荐都不能突破过敏、禁忌、慢病和报告事实约束。
-```
 
 ## 4. Recommendation Input Layer
 

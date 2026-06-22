@@ -1,0 +1,115 @@
+<mxfile host="app.diagrams.net" modified="2026-06-22T00:10:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="liangda-health-competition-architecture" name="Page-1">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="粮达健康 AI 竞赛方案高层架构图" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b3b3b3;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="input" value="输入层" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="270" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="input-report" value="体检报告&#xa;OCR / 文本切片 / 页码证据" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="input">
+          <mxGeometry x="25" y="55" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="input-family" value="家庭成员档案&#xa;member_id / 年龄 / 关系 / 基础画像" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="input">
+          <mxGeometry x="25" y="175" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="input-device" value="近 7 天设备数据&#xa;步数 / 睡眠 / 心率等状态" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="input">
+          <mxGeometry x="25" y="295" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="input-preference" value="偏好与预算信息&#xa;饮食偏好 / 忌口 / 价格敏感度" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="input">
+          <mxGeometry x="25" y="415" width="220" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="core" value="核心智能层" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="140" width="830" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-kb" value="健康报告知识库&#xa;RAG 检索 / 结构化健康事实 / 原文证据追溯" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="25" y="55" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-profile" value="家庭健康画像引擎&#xa;成员识别 / 数据隔离 / 家庭范围聚合" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="300" y="55" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-agent" value="推荐 Agent&#xa;意图识别 / 工具调用 / 健康建议 / 商品推荐" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=17;fontStyle=1;" vertex="1" parent="core">
+          <mxGeometry x="575" y="55" width="230" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-context" value="Context Engineering&#xa;多源上下文检索、压缩、排序、裁剪" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="60" y="230" width="210" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-recommend" value="Recommendation Engineering&#xa;候选生成、安全过滤、排序、证据链" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="310" y="230" width="210" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-loop" value="Loop Engineering&#xa;反馈理解、长期记忆写回、策略更新" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="560" y="230" width="210" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="core-harness" value="Harness Engineering&#xa;评测集、工具追踪、安全回归、诊断报告" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=15;" vertex="1" parent="core">
+          <mxGeometry x="185" y="390" width="460" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="output" value="输出层" style="swimlane;startSize=30;rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="140" width="260" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="output-health" value="健康建议&#xa;风险说明 / 饮食原则 / 餐单方向" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="output">
+          <mxGeometry x="20" y="55" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="output-product" value="商品推荐&#xa;候选商品 / 推荐理由 / 安全替代方案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="output">
+          <mxGeometry x="20" y="185" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="output-evidence" value="可追溯解释&#xa;报告证据 / 商品标签 / 反馈依据" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="output">
+          <mxGeometry x="20" y="315" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="output-loop" value="持续优化闭环&#xa;点击 / 跳过 / 加购 / 换一个" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="output">
+          <mxGeometry x="20" y="445" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="highlight" value="比赛展示亮点&#xa;1. 家庭多成员隔离，避免画像串用&#xa;2. 健康安全优先，偏好和营销不能突破禁忌&#xa;3. 推荐结果可解释、可追溯、可验证&#xa;4. 用户反馈进入长期记忆，形成持续优化闭环" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="180" y="720" width="1220" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;endArrow=block;endFill=1;" edge="1" parent="1" source="input-report" target="core-kb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;endArrow=block;endFill=1;" edge="1" parent="1" source="input-family" target="core-profile">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;endArrow=block;endFill=1;" edge="1" parent="1" source="input-device" target="core-profile">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;endArrow=block;endFill=1;" edge="1" parent="1" source="input-preference" target="core-context">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#82b366;endArrow=block;endFill=1;" edge="1" parent="1" source="core-kb" target="core-agent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#82b366;endArrow=block;endFill=1;" edge="1" parent="1" source="core-profile" target="core-agent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#82b366;endArrow=block;endFill=1;" edge="1" parent="1" source="core-context" target="core-agent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#d6b656;endArrow=block;endFill=1;" edge="1" parent="1" source="core-agent" target="core-recommend">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#9673a6;endArrow=block;endFill=1;" edge="1" parent="1" source="core-recommend" target="core-loop">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="健康建议" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#d79b00;fontSize=12;endArrow=block;endFill=1;" edge="1" parent="1" source="core-agent" target="output-health">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="推荐结果" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#d6b656;fontSize=12;endArrow=block;endFill=1;" edge="1" parent="1" source="core-recommend" target="output-product">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="证据链" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6c8ebf;fontSize=12;endArrow=block;endFill=1;" edge="1" parent="1" source="core-agent" target="output-evidence">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="反馈闭环" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#9673a6;fontSize=12;endArrow=block;endFill=1;" edge="1" parent="1" source="output-loop" target="core-loop">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="持续评测" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#b85450;fontSize=12;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="core-harness" target="core-agent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="验证闭环生效" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#b85450;fontSize=12;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="core-harness" target="core-loop">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
