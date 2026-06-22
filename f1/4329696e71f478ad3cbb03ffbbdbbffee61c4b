@@ -1,0 +1,67 @@
+docs/architecture_picture/liangda-health-data-flow-b2b2c.drawio
+  s_9853a0e95ccfaa::t_de755a224d475f 2,4-6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108,111,114,117,120,123,126,129,132,135,137-138,140-142,144-153
+docs/template.md
+  h_7549b7dc6a6921 1-47
+docs/liangda-health-market-roadmap.md
+  s_7a7790299607dd::t_4721d6f4361f5b 1-567
+docs/architecture_picture/loop-engineering-architecture.drawio
+  s_1209da6a47a80c::t_167d56b30d7f40 7-8,10,13,16,19,22,25,28,31,34,37,40,43,46,49,52,55,58,61,64,67,70,73,76,79,82,85,88,91,94,97,100,103,106,109,112,133,141,144
+docs/arch/context_engineering_arch.md
+  s_418744bd40fc76::t_866261d8b8ccba 16-21
+docs/arch/liangda-health-b2b2c-function-architecture-outline.md
+  s_a042c700201600::t_216d80804be90b 1-78,80-382
+  h_7549b7dc6a6921 79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "f14329696e71f478ad3cbb03ffbbdbbffee61c4b",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_1209da6a47a80c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eefa3-9900-7f01-9d25-3ca7ece0c8e8",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_418744bd40fc76": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04c240c1-4265-4117-a24e-3ca6ff8333fd",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_7a7790299607dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "535a5e47-c73c-49e9-b5a5-fae4ba4b1efe",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9853a0e95ccfaa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "703c675e-dc59-4da1-9935-b6db39cc6b62",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_a042c700201600": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eee08-4955-7f62-974c-c2c8ded9a020",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
