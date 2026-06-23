@@ -1,0 +1,26 @@
+README.md
+  s_fe57708cbd215d::t_950bcadd3c9bfe 3,5,7,9-165,167-168,170-174,176-184,189-228
+  s_fe57708cbd215d::t_9fbf5d306ca49a 166,169
+  s_fe57708cbd215d::t_fa31a8447dda7d 175,185-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "0d960630d8d08caf7d50c01ec1b68c265dc342bc",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_fe57708cbd215d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ef29f-a6ce-74f3-99fc-a5abea0da4ba",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
