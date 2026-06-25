@@ -1,0 +1,26 @@
+docs/arch/harness_engineering_arch.md
+  h_7549b7dc6a6921 109,122,641,771
+README.md
+  h_7549b7dc6a6921 36-37,206,208
+docs/liangda-health-market-roadmap.md
+  h_7549b7dc6a6921 5
+docs/arch/liangda-health-b2b2c-function-architecture-outline.md
+  h_7549b7dc6a6921 223
+.superpowers/brainstorm/25363-1781699203/content/architecture-options.html
+  h_7549b7dc6a6921 66
+docs/architecture_picture/generate-architecture-diagram.py
+  h_7549b7dc6a6921 357
+docs/architecture_picture/liangda-health-competition-architecture.drawio
+  h_7549b7dc6a6921 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "31f245e75a203a95e39fca38701305b0ea4d14bc",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
