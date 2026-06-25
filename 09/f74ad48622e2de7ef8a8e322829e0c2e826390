@@ -1,0 +1,14 @@
+README.md
+  h_7549b7dc6a6921 5,7-13,17-19,24-26,30-31,33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "09f74ad48622e2de7ef8a8e322829e0c2e826390",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
