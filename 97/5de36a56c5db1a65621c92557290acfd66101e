@@ -1,0 +1,87 @@
+docs/architecture_picture/liangda-health-data-flow-b2b2c.drawio
+  s_9853a0e95ccfaa::t_de755a224d475f 2,4-6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108,111,114,117,120,123,126,129,132,135,137-138,140-142,144-153
+docs/liangda-health-market-roadmap.md
+  s_7a7790299607dd::t_4721d6f4361f5b 1-3,6-567
+  h_7549b7dc6a6921 4,5
+docs/architecture_picture/loop-engineering-architecture.drawio
+  s_1209da6a47a80c::t_167d56b30d7f40 7-8,10,13,19,22,25,28,31,37,40,43,46,49,52,60,63,66,69,72,78,81,84,87,90,93,96,102,105,108,111,114,135,143,146
+docs/arch/context_engineering_arch.md
+  s_418744bd40fc76::t_866261d8b8ccba 17-21
+docs/arch/liangda-health-b2b2c-function-architecture-outline.md
+  s_a042c700201600::t_216d80804be90b 1-78,80-222,224-382
+  h_7549b7dc6a6921 79,223
+README.md
+  s_fe57708cbd215d::t_950bcadd3c9bfe 3,5,7,9-35,38-166,168-169,171-175,177-185,190-205,207,209-229
+  s_fe57708cbd215d::t_9fbf5d306ca49a 167,170
+  s_fe57708cbd215d::t_fa31a8447dda7d 176,186-189
+  h_7549b7dc6a6921 36-37,206,208
+docs/arch/harness_engineering_arch.md
+  h_7549b7dc6a6921 109,122,641,771
+.superpowers/brainstorm/25363-1781699203/content/architecture-options.html
+  h_7549b7dc6a6921 66
+docs/architecture_picture/generate-architecture-diagram.py
+  h_7549b7dc6a6921 357
+docs/architecture_picture/liangda-health-competition-architecture.drawio
+  h_7549b7dc6a6921 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "975de36a56c5db1a65621c92557290acfd66101e",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_1209da6a47a80c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eefa3-9900-7f01-9d25-3ca7ece0c8e8",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_418744bd40fc76": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04c240c1-4265-4117-a24e-3ca6ff8333fd",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_7a7790299607dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "535a5e47-c73c-49e9-b5a5-fae4ba4b1efe",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9853a0e95ccfaa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "703c675e-dc59-4da1-9935-b6db39cc6b62",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_a042c700201600": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eee08-4955-7f62-974c-c2c8ded9a020",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_fe57708cbd215d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ef29f-a6ce-74f3-99fc-a5abea0da4ba",
+        "model": "gpt-5.5"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
