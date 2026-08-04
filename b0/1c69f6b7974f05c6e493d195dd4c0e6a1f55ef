@@ -1,0 +1,14 @@
+.gitignore
+  h_7549b7dc6a6921 8-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "b01c69f6b7974f05c6e493d195dd4c0e6a1f55ef",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
