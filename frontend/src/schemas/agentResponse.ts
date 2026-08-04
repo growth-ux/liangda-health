@@ -42,7 +42,7 @@ export interface GreetingPayload {
   suggested_topics: string[];
 }
 
-export type EvidenceType = 'report_fact' | 'device' | 'memory' | 'product';
+export type EvidenceType = 'report_fact' | 'device' | 'memory' | 'product' | 'safety_block';
 
 export interface EvidenceItem {
   type: EvidenceType;
@@ -55,6 +55,8 @@ export interface EvidenceItem {
 export interface MessageEvidence {
   content_items: EvidenceItem[];
   product_items: EvidenceItem[];
+  // 安全红线拦截记录：推荐过程中被过敏原/健康禁忌拦下的商品及原因
+  safety_items?: EvidenceItem[];
 }
 
 export interface SuggestionItem {

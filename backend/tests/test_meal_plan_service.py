@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 from app.models.device import DeviceDailyMetric
 from app.models.health_fact import HealthFact
+from app.models.kb import KbDocument
 from app.models.member import Member
 from app.services.meal_plan_service import MealPlanService
 from app.services.memory_service import MemoryItem
@@ -176,6 +177,15 @@ def test_meal_plan_service_builds_report_and_device_evidence_items(db_session):
         health_tags=[],
     )
     db_session.add(
+        KbDocument(
+            document_id="doc_checkup",
+            file_name="爸爸体检报告.pdf",
+            file_path="/tmp/doc_checkup/爸爸体检报告.pdf",
+            file_size=1024,
+            member_id="mem_dad",
+        )
+    )
+    db_session.add(
         HealthFact(
             fact_id="fact_bp",
             member_id="mem_dad",
@@ -215,6 +225,6 @@ def test_meal_plan_service_builds_report_and_device_evidence_items(db_session):
 
     assert [item.type for item in items] == ["report_fact", "device"]
     assert items[0].title == "李建国·血压偏高"
-    assert items[0].source_label == "doc_checkup p3"
+    assert items[0].source_label == "爸爸体检报告.pdf p3"
     assert "睡眠不足" in items[1].excerpt
     assert "步数偏低" in items[1].excerpt

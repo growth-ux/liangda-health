@@ -9,6 +9,7 @@ const EVIDENCE_TYPE_LABEL: Record<EvidenceItem['type'], string> = {
   device: '手环状态',
   memory: '互动记忆',
   product: '商品匹配',
+  safety_block: '安全拦截',
 };
 
 export function EvidenceItemCard({ item }: Props) {

@@ -18,11 +18,13 @@ export function EvidenceModal({ message, modalState, onClose, onChange }: Props)
   const evidence = message?.card?.evidence;
   const contentItems = evidence?.content_items ?? [];
   const productItems = evidence?.product_items ?? [];
-  const items = modalState.group === 'content' ? contentItems : productItems;
-  const sectionTitle = modalState.group === 'content' ? '本次生成依据' : '本次推荐依据';
-  const chainLabel = modalState.group === 'content' ? '生成链' : '推荐链';
+  const safetyItems = evidence?.safety_items ?? [];
+  const items = modalState.group === 'content' ? contentItems : modalState.group === 'product' ? productItems : safetyItems;
+  const sectionTitle = modalState.group === 'content' ? '本次生成依据' : modalState.group === 'product' ? '本次推荐依据' : '本次安全拦截';
+  const chainLabel = modalState.group === 'content' ? '生成链' : modalState.group === 'product' ? '推荐链' : '拦截链';
   const canShowContent = contentItems.length > 0;
   const canShowProduct = productItems.length > 0;
+  const canShowSafety = safetyItems.length > 0;
 
   return (
     <div className="chat-evidence-modal-backdrop" onClick={onClose}>
@@ -55,6 +57,15 @@ export function EvidenceModal({ message, modalState, onClose, onChange }: Props)
                   onClick={() => onChange({ open: true, messageId: modalState.messageId, group: 'product' })}
                 >
                   推荐链
+                </button>
+              )}
+              {canShowSafety && (
+                <button
+                  type="button"
+                  className={`safety${modalState.group === 'safety' ? ' active' : ''}`}
+                  onClick={() => onChange({ open: true, messageId: modalState.messageId, group: 'safety' })}
+                >
+                  拦截链
                 </button>
               )}
             </div>

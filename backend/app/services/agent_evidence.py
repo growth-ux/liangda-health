@@ -9,6 +9,7 @@ class AgentEvidenceCollector:
     def __init__(self) -> None:
         self.content_items: list[EvidenceItem] = []
         self.product_items: list[EvidenceItem] = []
+        self.safety_items: list[EvidenceItem] = []
 
     def add_content(self, item: EvidenceItem) -> None:
         self._append_unique(self.content_items, item)
@@ -16,12 +17,16 @@ class AgentEvidenceCollector:
     def add_product(self, item: EvidenceItem) -> None:
         self._append_unique(self.product_items, item)
 
+    def add_safety_block(self, item: EvidenceItem) -> None:
+        self._append_unique(self.safety_items, item)
+
     def dump(self) -> MessageEvidence | None:
-        if not self.content_items and not self.product_items:
+        if not self.content_items and not self.product_items and not self.safety_items:
             return None
         return MessageEvidence(
             content_items=self.content_items,
             product_items=self.product_items,
+            safety_items=self.safety_items,
         )
 
     def _append_unique(self, items: list[EvidenceItem], candidate: EvidenceItem) -> None:

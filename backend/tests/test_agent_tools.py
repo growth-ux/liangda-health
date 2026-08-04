@@ -313,6 +313,49 @@ def test_mall_recommend_tool_pushes_product_evidence_items():
     assert collector.product_items[0].source_label == "报告健康事实 + 商品标签"
 
 
+def test_mall_recommend_tool_pushes_safety_block_evidence_items():
+    """被安全红线拦截的商品要写入 evidence 的 safety_items，让生成链可见。"""
+    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent_tools import MallRecommendTool
+
+    class BlockingMallRecommendService(FakeMallRecommendService):
+        def recommend(self, *, scope, meal_plan_text, member_id=None, query_text="", limit=5):
+            payload = super().recommend(
+                scope=scope,
+                meal_plan_text=meal_plan_text,
+                member_id=member_id,
+                query_text=query_text,
+                limit=limit,
+            )
+            payload["blocked_items"] = [
+                {
+                    "product_id": "p_wine",
+                    "name": "长城干红葡萄酒",
+                    "reason": "与王建军的健康禁忌「酒」冲突，已拦截",
+                }
+            ]
+            return payload
+
+    collector = AgentEvidenceCollector()
+    tool = MallRecommendTool(
+        BlockingMallRecommendService(),
+        allowed_member_ids=["mem_dad"],
+        evidence_collector=collector,
+    )
+
+    tool.recommend(scope="member", member_id="mem_dad", meal_plan_text="")
+
+    assert len(collector.safety_items) == 1
+    item = collector.safety_items[0]
+    assert item.type == "safety_block"
+    assert item.title == "长城干红葡萄酒"
+    assert "禁忌" in item.excerpt
+    assert item.source_id == "blocked:p_wine"
+    assert item.source_label == "安全红线拦截"
+    evidence = collector.dump()
+    assert evidence is not None and len(evidence.safety_items) == 1
+
+
 def test_kb_search_tool_pushes_first_chunk_only_as_evidence():
     """kb_search 只把第一个 chunk 写入 evidence；一次返回多个 chunk 也不能把右栏塞满。"""
     from app.services.agent_evidence import AgentEvidenceCollector
@@ -360,5 +403,5 @@ def test_kb_search_tool_pushes_first_chunk_only_as_evidence():
     assert len(collector.content_items) == 1
     assert collector.content_items[0].source_id == "chunk_1"
     assert collector.content_items[0].type == "report_fact"
-    assert "妈妈体检报告" in collector.content_items[0].source_label
+    assert "report.pdf" in collector.content_items[0].source_label
     assert "p2" in collector.content_items[0].source_label

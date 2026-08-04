@@ -4,7 +4,7 @@ export type EvidenceModalState =
   | {
       open: true;
       messageId: string;
-      group: 'content' | 'product';
+      group: 'content' | 'product' | 'safety';
     }
   | {
       open: false;
@@ -23,8 +23,9 @@ export function EvidenceActions({ message, modalState, onChange, mobile = false 
   const evidence = message.card?.evidence;
   const hasContent = (evidence?.content_items?.length ?? 0) > 0;
   const hasProduct = (evidence?.product_items?.length ?? 0) > 0;
+  const hasSafety = (evidence?.safety_items?.length ?? 0) > 0;
 
-  if (!hasContent && !hasProduct) return null;
+  if (!hasContent && !hasProduct && !hasSafety) return null;
 
   return (
     <div className={`evidence-actions-row${mobile ? ' mobile' : ''}`}>
@@ -56,6 +57,21 @@ export function EvidenceActions({ message, modalState, onChange, mobile = false 
           }
         >
           推荐依据
+        </button>
+      )}
+      {hasSafety && (
+        <button
+          type="button"
+          className={`safety${
+            modalState.open && modalState.messageId === message.message_id && modalState.group === 'safety'
+              ? ' active'
+              : ''
+          }`}
+          onClick={() =>
+            onChange({ open: true, messageId: message.message_id, group: 'safety' })
+          }
+        >
+          安全拦截 {evidence?.safety_items?.length}
         </button>
       )}
     </div>

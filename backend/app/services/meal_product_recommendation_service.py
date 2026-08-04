@@ -20,6 +20,17 @@ class MealProductRecommendation:
     evidence_source: str
 
 
+@dataclass(frozen=True)
+class BlockedProduct:
+    """被安全红线（过敏原/健康禁忌）拦截的商品及拦截原因。"""
+    product: MallProduct
+    reason: str
+
+
+# 拦截记录最多带出几条，避免证据链被同类目商品占满
+BLOCKED_REPORT_LIMIT = 6
+
+
 TAG_RULES: list[tuple[tuple[str, ...], tuple[str, ...], str]] = [
     (("低钠", "清淡", "血压"), ("low_sodium", "hypertension"), "契合本次低钠清淡方向"),
     (("控糖", "低GI", "血糖", "主食定量", "杂粮", "燕麦", "糙米"), ("sugar_control", "low_gi"), "适合作为控糖或低 GI 主食选择"),
@@ -99,20 +110,28 @@ class MealProductRecommendationService:
         """
         if scope == "member":
             if not member_id:
-                return {"items": [], "is_error": True, "error": "单人商品推荐必须传入 member_id"}
+                return {"items": [], "blocked_items": [], "is_error": True, "error": "单人商品推荐必须传入 member_id"}
             profile = self.profile_service.get_member_profile(member_id)
             member = self.db.query(Member).filter(Member.member_id == member_id).one_or_none()
             if member is None:
-                return {"items": [], "is_error": True, "error": "家人不存在"}
-            recs = self._recommend_for_member(profile, member, meal_plan_text, query_text, limit)
+                return {"items": [], "blocked_items": [], "is_error": True, "error": "家人不存在"}
+            recs, blocked = self._recommend_for_member(profile, member, meal_plan_text, query_text, limit)
         elif scope == "family":
             profile = self.profile_service.get_family_profile()
             members = self.db.query(Member).all()
-            recs = self._recommend_for_family(profile, members, meal_plan_text, query_text, limit)
+            recs, blocked = self._recommend_for_family(profile, members, meal_plan_text, query_text, limit)
         else:
-            return {"items": [], "is_error": True, "error": "scope 只能是 member 或 family"}
+            return {"items": [], "blocked_items": [], "is_error": True, "error": "scope 只能是 member 或 family"}
         return {
             "items": [self._serialize(rec) for rec in recs],
+            "blocked_items": [
+                {
+                    "product_id": item.product.product_id,
+                    "name": item.product.name,
+                    "reason": item.reason,
+                }
+                for item in blocked[:BLOCKED_REPORT_LIMIT]
+            ],
             "is_error": False,
             "error": None,
         }
@@ -124,7 +143,7 @@ class MealProductRecommendationService:
         meal_plan_text: str,
         query_text: str,
         limit: int,
-    ) -> list[MealProductRecommendation]:
+    ) -> tuple[list[MealProductRecommendation], list[BlockedProduct]]:
         products = self._products()
         context = " ".join(
             [
@@ -144,7 +163,7 @@ class MealProductRecommendationService:
         meal_plan_text: str,
         query_text: str,
         limit: int,
-    ) -> list[MealProductRecommendation]:
+    ) -> tuple[list[MealProductRecommendation], list[BlockedProduct]]:
         products = self._products()
         context = " ".join(
             [
@@ -171,14 +190,25 @@ class MealProductRecommendationService:
         *,
         profile: HealthProfile | None = None,
         family_profile: FamilyHealthProfile | None = None,
-    ) -> list[MealProductRecommendation]:
+    ) -> tuple[list[MealProductRecommendation], list[BlockedProduct]]:
         requested_category, requested_reason = _match_requested_category(query_text)
         if requested_category:
             products = [product for product in products if product.category_code == requested_category]
 
+        # 安全红线来源：单人用单人画像的 avoid_tags，全家用每位成员各自的 avoid_tags（并集拦截，归属到人）
+        if profile is not None:
+            avoid_sources = [(profile.name, profile.avoid_tags)]
+        elif family_profile is not None:
+            avoid_sources = [(item.name, item.avoid_tags) for item in family_profile.members]
+        else:
+            avoid_sources = []
+
         scored: list[MealProductRecommendation] = []
+        blocked: list[BlockedProduct] = []
         for product in products:
-            if any(_has_allergy_conflict(member, product) for member in members):
+            block_reason = _find_safety_block(product, members, avoid_sources)
+            if block_reason:
+                blocked.append(BlockedProduct(product=product, reason=block_reason))
                 continue
             tags = set(_json_list(product.recommend_tags))
             category_score, category_reason = _score_category(context, product.category_code)
@@ -205,7 +235,7 @@ class MealProductRecommendationService:
                     )
                 )
         scored.sort(key=lambda item: (-item.score, item.product.product_id))
-        return _pick_diverse_reasons(scored, max(1, limit))
+        return _pick_diverse_reasons(scored, max(1, limit)), blocked
 
     @staticmethod
     def _serialize(rec: MealProductRecommendation) -> dict:
@@ -376,7 +406,64 @@ def _csv(raw: str | None) -> list[str]:
     return [item.strip().lower() for item in raw.split(",") if item.strip()]
 
 
-def _has_allergy_conflict(member: Member, product: MallProduct) -> bool:
+# 安全红线拦截：每个 avoid_tag 的匹配别名。
+# 例如画像里的「咸菜」是类别词，需要能匹配到商品名里的「咸鸭蛋」「咸味」等具体变体。
+# 没有别名的标签走原词匹配。
+AVOID_TAG_MATCH_ALIASES: dict[str, list[str]] = {
+    "咸菜": ["咸"],
+    "腌制品": ["腌"],
+    "重盐调味": ["咸"],
+    "油炸": ["油炸", "炸"],
+    "肥肉": ["肥肉", "五花肉"],
+    "动物油": ["猪油", "牛油", "动物油"],
+    "甜饮": ["甜饮", "含糖饮料", "汽水"],
+    "甜点": ["甜点", "蛋糕", "曲奇"],
+    "高糖饮料": ["含糖", "汽水", "可乐"],
+    "辛辣": ["辣"],
+    "酒": ["酒", "白兰地", "葡萄酒"],
+    "过量浓茶咖啡": ["咖啡", "浓茶"],
+}
+
+
+def _avoid_tag_match_keywords(tag: str) -> list[str]:
+    """返回该 avoid_tag 在商品名里应匹配的关键词列表（包含自身和别名）。"""
+    aliases = AVOID_TAG_MATCH_ALIASES.get(tag)
+    if not aliases:
+        return [tag]
+    return [tag, *aliases]
+
+
+def _find_safety_block(
+    product: MallProduct,
+    members: list[Member],
+    avoid_sources: list[tuple[str, list[str]]],
+) -> str | None:
+    """安全红线检查：命中过敏原或健康禁忌则返回拦截原因，否则返回 None。
+
+    优先级：过敏原（硬冲突） > 健康禁忌（画像 avoid_tags）。
+    """
+    for member in members:
+        allergen = _matched_allergen(member, product)
+        if allergen:
+            return f"含{member.name}的过敏原「{allergen}」，已拦截"
+    for member_name, avoid_tags in avoid_sources:
+        for tag in avoid_tags:
+            if not tag:
+                continue
+            for keyword in _avoid_tag_match_keywords(tag):
+                if keyword and keyword in product.name:
+                    return f"与{member_name}的健康禁忌「{tag}」冲突，已拦截"
+    return None
+
+
+def _matched_allergen(member: Member, product: MallProduct) -> str | None:
     allergies = _csv(member.allergies)
     warning_tags = [item.lower() for item in _json_list(product.warning_tags)]
-    return any(allergy in warning or warning in allergy for allergy in allergies for warning in warning_tags)
+    for allergy in allergies:
+        if any(allergy in warning or warning in allergy for warning in warning_tags):
+            return allergy
+    return None
+
+
+def _has_allergy_conflict(member: Member, product: MallProduct) -> bool:
+    return _matched_allergen(member, product) is not None

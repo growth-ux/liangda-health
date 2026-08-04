@@ -5,3 +5,7 @@ frontend/node_modules
 backend/uploads
 .idea
 .superpowers/brainstorm/*/state
+.claude
+.codex-tmp
+.qoder
+.codex-ppt-build

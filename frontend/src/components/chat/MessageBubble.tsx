@@ -53,7 +53,7 @@ export function MessageBubble({
           {!isUser && productItems.length > 0 && (
             <ProductRecommendationCards items={productItems} />
           )}
-          {!isUser && message.card && (
+          {!isUser && message.card && message.card.summary_text && (
             <StructuredCard card={message.card} />
           )}
         </div>
@@ -72,6 +72,9 @@ export function MessageBubble({
             )}
             {modalState.group === 'product' && (
               <EvidenceSection title="本次推荐依据" items={message.card?.evidence?.product_items ?? []} />
+            )}
+            {modalState.group === 'safety' && (
+              <EvidenceSection title="本次安全拦截" items={message.card?.evidence?.safety_items ?? []} />
             )}
           </div>
         )}

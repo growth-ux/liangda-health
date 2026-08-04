@@ -988,6 +988,45 @@ def test_langchain_agent_stream_attaches_collected_evidence_to_card(monkeypatch)
     assert card_payloads[0]["evidence"]["content_items"][0]["type"] == "report_fact"
 
 
+def test_langchain_agent_stream_emits_fallback_evidence_card_when_respond_missing(monkeypatch):
+    """模型没调 respond 直接文本收尾时，stream 结束前补发只带证据链的空卡，保证前端 tab 可见。"""
+    from langchain_core.messages import AIMessageChunk
+    from app.schemas.agent_response import EvidenceItem
+    from app.services.agent_evidence import AgentEvidenceCollector
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(content="直接文本收尾"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = LangChainAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    # 没有证据时不补卡
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+    assert [kind for kind, _ in events] == ["delta"]
+
+    collector = AgentEvidenceCollector()
+    collector.add_product(
+        EvidenceItem(
+            type="product",
+            title="低钠盐",
+            excerpt="契合低钠方向",
+            source_id="prod_1",
+            source_label="商城标签匹配",
+        )
+    )
+    runner._evidence_collector = collector
+    monkeypatch.setattr(runner, "_attach_evidence_collector", lambda: collector)
+
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+    card_payloads = [payload for kind, payload in events if kind == "card"]
+
+    assert len(card_payloads) == 1
+    assert card_payloads[0]["summary_text"] == ""
+    assert card_payloads[0]["evidence"]["product_items"][0]["type"] == "product"
+
+
 def test_langchain_agent_run_attaches_collected_content_and_product_evidence(monkeypatch):
     from langchain_core.messages import AIMessage, ToolMessage
     from app.schemas.agent_response import EvidenceItem

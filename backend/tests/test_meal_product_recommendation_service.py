@@ -112,6 +112,64 @@ def test_recommend_family_products_filters_any_member_allergy(db_session):
     assert not any("酱油" in name or "生抽" in name for name in names)
 
 
+def test_recommend_records_blocked_items_for_allergy(db_session):
+    """过敏原拦截不能静默丢弃：要在 blocked_items 里留下商品和拦截原因。"""
+    _add_member(db_session, allergies="soy")
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+
+    result = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：豆腐青菜。",
+        limit=5,
+    )
+
+    assert result["is_error"] is False
+    blocked = result["blocked_items"]
+    assert blocked, "豆制品应当被 soy 过敏原拦截并记录"
+    assert all("过敏原" in item["reason"] and "李建国" in item["reason"] for item in blocked)
+    recommended_ids = {item["product_id"] for item in result["items"]}
+    assert not recommended_ids & {item["product_id"] for item in blocked}
+
+
+def test_recommend_records_blocked_items_for_health_taboo(db_session):
+    """健康禁忌（痛风避酒）拦截要在 blocked_items 里归因到具体家人。"""
+    member = Member(
+        member_id="mem_uncle",
+        name="王建军",
+        relation="叔叔",
+        gender="男",
+        birth_year=1965,
+        health_tags=json.dumps(["痛风"], ensure_ascii=False),
+        allergies=None,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+    )
+    db_session.add(member)
+    db_session.commit()
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+
+    result = service.recommend(
+        scope="member",
+        member_id="mem_uncle",
+        meal_plan_text="晚餐：杂粮饭 + 青菜。",
+        limit=5,
+    )
+
+    assert result["is_error"] is False
+    blocked = result["blocked_items"]
+    assert blocked, "痛风成员推荐时应记录被「酒」禁忌拦截的商品"
+    for item in blocked:
+        assert "酒" in item["name"]
+        assert "王建军" in item["reason"] and "禁忌" in item["reason"]
+    recommended_ids = {item["product_id"] for item in result["items"]}
+    assert not recommended_ids & {item["product_id"] for item in blocked}
+
+
 def test_recommend_rejects_missing_member_id(db_session):
     service = MealProductRecommendationService(db_session)
 

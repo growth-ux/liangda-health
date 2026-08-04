@@ -5,6 +5,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
 from app.services.llm_logging import log_llm_request
@@ -49,6 +50,7 @@ class LangChainMealPlanGenerator:
 class MealPlanService:
     def __init__(self, db: Session, memory_service=None, generator=None):
         self.profile_service = HealthProfileService(db, memory_service=memory_service)
+        self.kb_repository = SqlAlchemyKbRepository(db)
         self.generator = generator or LangChainMealPlanGenerator()
 
     def build(
@@ -144,19 +146,20 @@ class MealPlanService:
                 break
         return items
 
-    @staticmethod
-    def _report_fact_items(facts, *, member_name: str, limit: int) -> list[EvidenceItem]:
+    def _report_fact_items(self, facts, *, member_name: str, limit: int) -> list[EvidenceItem]:
         items: list[EvidenceItem] = []
         for fact in facts:
             if fact.status not in {"warning", "danger"}:
                 continue
+            document = self.kb_repository.get_document(fact.source_document_id)
+            doc_label = document.file_name if document is not None else fact.source_document_id
             items.append(
                 EvidenceItem(
                     type="report_fact",
                     title=f"{member_name}·{fact.name}",
                     excerpt=_truncate_text(f"{fact.name}：{fact.evidence_text}", max_length=180),
                     source_id=fact.fact_id,
-                    source_label=f"{fact.source_document_id} p{fact.source_page_no}",
+                    source_label=f"{doc_label} p{fact.source_page_no}",
                 )
             )
             if len(items) >= limit:

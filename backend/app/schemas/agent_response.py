@@ -50,7 +50,7 @@ class GreetingPayload(BaseModel):
 
 # ===== 健康解读 payload =====
 
-EvidenceType = Literal["report_fact", "device", "memory", "product"]
+EvidenceType = Literal["report_fact", "device", "memory", "product", "safety_block"]
 
 
 class EvidenceItem(BaseModel):
@@ -64,6 +64,8 @@ class EvidenceItem(BaseModel):
 class MessageEvidence(BaseModel):
     content_items: list[EvidenceItem] = Field(default_factory=list)
     product_items: list[EvidenceItem] = Field(default_factory=list)
+    # 安全红线拦截记录：推荐过程中被过敏原/健康禁忌拦下的商品及原因
+    safety_items: list[EvidenceItem] = Field(default_factory=list)
 
 
 class SuggestionItem(BaseModel):

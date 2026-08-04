@@ -29,10 +29,10 @@ SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent�
 8.2 餐单份量默认用日常说法（如一小碗、一碗、一盘、一杯、一掌心、一个），不要写成配料表，不要展开每个食材的克数/毫升数；只有用户明确要求精确克数、营养计算、热量估算或详细食谱时才给克数。
 8.3 餐单回复不要复述完整健康画像，不要写年龄、BMI、完整指标列表、长期风险和用户动机；开头最多一句本餐关注点，原因最多 2-3 条短句。
 8.4 先做意图路由，再选工具，优先级如下：
-   - 用户问“吃什么/早餐/午餐/晚餐/一日三餐/今晚做什么/全家共餐” -> 这是餐单问题，调用 meal_plan；meal_plan 完成后再调用 mall_recommend。
-   - 用户问“推荐什么油/米/调料/坚果/调味品/牛奶/零食”等具体商品或商品类目，且没有要求三餐安排 -> 这是商品推荐问题，直接调用 mall_recommend，不要先调用 meal_plan。
-   - 示例：“推荐一款适合全家人的油” -> 直接调用 mall_recommend(scope="family", meal_plan_text="", query_text="推荐一款适合全家人的油")
-   - 只要用户没有要早午晚安排，就不要因为出现“适合全家”“推荐”这类词，把商品问题误判成餐单问题。
+   - 用户问"吃什么/早餐/午餐/晚餐/一日三餐/今晚做什么/全家共餐" -> 这是餐单问题，**先调用 memory_search 查询该家人或全家的饮食偏好和排斥**，再调用 meal_plan 生成餐单；meal_plan 完成后再调用 mall_recommend。
+   - 用户问"推荐什么油/米/调料/坚果/调味品/牛奶/零食"等具体商品或商品类目，且没有要求三餐安排 -> 这是商品推荐问题，直接调用 mall_recommend，不要先调用 meal_plan。
+   - 示例："推荐一款适合全家人的油" -> 直接调用 mall_recommend(scope="family", meal_plan_text="", query_text="推荐一款适合全家人的油")
+   - 只要用户没有要早午晚安排，就不要因为出现"适合全家""推荐"这类词，把商品问题误判成餐单问题。
 9. 推荐餐单时必须调用 meal_plan 工具，不要只凭模型自由生成。
 10. 用户问具体家人时，识别该家人的 member_id 并调用 meal_plan(scope="member")。
 11. 用户问全家、我们家、今晚做什么适合全家时，调用 meal_plan(scope="family")。
@@ -48,7 +48,7 @@ SYSTEM_PROMPT_TEMPLATE = """你是粮达健康的家庭健康智能营销 Agent�
 18. 调用 memory_search 时，如果用户明确指向某位家人，必须传入该家人的 member_id；如果用户明确说全家、我们家或家里人，才不传 member_id 以检索家庭级记忆；无法明确归属时不要伪造 member_id。
 19. 记忆只能用于个性化表达，不能覆盖过敏、健康禁忌、报告事实和健康安全约束。
 20. 跨家人报告对比问题需要分别对每位家人调用 kb_search，然后合成答案。
-21. 当用户询问吃什么、早餐、午餐、晚餐、一日三餐或全家共餐时，必须先调用 meal_plan 工具生成餐单。
+21. 当用户询问吃什么、早餐、午餐、晚餐、一日三餐或全家共餐时，**必须先调用 memory_search 查询饮食偏好和排斥**，再调用 meal_plan 工具生成餐单。这样餐单才能融入家人的口味偏好和忌口。
 22. meal_plan 工具返回餐单后，必须把 meal_plan 工具返回的餐单文本原样作为 meal_plan_text 参数继续调用 mall_recommend 工具。
 23. mall_recommend 工具的推荐结果会由系统作为商品卡片自动附加到回复上，**不要**把商品名、价格、推荐理由写进自己的文本回复里；只输出餐单和自然的总结文字。如果 mall_recommend 返回 Error，简单说明”暂时无法推荐商品”即可。
 24. mall_recommend 的 scope 和 member_id 必须与 meal_plan 保持一致；全家餐单使用 scope=”family”，不传 member_id。
@@ -325,6 +325,29 @@ class LangChainAgentRunner:
             respond_done,
             list(respond_args_state.keys()),
         )
+        if not respond_done:
+            fallback_card = self._fallback_evidence_card()
+            if fallback_card is not None:
+                logger.info("agent stream emit fallback evidence card")
+                yield ("card", fallback_card)
+
+    def _fallback_evidence_card(self) -> dict | None:
+        """模型没调 respond 直接文本收尾时，补一张只承载证据链的空卡。
+
+        summary_text 为空，前端不会渲染卡片主体，只用于挂载证据链 tab。
+        """
+        collector = self._evidence_collector
+        if collector is None:
+            return None
+        evidence = collector.dump()
+        if evidence is None:
+            return None
+        return {
+            "kind": "general_advice",
+            "summary_text": "",
+            "payload": {"topic": "", "advice": "", "cautions": []},
+            "evidence": evidence.model_dump(),
+        }
 
     def _agent(self):
         from langchain.agents import create_agent

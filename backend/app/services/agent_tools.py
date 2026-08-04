@@ -64,7 +64,7 @@ class KbSearchTool:
         parts = []
         for index, chunk in enumerate(chunks, start=1):
             document = self.repository.get_document(chunk.document_id)
-            title = document.title or document.file_name if document is not None else chunk.document_id
+            title = (document.title or document.file_name) if document is not None else chunk.document_id
             parts.append(
                 f"[报告片段 {index}]\n"
                 f"文档：{title}\n"
@@ -75,14 +75,14 @@ class KbSearchTool:
         if self.evidence_collector is not None and chunks:
             first_chunk = chunks[0]
             document = self.repository.get_document(first_chunk.document_id)
-            title = document.title or document.file_name if document is not None else first_chunk.document_id
+            title = (document.title or document.file_name) if document is not None else first_chunk.document_id
             self.evidence_collector.add_content(
                 EvidenceItem(
                     type="report_fact",
-                    title=title,
+                    title=title[:80] if title else first_chunk.document_id,
                     excerpt=_normalize_evidence_excerpt(first_chunk.content, max_length=180),
                     source_id=first_chunk.chunk_id,
-                    source_label=f"{title} p{first_chunk.page_no}" if document is not None else first_chunk.document_id,
+                    source_label=f"{document.file_name} p{first_chunk.page_no}" if document is not None else first_chunk.document_id,
                 )
             )
         logger.info("kb_search done member_id=%s hit_count=%s chunk_count=%s", member_id, len(hits), len(chunks))
@@ -212,12 +212,28 @@ class MallRecommendTool:
                         source_label=item.get("evidence_source") or "商城标签匹配",
                     )
                 )
+            # 安全红线拦截记录：让评委/用户看见哪些商品被过敏原和健康禁忌挡掉了
+            for blocked in result.get("blocked_items") or []:
+                title = (blocked.get("name") or "未知商品").strip() or "未知商品"
+                excerpt = _normalize_evidence_excerpt(blocked.get("reason") or "安全红线拦截")
+                if not excerpt:
+                    excerpt = "安全红线拦截"
+                self.evidence_collector.add_safety_block(
+                    EvidenceItem(
+                        type="safety_block",
+                        title=title[:80],
+                        excerpt=excerpt,
+                        source_id=f"blocked:{blocked.get('product_id', 'unknown')}",
+                        source_label="安全红线拦截",
+                    )
+                )
         payload = json.dumps(result, ensure_ascii=False)
         logger.info(
-            "mall_recommend done scope=%s member_id=%s item_count=%s is_error=%s",
+            "mall_recommend done scope=%s member_id=%s item_count=%s blocked_count=%s is_error=%s",
             scope,
             member_id,
             len(result.get("items") or []),
+            len(result.get("blocked_items") or []),
             result.get("is_error"),
         )
         return payload

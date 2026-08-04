@@ -2026,6 +2026,34 @@ select {
   background: #ffedd5;
 }
 
+/* 安全红线拦截：红色警示风格，与正向依据区分 */
+.evidence-item-type.type-safety_block {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.evidence-actions-row button.safety {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.evidence-actions-row button.safety:hover,
+.evidence-actions-row button.safety.active {
+  color: #ffffff;
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.chat-evidence-modal-tabs button.safety {
+  color: #b91c1c;
+}
+
+.chat-evidence-modal-tabs button.safety.active {
+  color: #ffffff;
+  background: #dc2626;
+}
+
 .evidence-item-title {
   font-size: 13px;
   font-weight: 600;
