@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from app.api.agent import router as agent_router
+from app.api.dashboard import router as dashboard_router
 from app.api.device import router as device_router
 from app.api.health_analysis import router as health_analysis_router
 from app.api.kb import router as kb_router
@@ -116,6 +117,7 @@ def create_app(session_factory: Callable[[], object] = SessionLocal) -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(agent_router)
+    app.include_router(dashboard_router)
     app.include_router(device_router)
     app.include_router(health_analysis_router)
     app.include_router(kb_router)

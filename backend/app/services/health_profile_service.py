@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.models.device import DeviceDailyMetric
 from app.models.health_fact import HealthFact
 from app.models.member import Member
@@ -71,7 +72,12 @@ class HealthProfileService:
         return self._build_member_profile(member)
 
     def get_family_profile(self) -> FamilyHealthProfile:
-        members = self.db.query(Member).order_by(Member.created_at.desc(), Member.id.desc()).all()
+        members = (
+            self.db.query(Member)
+            .filter(real_only(Member.member_id))
+            .order_by(Member.created_at.desc(), Member.id.desc())
+            .all()
+        )
         profiles = [self._build_member_profile(member) for member in members]
         family_memory = self._memory_groups("全家 饮食 偏好 排斥 阶段目标 购买反馈")
         shared_risks = _unique(item for profile in profiles for item in profile.long_term_risks)

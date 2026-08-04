@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.db.session import get_db
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
@@ -37,7 +38,7 @@ def get_mall_home(db: Session = Depends(get_db)):
     health_zones = repo.list_zones(zone_type="health")
     categories = repo.list_zones(zone_type="category")
 
-    members = db.query(Member).all()
+    members = db.query(Member).filter(real_only(Member.member_id)).all()
 
     family_recommendations = build_member_recommendations(members, products)
     family_universal = build_family_recommendation(members, products)
@@ -171,7 +172,7 @@ def get_mall_product(product_id: str, db: Session = Depends(get_db)):
         for p in related
     ]
 
-    members = db.query(Member).all()
+    members = db.query(Member).filter(real_only(Member.member_id)).all()
     best_member, recommend_reason = find_best_member_for_product(members, product)
     if recommend_reason is None:
         recommend_reason = "该商品适合全家日常健康饮食，本推荐不构成医疗建议。"

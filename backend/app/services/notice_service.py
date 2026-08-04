@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.models.device import DeviceDailyMetric
 from app.models.kb import KbDocument
 from app.models.member import Member
@@ -91,7 +92,7 @@ class NoticeService:
 
     def _generate_device_notices(self) -> bool:
         created = False
-        for member in self.db.query(Member).all():
+        for member in self.db.query(Member).filter(real_only(Member.member_id)).all():
             metrics = (
                 self.db.query(DeviceDailyMetric)
                 .filter(DeviceDailyMetric.member_id == member.member_id)
@@ -147,7 +148,7 @@ class NoticeService:
         created = False
         today = date.today()
         stale_before = today - timedelta(days=183)
-        for member in self.db.query(Member).all():
+        for member in self.db.query(Member).filter(real_only(Member.member_id)).all():
             latest_document = (
                 self.db.query(KbDocument)
                 .filter(KbDocument.member_id == member.member_id)
@@ -184,7 +185,7 @@ class NoticeService:
     def _generate_recommendation_notices(self) -> bool:
         created = False
         today = date.today().isoformat()
-        for member in self.db.query(Member).all():
+        for member in self.db.query(Member).filter(real_only(Member.member_id)).all():
             tags = self._health_tags(member.health_tags)
             if not self._has_recommendation_tag(tags):
                 continue
@@ -281,7 +282,10 @@ class NoticeService:
         return None
 
     def _member_map(self) -> dict[str, Member]:
-        return {member.member_id: member for member in self.db.query(Member).all()}
+        return {
+            member.member_id: member
+            for member in self.db.query(Member).filter(real_only(Member.member_id)).all()
+        }
 
     @staticmethod
     def _health_tags(raw: str | None) -> list[str]:

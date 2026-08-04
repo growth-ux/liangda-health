@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.core.time import utc_now
 from app.models.kb import KbDocument
 from app.models.member import Member
@@ -44,7 +45,12 @@ class SqlAlchemyMemberRepository:
         return self._to_detail(member)
 
     def list_members(self) -> list[MemberListItem]:
-        members = self.db.query(Member).order_by(Member.created_at.desc()).all()
+        members = (
+            self.db.query(Member)
+            .filter(real_only(Member.member_id))
+            .order_by(Member.created_at.desc())
+            .all()
+        )
         member_ids = [member.member_id for member in members]
         documents_by_member = self._documents_by_member(member_ids)
 

@@ -2,6 +2,7 @@ import {
   BarChart3,
   Bell,
   Cpu,
+  Landmark,
   MessageCircle,
   Search,
   ShoppingBag,
@@ -25,7 +26,8 @@ const navItems = [
   { id: 'mall', icon: ShoppingBag, label: '商城', href: '/mall' },
   { id: 'members', icon: Users, label: '家人', href: '/members' },
   { id: 'device', icon: Cpu, label: '手环', href: '/devices' },
-  { id: 'notice', icon: Bell, label: '通知', href: '/notice' }
+  { id: 'notice', icon: Bell, label: '通知', href: '/notice' },
+  { id: 'dashboard', icon: Landmark, label: '集团看板', href: '/dashboard' }
 ];
 
 export function AppShell({ title, activeId, children }: Props) {

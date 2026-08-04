@@ -39,13 +39,18 @@ class FakeQuery:
 
 
 def _matches_filter(item, condition):
+    from sqlalchemy.sql import operators
+    # core.demo 的 real_only 条件：not like 演示前缀，按前缀语义模拟。
+    if getattr(condition, "operator", None) is operators.not_like_op:
+        actual = str(getattr(item, condition.left.key, None) or "")
+        pattern = getattr(condition.right, "value", "")
+        return not actual.startswith(pattern.rstrip("%"))
     left = getattr(condition, "left", None)
     right = getattr(condition, "right", None)
     if left is None or right is None:
         return True
     actual = getattr(item, left.key, None)
     expected = getattr(right, "value", right)
-    from sqlalchemy.sql import operators
     if getattr(condition, "operator", None) is operators.in_op:
         return actual in expected
     return actual == expected

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.models.member import Member
@@ -122,7 +123,12 @@ class SqlAlchemyKbRepository:
         self.db.commit()
 
     def list_documents(self) -> list[KbDocument]:
-        documents = self.db.query(KbDocument).order_by(KbDocument.created_at.desc()).all()
+        documents = (
+            self.db.query(KbDocument)
+            .filter(real_only(KbDocument.document_id))
+            .order_by(KbDocument.created_at.desc())
+            .all()
+        )
         self._attach_member_info(documents)
         return documents
 

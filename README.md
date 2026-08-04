@@ -158,6 +158,7 @@ npm run dev
 - `/mall`、`/mall/products`、`/mall/products/:productId`、`/mall/cart`：商城首页、商品列表、详情、购物车。
 - `/devices`：设备近期状态。
 - `/notice`：通知中心。
+- `/dashboard`：集团经营驾驶舱（深色大屏）：健康资产规模、预估转化金额、品牌转化矩阵、品类渗透、推荐转化漏斗、AI 用量，演示数据可用种子脚本注入。
 
 ## 后端 API 概览
 
@@ -169,6 +170,7 @@ npm run dev
 - `/api/agent`：会话、消息、流式发送、快捷操作。
 - `/api/mall`：商城首页、商品、购物车。
 - `/api/notices`：通知列表、摘要、已读、稍后提醒、完成。
+- `GET /api/admin/dashboard`：集团经营看板聚合数据（只读，纯 SQL 聚合）。
 
 ## 常用验证
 
@@ -188,6 +190,15 @@ PYTHONPATH=backend python backend/scripts/verify_real_services.py
 PYTHONPATH=backend python backend/scripts/verify_agent_chat.py
 PYTHONPATH=backend python backend/scripts/verify_agent_chat_stream.py
 PYTHONPATH=backend python backend/scripts/verify_agent_chat_with_report.py
+```
+
+集团经营看板演示数据（仅演示用，不新增表，全部带 `demo_dash_` 前缀可清理）：
+
+```bash
+cd backend
+python -m app.scripts.seed_dashboard_demo           # 轻量：近 14 天演示会话/推荐/加购
+python -m app.scripts.seed_dashboard_demo --full    # 完整：额外注入家庭规模健康资产（约 150 成员/220 报告/1000 事实）
+python -m app.scripts.seed_dashboard_demo --reset   # 清理全部演示数据并清空购物车
 ```
 
 ## Milvus 向量库重建

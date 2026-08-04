@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.core.time import utc_now
 from app.models.agent import AgentMessage, AgentSession
 
@@ -25,7 +26,12 @@ class SqlAlchemyAgentRepository:
         return session
 
     def list_sessions(self) -> list[AgentSession]:
-        return self.db.query(AgentSession).order_by(AgentSession.updated_at.desc()).all()
+        return (
+            self.db.query(AgentSession)
+            .filter(real_only(AgentSession.session_id))
+            .order_by(AgentSession.updated_at.desc())
+            .all()
+        )
 
     def get_session(self, session_id: str) -> AgentSession | None:
         return self.db.query(AgentSession).filter(AgentSession.session_id == session_id).one_or_none()

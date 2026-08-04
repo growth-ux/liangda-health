@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_only
 from app.models.mall import MallProduct
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
@@ -118,7 +119,7 @@ class MealProductRecommendationService:
             recs, blocked = self._recommend_for_member(profile, member, meal_plan_text, query_text, limit)
         elif scope == "family":
             profile = self.profile_service.get_family_profile()
-            members = self.db.query(Member).all()
+            members = self.db.query(Member).filter(real_only(Member.member_id)).all()
             recs, blocked = self._recommend_for_family(profile, members, meal_plan_text, query_text, limit)
         else:
             return {"items": [], "blocked_items": [], "is_error": True, "error": "scope 只能是 member 或 family"}

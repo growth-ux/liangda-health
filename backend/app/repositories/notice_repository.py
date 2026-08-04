@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from app.core.demo import real_member_or_null
 from app.core.time import utc_now
 from app.models.notice import Notice
 
@@ -54,7 +55,7 @@ class SqlAlchemyNoticeRepository:
         return notice
 
     def list_notices(self, category: str | None = None) -> list[Notice]:
-        query = self.db.query(Notice)
+        query = self.db.query(Notice).filter(real_member_or_null(Notice.member_id))
         if category:
             query = query.filter(Notice.category == category)
         return query.order_by(Notice.created_at.desc(), Notice.id.desc()).all()
@@ -63,13 +64,17 @@ class SqlAlchemyNoticeRepository:
         return self.db.query(Notice).filter(Notice.notice_id == notice_id).one_or_none()
 
     def count_by_category(self, category: str | None = None) -> int:
-        query = self.db.query(Notice)
+        query = self.db.query(Notice).filter(real_member_or_null(Notice.member_id))
         if category:
             query = query.filter(Notice.category == category)
         return query.count()
 
     def unread_count(self) -> int:
-        return self.db.query(Notice).filter(Notice.status == "unread").count()
+        return (
+            self.db.query(Notice)
+            .filter(real_member_or_null(Notice.member_id), Notice.status == "unread")
+            .count()
+        )
 
     def update_status(self, notice_id: str, status: str) -> Notice | None:
         notice = self.get_notice(notice_id)
@@ -82,7 +87,11 @@ class SqlAlchemyNoticeRepository:
         return notice
 
     def mark_all_read(self) -> int:
-        notices = self.db.query(Notice).filter(Notice.status == "unread").all()
+        notices = (
+            self.db.query(Notice)
+            .filter(real_member_or_null(Notice.member_id), Notice.status == "unread")
+            .all()
+        )
         now = utc_now()
         for notice in notices:
             notice.status = "read"
