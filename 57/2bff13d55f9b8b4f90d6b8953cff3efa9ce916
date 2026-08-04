@@ -1,0 +1,26 @@
+AGENTS.md
+  h_7549b7dc6a6921 7
+frontend/src/main.tsx
+  s_9cb32222617cd8::t_f166c6ba124d6a 18,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.19",
+  "base_commit_sha": "572bff13d55f9b8b4f90d6b8953cff3efa9ce916",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_9cb32222617cd8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fcb67-5433-71a0-a9a8-e8a873bc2b05",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
