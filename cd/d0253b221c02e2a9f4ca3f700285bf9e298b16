@@ -1,0 +1,16 @@
+backend/app/services/agent_service.py
+  h_7549b7dc6a6921 117-119
+backend/app/api/agent.py
+  h_7549b7dc6a6921 22,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "cdd0253b221c02e2a9f4ca3f700285bf9e298b16",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
