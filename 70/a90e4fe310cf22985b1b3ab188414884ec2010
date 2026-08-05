@@ -1,0 +1,14 @@
+backend/app/services/langchain_agent.py
+  h_7549b7dc6a6921 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "70a90e4fe310cf22985b1b3ab188414884ec2010",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
