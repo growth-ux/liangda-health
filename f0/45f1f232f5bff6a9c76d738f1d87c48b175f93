@@ -1,0 +1,20 @@
+frontend/src/api/agent.ts
+  h_7549b7dc6a6921 43-48,55,144
+frontend/src/components/chat/AgentTeamStrip.tsx
+  h_7549b7dc6a6921 1-57
+frontend/src/pages/ChatPage.tsx
+  h_7549b7dc6a6921 18-19,49-50,193-195,215,226,280-281,319
+frontend/src/styles.css
+  h_7549b7dc6a6921 5431-5475
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f045f1f232f5bff6a9c76d738f1d87c48b175f93",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
