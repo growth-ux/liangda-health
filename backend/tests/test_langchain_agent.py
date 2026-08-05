@@ -4,7 +4,7 @@ import pytest
 
 from app.core.config import settings
 from app.services.langchain_agent import (
-    LangChainAgentRunner,
+    BaseAgentRunner,
     LlmConfigError,
     _build_members_block,
     _format_summary_text,
@@ -71,7 +71,7 @@ class FakeMember:
 def test_langchain_agent_registers_kb_search_tool(monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
     kb_tool = FakeKbTool()
-    runner = LangChainAgentRunner(kb_tool=kb_tool)
+    runner = BaseAgentRunner(kb_tool=kb_tool)
 
     tools = runner._tools()
     result = tools[0]("这份报告有什么异常？", member_id="mem_1", top_k=3)
@@ -83,7 +83,7 @@ def test_langchain_agent_registers_kb_search_tool(monkeypatch):
 def test_langchain_agent_registers_meal_plan_tool(monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
     meal_plan_tool = FakeMealPlanTool()
-    runner = LangChainAgentRunner(meal_plan_tool=meal_plan_tool)
+    runner = BaseAgentRunner(meal_plan_tool=meal_plan_tool)
 
     tools = runner._tools()
     result = tools[0](scope="family", member_id=None, goal="清淡", meal_type="day")
@@ -95,7 +95,7 @@ def test_langchain_agent_registers_meal_plan_tool(monkeypatch):
 def test_langchain_agent_registers_memory_search_tool(monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
     memory_tool = FakeMemoryTool()
-    runner = LangChainAgentRunner(memory_tool=memory_tool)
+    runner = BaseAgentRunner(memory_tool=memory_tool)
 
     tools = runner._tools()
     result = tools[0](query="爸爸 饮食 排斥", member_id="mem_dad", limit=3)
@@ -108,7 +108,7 @@ def test_langchain_agent_registers_mall_recommend_tool_returns_structured_dict(m
     """LangChain 工具 wrapper 把 service 的 dict 直接返回给 runner（runner 自己负责后续结构化）。"""
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
     mall_tool = FakeMallRecommendTool()
-    runner = LangChainAgentRunner(mall_recommend_tool=mall_tool)
+    runner = BaseAgentRunner(mall_recommend_tool=mall_tool)
 
     tools = runner._tools()
     result = tools[0](scope="member", member_id="mem_dad", meal_plan_text="晚餐：低钠杂粮饭", limit=2)
@@ -122,14 +122,14 @@ def test_langchain_agent_registers_mall_recommend_tool_returns_structured_dict(m
 
 def test_langchain_agent_requires_api_key(monkeypatch):
     monkeypatch.setattr(settings, "llm_api_key", None)
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     with pytest.raises(LlmConfigError, match="未配置模型 API Key"):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
 def test_langchain_agent_system_prompt_prefers_daily_portions():
-    prompt = LangChainAgentRunner()._system_prompt()
+    prompt = BaseAgentRunner()._system_prompt()
 
     assert "餐单份量默认用日常说法" in prompt
     assert "不要写成配料表" in prompt
@@ -181,7 +181,7 @@ def test_langchain_agent_stream_emits_summary_text_deltas_from_respond_tool_call
             yield chunk2, {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     deltas = [p for k, p in runner.stream([{"role": "user", "content": "x"}]) if k == "delta"]
@@ -209,7 +209,7 @@ def test_langchain_agent_stream_summary_delta_preserves_markdown_and_chinese(mon
             ), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     deltas = [p for k, p in runner.stream([{"role": "user", "content": "x"}]) if k == "delta"]
@@ -249,7 +249,7 @@ def test_langchain_agent_stream_extracts_card_when_respond_id_appears_late(monke
             yield ToolMessage(content="ok", tool_call_id="call_9", name="respond"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "晚餐吃什么"}]))
@@ -292,7 +292,7 @@ def test_langchain_agent_stream_extracts_card_when_respond_chunks_switch_from_in
             yield ToolMessage(content="ok", tool_call_id="call_11", name="respond"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "晚餐吃什么"}]))
@@ -327,7 +327,7 @@ def test_langchain_agent_stream_extracts_card_from_additional_kwargs_tool_calls(
             yield ToolMessage(content="ok", tool_call_id="call_10", name="respond"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
@@ -376,7 +376,7 @@ def test_langchain_agent_stream_emits_structured_events(monkeypatch):
             yield AIMessageChunk(content="爸爸报告里的转氨酶正常。"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "今晚做什么适合全家"}]))
@@ -404,7 +404,7 @@ def test_langchain_agent_stream_skips_mall_recommend_error_payload(monkeypatch):
             yield AIMessageChunk(content="暂时无法推荐商品。"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "给我爸爸推荐点商品"}]))
@@ -456,7 +456,7 @@ def test_langchain_agent_run_extracts_product_recommendations(monkeypatch):
             }
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     result = runner.run([{"role": "user", "content": "今晚做什么适合全家"}])
@@ -466,7 +466,7 @@ def test_langchain_agent_run_extracts_product_recommendations(monkeypatch):
 
 
 def test_langchain_agent_does_not_duplicate_system_prompt():
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     messages = runner._to_langchain_messages([{"role": "user", "content": "报告怎么看？"}])
 
@@ -477,7 +477,7 @@ def test_langchain_agent_does_not_duplicate_system_prompt():
 def test_langchain_agent_kb_context_is_noop_now_that_llm_drives_search():
     """_append_kb_context is a no-op; the LLM now calls kb_search as a tool with member_id."""
     kb_tool = FakeKbTool()
-    runner = LangChainAgentRunner(kb_tool=kb_tool)
+    runner = BaseAgentRunner(kb_tool=kb_tool)
 
     messages = runner._append_kb_context(
         [
@@ -537,7 +537,7 @@ def test_build_members_block_duplicate_relation_says_ask():
 
 
 def test_runner_system_prompt_includes_member_list():
-    runner = LangChainAgentRunner(
+    runner = BaseAgentRunner(
         member_provider=lambda: [FakeMember("mem_1", "张三", "本人")],
     )
 
@@ -554,7 +554,7 @@ def test_runner_system_prompt_includes_member_list():
 
 
 def test_runner_system_prompt_empty_when_no_members():
-    runner = LangChainAgentRunner(member_provider=lambda: [])
+    runner = BaseAgentRunner(member_provider=lambda: [])
 
     prompt = runner._system_prompt()
 
@@ -562,7 +562,7 @@ def test_runner_system_prompt_empty_when_no_members():
 
 
 def test_runner_system_prompt_includes_memory_rules():
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     prompt = runner._system_prompt()
 
@@ -572,7 +572,7 @@ def test_runner_system_prompt_includes_memory_rules():
 
 
 def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     prompt = runner._system_prompt()
 
@@ -584,7 +584,7 @@ def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
 
 
 def test_runner_system_prompt_routes_category_product_queries_to_mall_recommend():
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     prompt = runner._system_prompt()
 
@@ -596,7 +596,7 @@ def test_runner_system_prompt_routes_category_product_queries_to_mall_recommend(
 def test_langchain_agent_registers_respond_tool(monkeypatch):
     """respond 工具的 schema 来自 StructuredResponse.model_json_schema()，且必含 kind/summary_text/payload。"""
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     tools = runner._tools()
     respond = next(t for t in tools if t.name == "respond")
@@ -617,7 +617,7 @@ def test_langchain_agent_registers_respond_tool(monkeypatch):
 def test_langchain_agent_respond_tool_callable(monkeypatch):
     """respond 工具被 LLM 调用时直接返回 'ok'（payload 在 tool_call args 里，不在 result 里）。"""
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
 
     tools = runner._tools()
     respond = next(t for t in tools if t.name == "respond")
@@ -653,7 +653,7 @@ def test_langchain_agent_stream_emits_card_event_for_respond(monkeypatch):
             ), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
@@ -688,7 +688,7 @@ def test_langchain_agent_stream_extracts_card_from_respond_tool_call_args(monkey
             yield ToolMessage(content="ok", tool_call_id="call_1", name="respond"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "早餐吃什么"}]))
@@ -724,7 +724,7 @@ def test_langchain_agent_stream_uses_generic_card_when_payload_shape_invalid(mon
             yield ToolMessage(content="ok", tool_call_id="call_1", name="respond"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "爸爸今晚吃什么"}]))
@@ -749,7 +749,7 @@ def test_langchain_agent_stream_raises_on_invalid_respond_without_summary(monkey
             ), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     with pytest.raises(ResponseSchemaError):
@@ -778,7 +778,7 @@ def test_langchain_agent_stream_drops_aimessage_after_respond(monkeypatch):
             yield AIMessageChunk(content="这段不该给用户看到"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "x"}]))
@@ -812,7 +812,7 @@ def test_langchain_agent_stream_stops_after_first_valid_respond(monkeypatch):
             yield AIMessageChunk(content="这段不应被消费"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     events = list(runner.stream([{"role": "user", "content": "x"}]))
@@ -847,7 +847,7 @@ def test_langchain_agent_run_extracts_card(monkeypatch):
             }
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     result = runner.run([{"role": "user", "content": "早餐"}])
@@ -883,7 +883,7 @@ def test_langchain_agent_run_extracts_card_from_respond_tool_call_args(monkeypat
             }
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     result = runner.run([{"role": "user", "content": "早餐"}])
@@ -903,7 +903,7 @@ def test_langchain_agent_run_raises_when_no_respond(monkeypatch):
             return {"messages": [AIMessage(content="直接说话没用")]}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     with pytest.raises(ResponseSchemaError):
@@ -928,7 +928,7 @@ def test_langchain_agent_run_raises_on_invalid_respond_payload(monkeypatch):
             }
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     with pytest.raises(ResponseSchemaError):
@@ -937,7 +937,7 @@ def test_langchain_agent_run_raises_on_invalid_respond_payload(monkeypatch):
 
 def test_runner_system_prompt_requires_respond_tool():
     """system_prompt 必须明确要求 LLM 调用 respond 工具才算完成回复。"""
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     prompt = runner._system_prompt()
     assert "respond" in prompt
     assert "必须调用" in prompt or "只能通过" in prompt
@@ -945,7 +945,7 @@ def test_runner_system_prompt_requires_respond_tool():
 
 def test_runner_system_prompt_documents_kinds():
     """system_prompt 必须列出 5 个 kind 的选择规则。"""
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     prompt = runner._system_prompt()
     for kind in ["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]:
         assert kind in prompt
@@ -964,7 +964,7 @@ def test_langchain_agent_stream_attaches_collected_evidence_to_card(monkeypatch)
             ), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     from app.services.agent_evidence import AgentEvidenceCollector
@@ -999,7 +999,7 @@ def test_langchain_agent_stream_emits_fallback_evidence_card_when_respond_missin
             yield AIMessageChunk(content="直接文本收尾"), {}
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     # 没有证据时不补卡
@@ -1050,7 +1050,7 @@ def test_langchain_agent_run_attaches_collected_content_and_product_evidence(mon
             }
 
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
-    runner = LangChainAgentRunner()
+    runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
     collector = AgentEvidenceCollector()

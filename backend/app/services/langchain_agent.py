@@ -131,7 +131,9 @@ _RESPOND_TOOL = _respond.from_function(
 )
 
 
-class LangChainAgentRunner:
+class BaseAgentRunner:
+    SYSTEM_PROMPT_TEMPLATE = SYSTEM_PROMPT_TEMPLATE
+
     def __init__(
         self,
         kb_tool=None,
@@ -149,7 +151,7 @@ class LangChainAgentRunner:
 
     def _system_prompt(self) -> str:
         members = self.member_provider()
-        return SYSTEM_PROMPT_TEMPLATE.format(members_block=_build_members_block(members))
+        return self.SYSTEM_PROMPT_TEMPLATE.format(members_block=_build_members_block(members))
 
     def _ensure_api_key(self) -> None:
         if not settings.llm_api_key:
@@ -208,7 +210,7 @@ class LangChainAgentRunner:
             if response_message.response_metadata
             else {}
         )
-        product_recs = _extract_product_recommendations(response["messages"])
+        product_recs = self._extract_products(response["messages"])
         card = _extract_card(response["messages"])
         if card is None:
             logger.warning("agent run no respond tool call in messages; raising")
@@ -233,6 +235,9 @@ class LangChainAgentRunner:
         )
         return result
 
+    def _extract_products(self, messages) -> dict | None:
+        return _extract_product_recommendations(messages)
+
     def stream(self, messages: list[dict[str, str]]) -> Iterable[tuple[Literal["delta", "product_recommendations", "card"], object]]:
         self._ensure_api_key()
         logger.info("agent stream start message_count=%s model=%s", len(messages), settings.llm_model)
@@ -256,80 +261,83 @@ class LangChainAgentRunner:
                 "messages": prepared_messages,
             },
         )
-        respond_done = False
         respond_args_state: dict[str, str] = {}
         for chunk, _metadata in agent.stream(
             {"messages": self._to_langchain_messages(prepared_messages)},
             stream_mode="messages",
         ):
-            # 1) mall_recommend 工具：JSON 字符串 → 现有 product_recommendations 事件
-            payload = _try_parse_mall_recommend_payload(chunk)
-            if payload is not None and payload.get("items"):
-                logger.info("agent stream emit product_recommendations item_count=%s", len(payload["items"]))
-                yield ("product_recommendations", payload)
-                continue
-
-            # 2) respond 工具的 ToolMessage → 整体解析为 card 事件
-            if chunk.__class__.__name__ == "ToolMessage" and getattr(chunk, "name", None) == "respond":
-                card = _parse_respond_payload(chunk) or _parse_respond_payload_from_args_state(
-                    respond_args_state,
-                    tool_call_id=getattr(chunk, "tool_call_id", None),
-                )
-                if card is None:
-                    raw_content = getattr(chunk, "content", "")
-                    logger.warning(
-                        "agent stream respond payload invalid; raising. tool_call_id=%s raw_content=%r args_state_keys=%s",
-                        getattr(chunk, "tool_call_id", None),
-                        raw_content[:500] if isinstance(raw_content, str) else str(raw_content)[:500],
-                        list(respond_args_state.keys()),
-                    )
-                    raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
-                respond_done = True
-                card = self._apply_evidence_to_card(card)
-                logger.info(
-                    "agent stream emit card kind=%s summary_chars=%s payload_keys=%s args_state_keys=%s",
-                    card.get("kind"),
-                    len(card.get("summary_text", "")),
-                    list((card.get("payload") or {}).keys()) if isinstance(card.get("payload"), dict) else [],
-                    list(respond_args_state.keys()),
-                )
-                yield ("card", card)
+            events, done = self._process_stream_chunk(chunk, respond_args_state)
+            for event in events:
+                yield event
+            if done:
                 return
-
-            # 3) AIMessageChunk 含 respond 工具的 tool_call_chunk → 提取 summary_text 字段增量
-            if chunk.__class__.__name__ == "AIMessageChunk":
-                tool_call_chunks = getattr(chunk, "tool_call_chunks", None) or []
-                respond_chunk_text = _extract_respond_summary_text_delta(tool_call_chunks, respond_args_state)
-                if respond_chunk_text:
-                    logger.info(
-                        "agent stream emit delta from respond summary chars=%s args_state_keys=%s",
-                        len(respond_chunk_text),
-                        list(respond_args_state.keys()),
-                    )
-                    yield ("delta", respond_chunk_text)
-                # AIMessageChunk.content 文本 → 仅在 respond 未完成时走 delta；否则丢弃 + warn
-                if not respond_done:
-                    text = _content_to_text(getattr(chunk, "content", ""))
-                    if text:
-                        logger.info("agent stream emit delta from content chars=%s", len(text))
-                        yield ("delta", text)
-                else:
-                    text = _content_to_text(getattr(chunk, "content", ""))
-                    if text:
-                        logger.warning("agent stream drop post-respond AIMessageChunk chars=%s", len(text))
-                continue
-
-            logger.info("agent stream skip internal_message type=%s", chunk.__class__.__name__)
         logger.warning(
-            "agent stream finished without card respond_done=%s args_state_keys=%s",
-            respond_done,
+            "agent stream finished without card args_state_keys=%s",
             list(respond_args_state.keys()),
         )
-        if not respond_done:
-            fallback_card = self._fallback_evidence_card()
-            if fallback_card is not None:
-                logger.info("agent stream emit fallback evidence card")
-                yield ("card", fallback_card)
+        fallback_card = self._fallback_evidence_card()
+        if fallback_card is not None:
+            logger.info("agent stream emit fallback evidence card")
+            yield ("card", fallback_card)
+
+    def _process_stream_chunk(
+        self, chunk, respond_args_state: dict[str, str]
+    ) -> tuple[list[tuple], bool]:
+        """处理单个 stream chunk，返回 (events, 终止标志)。终止为 True 表示已产出 respond 卡片。"""
+        events: list[tuple] = []
+
+        # 1) mall_recommend 工具：JSON 字符串 → 现有 product_recommendations 事件
+        payload = _try_parse_mall_recommend_payload(chunk)
+        if payload is not None and payload.get("items"):
+            logger.info("agent stream emit product_recommendations item_count=%s", len(payload["items"]))
+            events.append(("product_recommendations", payload))
+            return events, False
+
+        # 2) respond 工具的 ToolMessage → 整体解析为 card 事件
+        if chunk.__class__.__name__ == "ToolMessage" and getattr(chunk, "name", None) == "respond":
+            card = _parse_respond_payload(chunk) or _parse_respond_payload_from_args_state(
+                respond_args_state,
+                tool_call_id=getattr(chunk, "tool_call_id", None),
+            )
+            if card is None:
+                raw_content = getattr(chunk, "content", "")
+                logger.warning(
+                    "agent stream respond payload invalid; raising. tool_call_id=%s raw_content=%r args_state_keys=%s",
+                    getattr(chunk, "tool_call_id", None),
+                    raw_content[:500] if isinstance(raw_content, str) else str(raw_content)[:500],
+                    list(respond_args_state.keys()),
+                )
+                raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
+            card = self._apply_evidence_to_card(card)
+            logger.info(
+                "agent stream emit card kind=%s summary_chars=%s payload_keys=%s args_state_keys=%s",
+                card.get("kind"),
+                len(card.get("summary_text", "")),
+                list((card.get("payload") or {}).keys()) if isinstance(card.get("payload"), dict) else [],
+                list(respond_args_state.keys()),
+            )
+            events.append(("card", card))
+            return events, True
+
+        # 3) AIMessageChunk：respond args 增量 → delta；普通文本 → delta
+        if chunk.__class__.__name__ == "AIMessageChunk":
+            tool_call_chunks = getattr(chunk, "tool_call_chunks", None) or []
+            respond_chunk_text = _extract_respond_summary_text_delta(tool_call_chunks, respond_args_state)
+            if respond_chunk_text:
+                logger.info(
+                    "agent stream emit delta from respond summary chars=%s args_state_keys=%s",
+                    len(respond_chunk_text),
+                    list(respond_args_state.keys()),
+                )
+                events.append(("delta", respond_chunk_text))
+            text = _content_to_text(getattr(chunk, "content", ""))
+            if text:
+                logger.info("agent stream emit delta from content chars=%s", len(text))
+                events.append(("delta", text))
+            return events, False
+
+        logger.info("agent stream skip internal_message type=%s", chunk.__class__.__name__)
+        return events, False
 
     def _fallback_evidence_card(self) -> dict | None:
         """模型没调 respond 直接文本收尾时，补一张只承载证据链的空卡。
