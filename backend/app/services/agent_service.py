@@ -114,6 +114,9 @@ class AgentService:
                             len(payload.get("summary_text", "")) if isinstance(payload.get("summary_text"), str) else 0,
                         )
                         yield self._event("card", {"message_id": assistant_id, "card": payload})
+                elif event_type == "agent_activity":
+                    if isinstance(payload, dict):
+                        yield self._event("agent_activity", payload)
                 elif event_type == "product_recommendations":
                     items = (payload or {}).get("items") if isinstance(payload, dict) else None
                     if items:

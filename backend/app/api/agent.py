@@ -19,7 +19,7 @@ from app.schemas.agent import (
 )
 from app.services.agent_service import AgentService
 from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool
-from app.services.langchain_agent import LangChainAgentRunner
+from app.services.multi_agent import MultiAgentRunner
 from app.services.meal_product_recommendation_service import MealProductRecommendationService
 from app.services.meal_plan_service import MealPlanService
 from app.services.memory_service import MemoryService
@@ -51,7 +51,7 @@ def get_agent_runner(
 
     allowed_member_ids = [m.member_id for m in member_provider()]
 
-    return LangChainAgentRunner(
+    return MultiAgentRunner(
         kb_tool=KbSearchTool(
             repository=SqlAlchemyKbRepository(db),
             allowed_member_ids=allowed_member_ids,
