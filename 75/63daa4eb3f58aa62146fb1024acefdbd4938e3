@@ -1,0 +1,24 @@
+backend/app/services/multi_agent.py
+  s_8aa177329b4519::t_f13d35bb315775 228-249
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7563daa4eb3f58aa62146fb1024acefdbd4938e3",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_8aa177329b4519": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd0a9-27d2-70a3-b250-464550e7ac81",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
