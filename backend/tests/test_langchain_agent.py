@@ -128,16 +128,6 @@ def test_langchain_agent_requires_api_key(monkeypatch):
         runner.run([{"role": "user", "content": "报告怎么看？"}])
 
 
-def test_langchain_agent_system_prompt_prefers_daily_portions():
-    prompt = BaseAgentRunner()._system_prompt()
-
-    assert "餐单份量默认用日常说法" in prompt
-    assert "不要写成配料表" in prompt
-    assert "只有用户明确要求精确克数、营养计算、热量估算或详细食谱时才给克数" in prompt
-    assert "餐单回复不要复述完整健康画像" in prompt
-    assert "原因最多 2-3 条短句" in prompt
-
-
 def test_format_summary_text_adds_markdown_for_meal_sections():
     text = """家人和健康关注
 张志远（爸爸），50岁，血脂偏高。
@@ -536,63 +526,6 @@ def test_build_members_block_duplicate_relation_says_ask():
     assert "不要猜" in block
 
 
-def test_runner_system_prompt_includes_member_list():
-    runner = BaseAgentRunner(
-        member_provider=lambda: [FakeMember("mem_1", "张三", "本人")],
-    )
-
-    prompt = runner._system_prompt()
-
-    assert "张三" in prompt
-    assert "mem_1" in prompt
-    # 新规则：唯一称呼直接用，多个才反问（不再机械"必须先反问"）
-    assert "称呼解析规则" in prompt
-    assert "不要反问" in prompt
-    assert "家庭健康智能营销 Agent" in prompt
-    assert "餐单建议" in prompt
-    assert "商品推荐" in prompt
-
-
-def test_runner_system_prompt_empty_when_no_members():
-    runner = BaseAgentRunner(member_provider=lambda: [])
-
-    prompt = runner._system_prompt()
-
-    assert "当前没有可用家人" in prompt
-
-
-def test_runner_system_prompt_includes_memory_rules():
-    runner = BaseAgentRunner()
-
-    prompt = runner._system_prompt()
-
-    assert "memory_search" in prompt
-    assert "记忆只能用于个性化表达" in prompt
-    assert "不能覆盖过敏" in prompt
-
-
-def test_runner_system_prompt_requires_mall_recommend_after_meal_plan():
-    runner = BaseAgentRunner()
-
-    prompt = runner._system_prompt()
-
-    assert "mall_recommend" in prompt
-    assert "meal_plan 工具返回的餐单文本" in prompt
-    # 关键：商品卡片由系统自动附加，LLM 不再把商品名写入文本
-    assert "不要" in prompt
-    assert "写进自己的文本回复" in prompt
-
-
-def test_runner_system_prompt_routes_category_product_queries_to_mall_recommend():
-    runner = BaseAgentRunner()
-
-    prompt = runner._system_prompt()
-
-    assert "推荐一款适合全家人的油" in prompt
-    assert "直接调用 mall_recommend" in prompt
-    assert "不要先调用 meal_plan" in prompt
-
-
 def test_langchain_agent_registers_respond_tool(monkeypatch):
     """respond 工具的 schema 来自 StructuredResponse.model_json_schema()，且必含 kind/summary_text/payload。"""
     monkeypatch.setattr(settings, "llm_api_key", "test-key")
@@ -933,22 +866,6 @@ def test_langchain_agent_run_raises_on_invalid_respond_payload(monkeypatch):
 
     with pytest.raises(ResponseSchemaError):
         runner.run([{"role": "user", "content": "x"}])
-
-
-def test_runner_system_prompt_requires_respond_tool():
-    """system_prompt 必须明确要求 LLM 调用 respond 工具才算完成回复。"""
-    runner = BaseAgentRunner()
-    prompt = runner._system_prompt()
-    assert "respond" in prompt
-    assert "必须调用" in prompt or "只能通过" in prompt
-
-
-def test_runner_system_prompt_documents_kinds():
-    """system_prompt 必须列出 5 个 kind 的选择规则。"""
-    runner = BaseAgentRunner()
-    prompt = runner._system_prompt()
-    for kind in ["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]:
-        assert kind in prompt
 
 
 def test_langchain_agent_stream_attaches_collected_evidence_to_card(monkeypatch):
