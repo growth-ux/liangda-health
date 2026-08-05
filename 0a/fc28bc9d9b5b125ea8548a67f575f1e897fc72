@@ -1,0 +1,16 @@
+backend/app/services/multi_agent.py
+  h_7549b7dc6a6921 1-227
+backend/tests/test_multi_agent.py
+  h_7549b7dc6a6921 1-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "0afc28bc9d9b5b125ea8548a67f575f1e897fc72",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
