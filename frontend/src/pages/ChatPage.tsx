@@ -15,6 +15,8 @@ import { AppShell } from '../components/AppShell';
 import { ChatInput } from '../components/chat/ChatInput';
 import { MessageList } from '../components/chat/MessageList';
 import { SessionList } from '../components/chat/SessionList';
+import { AgentTeamStrip, INITIAL_TEAM_STATE, applyTeamActivity } from '../components/chat/AgentTeamStrip';
+import type { TeamState } from '../components/chat/AgentTeamStrip';
 import { UploadReportDialog } from '../components/UploadReportDialog';
 import { EvidenceModal } from '../components/chat/evidence/EvidenceModal';
 import type { EvidenceModalState } from '../components/chat/evidence/EvidenceActions';
@@ -44,6 +46,8 @@ export function ChatPage() {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [modalState, setModalState] = useState<EvidenceModalState>(CLOSED_EVIDENCE_MODAL);
+  const [teamState, setTeamState] = useState<TeamState>(INITIAL_TEAM_STATE);
+  const [teamVisible, setTeamVisible] = useState(false);
 
   const sessionsQuery = useQuery({ queryKey: ['agent-sessions'], queryFn: listAgentSessions });
   const quickActionsQuery = useQuery({ queryKey: ['agent-quick-actions'], queryFn: listQuickActions });
@@ -186,6 +190,9 @@ export function ChatPage() {
             )
           );
         },
+        onAgentActivity: (payload) => {
+          setTeamState((prev) => applyTeamActivity(prev, payload));
+        },
         onAssistantDone: (message) => {
           // 注意：message 里可能没带 product_recommendations（如果后端没在 done 事件里回填），
           // 保留 onProductRecommendations 阶段已写入的本地字段；后端带了就以后端为准。
@@ -205,6 +212,7 @@ export function ChatPage() {
                 : item
             )
           );
+          setTimeout(() => setTeamVisible(false), 1500);
         }
       });
     },
@@ -215,6 +223,7 @@ export function ChatPage() {
       await queryClient.invalidateQueries({ queryKey: ['agent-messages'] });
     },
     onError: (error: Error) => {
+      setTeamVisible(false);
       setSendError(error.message);
       setLocalMessages((items) =>
         items.map((item, index) => (index === items.length - 1 ? { ...item, status: 'failed' } : item))
@@ -268,6 +277,8 @@ export function ChatPage() {
     setDraft('');
     setAttachments([]);
     setSendError(null);
+    setTeamState(INITIAL_TEAM_STATE);
+    setTeamVisible(true);
     sendMutation.mutate({ content, messageAttachments: attachments });
   }
 
@@ -305,6 +316,7 @@ export function ChatPage() {
           {sessionsQuery.isError && <div className="chat-inline-error">会话列表加载失败</div>}
           {messagesQuery.isError && <div className="chat-inline-error">消息加载失败</div>}
           {uploadMutation.isPending && <div className="chat-inline-info">正在上传并解析报告...</div>}
+          {teamVisible && <AgentTeamStrip team={teamState} />}
           <MessageList
             messages={messages}
             loading={messagesQuery.isLoading}

@@ -40,12 +40,19 @@ export type QuickAction = {
   action: 'open_reports' | 'open_upload' | string;
 };
 
+export type AgentActivityPayload = {
+  agent: 'supervisor' | 'meal_planner' | 'shopping_guide' | 'report_reader';
+  action: 'start' | 'done';
+  detail?: string;
+};
+
 export type StreamCallbacks = {
   onUserMessage?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'attachments'>) => void;
   onAssistantStart?: (message: Pick<AgentMessage, 'message_id' | 'role'>) => void;
   onDelta?: (content: string) => void;
   onProductRecommendations?: (payload: { message_id: string; items: ProductRecommendationItem[] }) => void;
   onCard?: (payload: { message_id: string; card: StructuredCard }) => void;
+  onAgentActivity?: (payload: AgentActivityPayload) => void;
   onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'product_recommendations' | 'card'>) => void;
 };
 
@@ -134,6 +141,7 @@ function handleSseEvent(eventText: string, callbacks: StreamCallbacks) {
   if (event === 'delta') callbacks.onDelta?.(data.content ?? '');
   if (event === 'product_recommendations') callbacks.onProductRecommendations?.(data);
   if (event === 'card') callbacks.onCard?.(data);
+  if (event === 'agent_activity') callbacks.onAgentActivity?.(data);
   if (event === 'assistant_done') callbacks.onAssistantDone?.(data);
   if (event === 'error') throw new Error(data.message ?? '模型调用失败');
 }

@@ -5428,3 +5428,48 @@ select {
   font-size: 11px;
   color: var(--ink-dim);
 }
+
+/* 多 Agent 协作条：流式回复期间展示调度与专家工作进度 */
+.agent-team-strip {
+  padding: 8px 16px 0;
+}
+.agent-team-nodes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.agent-team-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-size: 12px;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+.agent-team-node-working {
+  color: #2563eb;
+  border-color: #93c5fd;
+  background: #eff6ff;
+  animation: agent-team-pulse 1.2s ease-in-out infinite;
+}
+.agent-team-node-done {
+  color: #16a34a;
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+.agent-team-check {
+  font-weight: 700;
+}
+.agent-team-detail {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+@keyframes agent-team-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
