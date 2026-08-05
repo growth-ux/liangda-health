@@ -110,3 +110,74 @@ def test_handoff_tools_delegate_to_run_expert(monkeypatch):
     assert tools["ask_shopping_guide"]("推荐油") == "专家结果"
     assert tools["ask_report_reader"]("看报告") == "专家结果"
     assert [key for key, _ in seen] == ["meal_planner", "shopping_guide", "report_reader"]
+
+
+def test_capture_product_payload_pushes_to_queue():
+    runner = MultiAgentRunner()
+    runner._activity_queue = queue.Queue()
+    raw = json.dumps(
+        {"items": [{"product_id": "p_oil", "name": "橄榄油"}], "is_error": False},
+        ensure_ascii=False,
+    )
+
+    runner._capture_product_payload(raw)
+
+    assert runner._product_payloads == [json.loads(raw)]
+    assert runner._activity_queue.get() == ("product", json.loads(raw))
+
+
+def test_capture_product_payload_ignores_error_string():
+    runner = MultiAgentRunner()
+    runner._activity_queue = queue.Queue()
+
+    runner._capture_product_payload("Error: 单人商品推荐必须传入 member_id")
+
+    assert runner._product_payloads == []
+    assert runner._activity_queue.empty()
+
+
+def test_multi_agent_requires_api_key(monkeypatch):
+    monkeypatch.setattr(settings, "llm_api_key", None)
+    runner = MultiAgentRunner()
+
+    with pytest.raises(LlmConfigError, match="未配置模型 API Key"):
+        runner.run([{"role": "user", "content": "报告怎么看？"}])
+
+
+def test_multi_agent_run_returns_card_and_captured_products(monkeypatch):
+    from langchain_core.messages import AIMessage, ToolMessage
+
+    class FakeSupervisorAgent:
+        def __init__(self, runner):
+            self.runner = runner
+
+        def invoke(self, payload):
+            # 模拟导购师专家在 invoke 内部完成 mall_recommend 并捕获结构化商品
+            self.runner._capture_product_payload(json.dumps(
+                {"items": [{
+                    "product_id": "p_x", "name": "藜麦", "reason": "高纤维",
+                    "price_text": "¥39.9", "image_url": None, "image_emoji": "🌾", "score": 80,
+                }], "is_error": False, "error": None},
+                ensure_ascii=False,
+            ))
+            ai = AIMessage(content="", tool_calls=[{
+                "name": "respond",
+                "id": "c1",
+                "args": {
+                    "kind": "qa",
+                    "summary_text": "推荐如下",
+                    "payload": {"question_topic": "商品", "answer": "藜麦", "tips": []},
+                },
+            }])
+            tool_msg = ToolMessage(content="ok", tool_call_id="c1", name="respond")
+            return {"messages": [ai, tool_msg]}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = MultiAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeSupervisorAgent(runner))
+
+    result = runner.run([{"role": "user", "content": "推荐点杂粮"}])
+
+    assert result["content"] == "推荐如下"
+    assert result["card"]["kind"] == "qa"
+    assert result["product_recommendations"]["items"][0]["product_id"] == "p_x"

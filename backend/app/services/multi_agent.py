@@ -225,3 +225,25 @@ class MultiAgentRunner(BaseAgentRunner):
     def _emit_activity(self, agent: str, action: str, detail: str = "") -> None:
         if self._activity_queue is not None:
             self._activity_queue.put(("activity", {"agent": agent, "action": action, "detail": detail}))
+
+    # ---- 商品结构捕获 ----
+
+    def _capture_product_payload(self, raw: str) -> None:
+        try:
+            parsed = json.loads(raw)
+        except (TypeError, json.JSONDecodeError):
+            return
+        if not isinstance(parsed, dict) or not isinstance(parsed.get("items"), list) or not parsed["items"]:
+            return
+        self._product_payloads.append(parsed)
+        if self._activity_queue is not None:
+            self._activity_queue.put(("product", parsed))
+
+    # ---- run()：商品改从专家捕获结果取 ----
+
+    def run(self, messages):
+        self._product_payloads = []
+        return super().run(messages)
+
+    def _extract_products(self, messages) -> dict | None:
+        return self._product_payloads[-1] if self._product_payloads else None
