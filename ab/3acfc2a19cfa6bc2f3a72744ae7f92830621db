@@ -1,0 +1,16 @@
+backend/app/services/langchain_agent.py
+  h_7549b7dc6a6921 134-136,154,213,238-240,269-308,310-326,328-329,332-337,339-340
+backend/tests/test_langchain_agent.py
+  h_7549b7dc6a6921 7,74,86,98,111,125,132,184,212,252,295,330,379,407,459,469,480,540,557,565,575,587,599,620,656,691,727,752,781,815,850,886,906,931,940,948,967,1002,1053
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ab3acfc2a19cfa6bc2f3a72744ae7f92830621db",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
