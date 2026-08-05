@@ -247,3 +247,86 @@ class MultiAgentRunner(BaseAgentRunner):
 
     def _extract_products(self, messages) -> dict | None:
         return self._product_payloads[-1] if self._product_payloads else None
+
+    # ---- stream()：工作线程 + 事件队列 ----
+
+    def stream(self, messages):
+        self._ensure_api_key()
+        logger.info("multi_agent stream start message_count=%s model=%s", len(messages), settings.llm_model)
+        self._product_payloads = []
+        self._activity_queue = queue.Queue()
+        self._attach_evidence_collector()
+        agent = self._agent()
+        prepared_messages = self._append_kb_context(messages)
+        log_llm_request(
+            logger,
+            service="multi_agent.stream",
+            payload={
+                "model": settings.llm_model,
+                "base_url": settings.llm_base_url,
+                "temperature": settings.llm_temperature,
+                "timeout": settings.llm_timeout_seconds,
+                "system_prompt": self._system_prompt(),
+                "messages": prepared_messages,
+            },
+        )
+
+        def worker():
+            try:
+                for chunk, _metadata in agent.stream(
+                    {"messages": self._to_langchain_messages(prepared_messages)},
+                    stream_mode="messages",
+                ):
+                    self._activity_queue.put(("chunk", chunk))
+            except Exception as exc:
+                logger.exception("multi_agent stream worker failed")
+                self._activity_queue.put(("error", exc))
+            finally:
+                self._activity_queue.put(("sentinel", None))
+
+        worker_thread = threading.Thread(target=worker, daemon=True)
+        worker_thread.start()
+
+        yield ("agent_activity", {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"})
+
+        respond_args_state: dict[str, str] = {}
+        finished_by_card = False
+        while True:
+            kind, payload = self._activity_queue.get()
+            if kind == "sentinel":
+                break
+            if kind == "error":
+                self._activity_queue = None
+                raise payload
+            if kind == "activity":
+                logger.info("multi_agent stream emit agent_activity agent=%s action=%s", payload.get("agent"), payload.get("action"))
+                yield ("agent_activity", payload)
+                continue
+            if kind == "product":
+                logger.info("multi_agent stream emit product_recommendations item_count=%s", len(payload.get("items") or []))
+                yield ("product_recommendations", payload)
+                continue
+            events, done = self._process_stream_chunk(payload, respond_args_state)
+            for event in events:
+                yield event
+            if done:
+                finished_by_card = True
+                break
+
+        if finished_by_card:
+            # respond 之后抽干工作线程余量，避免线程泄漏；残余事件全部丢弃
+            while True:
+                drain_kind, _drain_payload = self._activity_queue.get()
+                if drain_kind == "sentinel":
+                    break
+            self._activity_queue = None
+            yield ("agent_activity", {"agent": "supervisor", "action": "done", "detail": "调度中心完成"})
+            return
+
+        logger.warning("multi_agent stream finished without card")
+        fallback_card = self._fallback_evidence_card()
+        if fallback_card is not None:
+            logger.info("multi_agent stream emit fallback evidence card")
+            yield ("card", fallback_card)
+        self._activity_queue = None
+        yield ("agent_activity", {"agent": "supervisor", "action": "done", "detail": "调度中心完成"})

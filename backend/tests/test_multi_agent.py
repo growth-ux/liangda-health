@@ -181,3 +181,98 @@ def test_multi_agent_run_returns_card_and_captured_products(monkeypatch):
     assert result["content"] == "推荐如下"
     assert result["card"]["kind"] == "qa"
     assert result["product_recommendations"]["items"][0]["product_id"] == "p_x"
+
+
+def test_multi_agent_stream_emits_activity_product_delta_card_in_order(monkeypatch):
+    from langchain_core.messages import AIMessageChunk, ToolMessage
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeSupervisor:
+        def __init__(self, runner):
+            self.runner = runner
+
+        def stream(self, payload, stream_mode):
+            # 模拟 handoff 工具在工作线程里执行：专家 activity 和商品事件直接入队
+            self.runner._activity_queue.put(("activity", {"agent": "meal_planner", "action": "start", "detail": "餐单规划师正在处理…"}))
+            self.runner._activity_queue.put(("activity", {"agent": "meal_planner", "action": "done", "detail": "餐单规划师完成"}))
+            self.runner._activity_queue.put(("product", {"items": [{"product_id": "p_oil"}]}))
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[ToolCallChunk(
+                    name="respond",
+                    args='{"kind": "qa", "summary_text": "你好", "payload": {"question_topic": "t", "answer": "a", "tips": []}}',
+                    index=0,
+                    id="call_1",
+                )],
+            ), {}
+            yield ToolMessage(content="ok", tool_call_id="call_1", name="respond"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = MultiAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeSupervisor(runner))
+
+    events = list(runner.stream([{"role": "user", "content": "今晚吃什么"}]))
+
+    kinds = [kind for kind, _ in events]
+    assert kinds == [
+        "agent_activity",  # supervisor start
+        "agent_activity",  # meal_planner start
+        "agent_activity",  # meal_planner done
+        "product_recommendations",
+        "delta",
+        "card",
+        "agent_activity",  # supervisor done
+    ]
+    activities = [payload for kind, payload in events if kind == "agent_activity"]
+    assert activities[0] == {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"}
+    assert activities[1]["agent"] == "meal_planner"
+    assert activities[-1] == {"agent": "supervisor", "action": "done", "detail": "调度中心完成"}
+    products = [payload for kind, payload in events if kind == "product_recommendations"]
+    assert products[0]["items"][0]["product_id"] == "p_oil"
+    deltas = [payload for kind, payload in events if kind == "delta"]
+    assert "".join(deltas) == "你好"
+    cards = [payload for kind, payload in events if kind == "card"]
+    assert cards[0]["kind"] == "qa"
+
+
+def test_multi_agent_stream_worker_error_propagates(monkeypatch):
+    class FakeSupervisor:
+        def stream(self, payload, stream_mode):
+            raise RuntimeError("llm down")
+            yield  # noqa: 让函数成为生成器
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = MultiAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeSupervisor())
+
+    with pytest.raises(RuntimeError, match="llm down"):
+        list(runner.stream([{"role": "user", "content": "x"}]))
+
+
+def test_multi_agent_stream_fallback_evidence_card_when_no_respond(monkeypatch):
+    from langchain_core.messages import AIMessageChunk
+    from app.schemas.agent_response import EvidenceItem
+    from app.services.agent_evidence import AgentEvidenceCollector
+
+    class FakeSupervisor:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(content="直接文本收尾"), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = MultiAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeSupervisor())
+
+    collector = AgentEvidenceCollector()
+    collector.add_product(EvidenceItem(
+        type="product", title="低钠盐", excerpt="契合低钠方向",
+        source_id="prod_1", source_label="商城标签匹配",
+    ))
+    monkeypatch.setattr(runner, "_attach_evidence_collector", lambda: collector)
+    runner._evidence_collector = collector
+
+    events = list(runner.stream([{"role": "user", "content": "x"}]))
+
+    cards = [payload for kind, payload in events if kind == "card"]
+    assert len(cards) == 1
+    assert cards[0]["summary_text"] == ""
+    assert cards[0]["evidence"]["product_items"][0]["type"] == "product"
