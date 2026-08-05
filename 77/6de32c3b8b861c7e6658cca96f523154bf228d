@@ -1,0 +1,23 @@
+.gitignore
+  h_7549b7dc6a6921 11-14
+AGENTS.md
+  h_7549b7dc6a6921 8
+  h_7549b7dc6a6921 7
+backend/app/services/multi_agent.py
+  h_7549b7dc6a6921 34-36,65-67,78,122,126,279-281,287-289,292-294,298,305-306,319-320,329-333,335-339
+frontend/src/components/chat/MessageBubble.tsx
+  h_7549b7dc6a6921 56-58
+frontend/tsconfig.tsbuildinfo
+  h_7549b7dc6a6921 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "776de32c3b8b861c7e6658cca96f523154bf228d",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
