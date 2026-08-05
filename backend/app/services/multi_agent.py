@@ -271,20 +271,20 @@ class MultiAgentRunner(BaseAgentRunner):
             },
         )
 
-        def worker():
+        def worker(event_queue):
             try:
                 for chunk, _metadata in agent.stream(
                     {"messages": self._to_langchain_messages(prepared_messages)},
                     stream_mode="messages",
                 ):
-                    self._activity_queue.put(("chunk", chunk))
+                    event_queue.put(("chunk", chunk))
             except Exception as exc:
                 logger.exception("multi_agent stream worker failed")
-                self._activity_queue.put(("error", exc))
+                event_queue.put(("error", exc))
             finally:
-                self._activity_queue.put(("sentinel", None))
+                event_queue.put(("sentinel", None))
 
-        worker_thread = threading.Thread(target=worker, daemon=True)
+        worker_thread = threading.Thread(target=worker, args=(self._activity_queue,), daemon=True)
         worker_thread.start()
 
         yield ("agent_activity", {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"})
@@ -314,11 +314,9 @@ class MultiAgentRunner(BaseAgentRunner):
                 break
 
         if finished_by_card:
-            # respond 之后抽干工作线程余量，避免线程泄漏；残余事件全部丢弃
-            while True:
-                drain_kind, _drain_payload = self._activity_queue.get()
-                if drain_kind == "sentinel":
-                    break
+            # respond 卡片已产出，立即收尾；不等待 supervisor 图跑完
+            # （respond 之后模型可能继续生成，同步等待会阻塞 assistant_done 数秒到数十秒）。
+            # 工作线程是 daemon 线程，队列失去消费者后自然跑完退出，不会泄漏。
             self._activity_queue = None
             yield ("agent_activity", {"agent": "supervisor", "action": "done", "detail": "调度中心完成"})
             return
