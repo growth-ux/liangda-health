@@ -50,11 +50,11 @@ export function MessageBubble({
           <div className="msg-text">
             {isPlaceholder ? <PlaceholderDots /> : isUser ? message.content : <MarkdownContent text={message.content} />}
           </div>
-          {!isUser && productItems.length > 0 && (
-            <ProductRecommendationCards items={productItems} />
-          )}
           {!isUser && message.card && message.card.summary_text && (
             <StructuredCard card={message.card} />
+          )}
+          {!isUser && productItems.length > 0 && (
+            <ProductRecommendationCards items={productItems} />
           )}
         </div>
         {isAssistant && (

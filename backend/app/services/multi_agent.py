@@ -31,6 +31,9 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 
 调度规则：
 1. 三餐/吃什么问题：先调 ask_meal_planner；拿到餐单后，把餐单文本原样写进 ask_shopping_guide 的任务里继续推荐商品。
+   - 【重要】task 文本必须明确写出 scope 和 member_id：用户提到特定家人（如"爸爸/妈妈/儿子"）时写 scope=member + 对应 member_id；用户说"全家/我们家"时写 scope=family。
+   - task 里也要写清 meal_type：用户说"今晚/晚餐"写 dinner，"早餐"写 breakfast，"午餐"写 lunch，"今天/一日三餐"写 day。
+   - 拿到餐单后传给 ask_shopping_guide 时，同样要带上与餐单一致的 scope 和 member_id。
 2. 纯商品/类目问题：直接调 ask_shopping_guide。
 3. 专家返回以 "Error:" 开头的结果时，温和降级说明（如"暂时无法推荐商品"），同一专家最多重试 1 次。
 4. 简单寒暄、普通健康问答不需要调度专家，直接调用 respond。
@@ -59,7 +62,9 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 MEAL_PLANNER_PROMPT_TEMPLATE = """你是粮达健康的「餐单规划师」专家 Agent，只对总调度负责，不直接面对用户。
 工作流程：
 1. 先用 memory_search 查询任务涉及家人（或全家）的饮食偏好和排斥；明确指向某位家人时传 member_id，全家不传。
-2. 再调用 meal_plan 生成餐单：scope/member_id 按任务判断，全家用 family。
+2. 再调用 meal_plan 生成餐单：
+   - 【重要】只要 task 里提到了特定家人和 member_id，就必须用 scope="member" + 对应 member_id，不要用 family。只有 task 明确写 scope=family 时才用 family。
+   - meal_type 按 task 描述判断：dinner=晚餐，breakfast=早餐，lunch=午餐，day=一日三餐。
 3. 把 meal_plan 返回的餐单文本作为最终回复原样返回，不要加评论、不要改写。
 4. 任何工具返回 "Error:" 开头时，直接把该 Error 文本作为最终回复返回。
 5. 记忆只能用于个性化表达，不能覆盖过敏、健康禁忌和健康安全约束。
@@ -70,7 +75,7 @@ MEAL_PLANNER_PROMPT_TEMPLATE = """你是粮达健康的「餐单规划师」专�
 
 SHOPPING_GUIDE_PROMPT_TEMPLATE = """你是粮达健康的「商品导购师」专家 Agent，只对总调度负责。
 工作流程：
-1. 任务里带餐单文本时：调用 mall_recommend，把餐单文本原样作为 meal_plan_text；scope/member_id 与任务描述一致，全家用 family。
+1. 任务里带餐单文本时：调用 mall_recommend，把餐单文本原样作为 meal_plan_text；scope/member_id 严格按任务描述传递（任务写 scope=member 就用 member，写 scope=family 就用 family），不要默认用 family。
 2. 任务只问某类商品时：meal_plan_text 留空，把用户原问题放进 query_text。
 3. 把 mall_recommend 返回的原始结果字符串作为最终回复原样返回，不要改写或总结。
 4. 工具返回 "Error:" 开头时，直接原样返回该 Error 文本。
@@ -114,11 +119,11 @@ class MultiAgentRunner(BaseAgentRunner):
 
     def _tools(self):
         def ask_meal_planner(task: str) -> str:
-            """把三餐/吃什么类任务交给餐单规划师。task 里写清用户诉求、scope（family/member）和 member_id。"""
+            """把三餐/吃什么类任务交给餐单规划师。task 里必须写清：scope=member/family、member_id（单人时）、meal_type=dinner/breakfast/lunch/day。示例："为爸爸(member_id=xxx, scope=member)规划今晚晚餐(meal_type=dinner)"。"""
             return self._run_expert("meal_planner", task)
 
         def ask_shopping_guide(task: str) -> str:
-            """把商品推荐任务交给商品导购师。带餐单时 task 原样附餐单文本；只问商品类目时写用户原问题。"""
+            """把商品推荐任务交给商品导购师。带餐单时 task 原样附餐单文本，同时写清 scope=member/family 和 member_id（与餐单一致）；只问商品类目时写用户原问题。"""
             return self._run_expert("shopping_guide", task)
 
         def ask_report_reader(task: str) -> str:
@@ -271,26 +276,34 @@ class MultiAgentRunner(BaseAgentRunner):
             },
         )
 
-        def worker(event_queue):
+        stop_event = threading.Event()
+
+        def worker(event_queue, stop):
             try:
                 for chunk, _metadata in agent.stream(
                     {"messages": self._to_langchain_messages(prepared_messages)},
                     stream_mode="messages",
                 ):
+                    if stop.is_set():
+                        logger.info("multi_agent stream worker stopped by signal")
+                        break
                     event_queue.put(("chunk", chunk))
             except Exception as exc:
-                logger.exception("multi_agent stream worker failed")
-                event_queue.put(("error", exc))
+                if not stop.is_set():
+                    logger.exception("multi_agent stream worker failed")
+                    event_queue.put(("error", exc))
             finally:
                 event_queue.put(("sentinel", None))
 
-        worker_thread = threading.Thread(target=worker, args=(self._activity_queue,), daemon=True)
+        worker_thread = threading.Thread(target=worker, args=(self._activity_queue, stop_event), daemon=True)
         worker_thread.start()
 
         yield ("agent_activity", {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"})
 
         respond_args_state: dict[str, str] = {}
         finished_by_card = False
+        # 延迟商品推荐：等 card（respond）完成后再一起推送，避免商品图片先于文字出现
+        deferred_product_events: list[dict] = []
         while True:
             kind, payload = self._activity_queue.get()
             if kind == "sentinel":
@@ -303,8 +316,8 @@ class MultiAgentRunner(BaseAgentRunner):
                 yield ("agent_activity", payload)
                 continue
             if kind == "product":
-                logger.info("multi_agent stream emit product_recommendations item_count=%s", len(payload.get("items") or []))
-                yield ("product_recommendations", payload)
+                logger.info("multi_agent stream deferred product_recommendations item_count=%s", len(payload.get("items") or []))
+                deferred_product_events.append(payload)
                 continue
             events, done = self._process_stream_chunk(payload, respond_args_state)
             for event in events:
@@ -313,10 +326,17 @@ class MultiAgentRunner(BaseAgentRunner):
                 finished_by_card = True
                 break
 
+        # card 已产出（或流结束），现在才推送延迟的商品推荐事件
+        for product_payload in deferred_product_events:
+            logger.info("multi_agent stream emit deferred product_recommendations item_count=%s", len(product_payload.get("items") or []))
+            yield ("product_recommendations", product_payload)
+
         if finished_by_card:
-            # respond 卡片已产出，立即收尾；不等待 supervisor 图跑完
-            # （respond 之后模型可能继续生成，同步等待会阻塞 assistant_done 数秒到数十秒）。
-            # 工作线程是 daemon 线程，队列失去消费者后自然跑完退出，不会泄漏。
+            # respond 卡片已产出，通知工作线程停止，避免 supervisor 继续无意义的 LLM 调用
+            stop_event.set()
+            worker_thread.join(timeout=5)
+            if worker_thread.is_alive():
+                logger.warning("multi_agent stream worker did not stop within 5s, leaving as daemon")
             self._activity_queue = None
             yield ("agent_activity", {"agent": "supervisor", "action": "done", "detail": "调度中心完成"})
             return

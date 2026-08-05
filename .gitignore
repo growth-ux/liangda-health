@@ -9,3 +9,6 @@ backend/uploads
 .codex-tmp
 .qoder
 .codex-ppt-build
+*.pptx
+*.docx
+*.ndjson
