@@ -1,0 +1,36 @@
+backend/app/api/ops_agent.py
+  h_7549b7dc6a6921 1-174
+backend/app/main.py
+  h_7549b7dc6a6921 18,128
+backend/app/repositories/agent_repository.py
+  h_7549b7dc6a6921 32
+backend/app/services/dashboard_service.py
+  h_7549b7dc6a6921 75-77,92,96,116-124
+backend/app/services/ops_agent.py
+  h_7549b7dc6a6921 1-168
+backend/app/services/ops_agent_tools.py
+  h_7549b7dc6a6921 1-172
+backend/tests/test_api_dashboard.py
+  h_7549b7dc6a6921 161-168,233,237,409
+frontend/src/api/dashboard.ts
+  h_7549b7dc6a6921 112
+frontend/src/api/opsAgent.ts
+  h_7549b7dc6a6921 1-91
+frontend/src/components/OpsChatPanel.tsx
+  h_7549b7dc6a6921 1-178
+frontend/src/pages/DashboardPage.tsx
+  h_7549b7dc6a6921 29,149-169,179-196,201-210,721
+frontend/src/styles.css
+  h_7549b7dc6a6921 4477,4487-4488,4491,4521-4522,4528-4548,4556,5064-5065,5071,5253,5255-5257,5260-5265,5268,5272,5276-5281,5506-5892
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "ec8bb08216a3684f45ec834bc805663c2a306785",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
