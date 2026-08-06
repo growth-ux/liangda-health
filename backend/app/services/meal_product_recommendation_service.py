@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -62,6 +63,32 @@ QUERY_CATEGORY_RULES: list[tuple[tuple[str, ...], str, str]] = [
     (("豆腐", "豆浆", "豆干", "豆制品"), "soy_products", "匹配你正在找的豆制品类目"),
     (("鸡蛋", "鸡胸肉", "牛肉", "猪肉", "虾", "鱼", "肉"), "meat_eggs", "匹配你正在找的肉禽蛋类目"),
 ]
+
+
+def _any_keyword_match(keywords: tuple[str, ...], text: str) -> bool:
+    """检查关键词是否在文本中匹配，短词（≤1字）使用排除词表避免子串误匹配。
+
+    例如："米" 不应匹配 "玉米油"，"油" 不应匹配 "酱油"。
+    """
+    for keyword in keywords:
+        if keyword not in text:
+            continue
+        if len(keyword) <= 1:
+            excludes = _SHORT_KEYWORD_EXCLUDES.get(keyword, [])
+            if not any(ex in text for ex in excludes):
+                return True
+        else:
+            return True
+    return False
+
+
+# 短关键词排除词表：防止 "米" 匹配 "玉米油"、"油" 匹配 "酱油" 等子串误命中
+_SHORT_KEYWORD_EXCLUDES: dict[str, list[str]] = {
+    "米": ["玉米", "薏米", "黑米", "糙米", "藜麦"],
+    "面": ["面包", "泡面", "方便面"],
+    "奶": ["奶茶", "奶酪", "奶油", "奶精"],
+    "油": ["酱油", "生抽", "蚝油", "奶油", "橄榄油", "菜籽油"],
+}
 
 
 class MealProductRecommendationService:
@@ -249,8 +276,8 @@ class MealProductRecommendationService:
             tags = set(_json_list(product.recommend_tags))
             category_score, category_reason = _score_category(context, product.category_code)
             tag_score, tag_reason = _score_tags(context, tags)
-            member_score = sum(max(0, score_product_for_member(member, product)) for member in members)
-            requested_score = 200 if requested_category and product.category_code == requested_category else 0
+            member_score = sum(max(0, score_product_for_member(member, product)) for member in members) * 2
+            requested_score = 120 if requested_category and product.category_code == requested_category else 0
             # 应用反馈重排分
             feedback_delta = feedback_scores.get(product.product_id, 0)
             score = requested_score + category_score + tag_score + member_score + feedback_delta
@@ -301,16 +328,20 @@ class MealProductRecommendationService:
 
 
 def _score_tags(context: str, tags: set[str]) -> tuple[int, str]:
+    total = 0
+    best_reason = ""
     for keywords, recommend_tags, reason in TAG_RULES:
-        if any(keyword in context for keyword in keywords) and tags & set(recommend_tags):
-            return 80, reason
-    return 0, "适合本次健康餐单搭配"
+        if _any_keyword_match(keywords, context) and tags & set(recommend_tags):
+            total += 50
+            if not best_reason:
+                best_reason = reason
+    return total, best_reason or "适合本次健康餐单搭配"
 
 
 def _score_category(context: str, category_code: str) -> tuple[int, str]:
     for keywords, target_category, reason in CATEGORY_RULES:
-        if category_code == target_category and any(keyword in context for keyword in keywords):
-            return 120, reason
+        if category_code == target_category and _any_keyword_match(keywords, context):
+            return 60, reason
     return 0, ""
 
 

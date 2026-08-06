@@ -63,40 +63,60 @@ def _check_allergy_conflict(member: Member, product: MallProduct) -> bool:
     return False
 
 
+# ── 会员健康匹配规则表（score_product_for_member 与 build_recommend_reason 共用）──
+_MEMBER_HEALTH_RULES = [
+    {
+        "condition": lambda ht: _has_health_condition(ht, ["高血压", "血压偏高", "血压高"]),
+        "tag_match": {"low_sodium", "hypertension"},
+        "score": 50,
+        "reason_tpl": "{name}（{relation}）血压偏高，建议优先选择低钠调味品。",
+    },
+    {
+        "condition": lambda ht: _has_health_condition(ht, ["糖尿病", "血糖偏高", "控糖", "血糖高"]),
+        "tag_match": {"sugar_control", "low_gi", "no_sugar", "diabetes"},
+        "score": 50,
+        "reason_tpl": "{name}（{relation}）有控糖需求，低GI主食更适合日常食用。",
+    },
+    {
+        "condition": lambda ht, bmi=None, age=None: bmi is not None and bmi >= 24,
+        "tag_match": {"low_fat", "high_protein", "low_gi", "high_fiber"},
+        "score": 30,
+        "reason_tpl": "{name}（{relation}）建议控制脂肪摄入，该商品更适合健康饮食。",
+    },
+    {
+        "condition": lambda ht, bmi=None, age=None: age is not None and age < 18,
+        "tag_match": {"high_calcium", "children"},
+        "score": 30,
+        "reason_tpl": "{name}（{relation}）正处于生长发育期，高钙食品有助于骨骼健康。",
+    },
+    {
+        "condition": lambda ht, bmi=None, age=None: age is not None and age >= 60,
+        "tag_match": {"high_calcium", "elderly"},
+        "score": 30,
+        "reason_tpl": "{name}（{relation}）需要关注骨骼健康，高钙食品是不错的选择。",
+    },
+]
+
+
 def score_product_for_member(member: Member, product: MallProduct) -> int:
     if _check_allergy_conflict(member, product):
         return -1
 
     score = 0
     health_tags = _get_member_health_tags(member)
-    recommend_tags = _safe_json_list(product.recommend_tags)
-    recommend_set = set(recommend_tags)
-
-    hypertension_keywords = ["高血压", "血压偏高", "血压高"]
-    if _has_health_condition(health_tags, hypertension_keywords):
-        if "low_sodium" in recommend_set or "hypertension" in recommend_set:
-            score += 50
-
-    diabetes_keywords = ["糖尿病", "血糖偏高", "控糖", "血糖高"]
-    if _has_health_condition(health_tags, diabetes_keywords):
-        sugar_tags = {"sugar_control", "low_gi", "no_sugar", "diabetes"}
-        if sugar_tags & recommend_set:
-            score += 50
+    recommend_set = set(_safe_json_list(product.recommend_tags))
 
     bmi = _get_member_bmi(member)
-    if bmi is not None and bmi >= 24:
-        weight_tags = {"low_fat", "high_protein", "low_gi", "high_fiber"}
-        if weight_tags & recommend_set:
-            score += 30
-
     age = _get_member_age(member)
-    if age < 18:
-        if "high_calcium" in recommend_set or "children" in recommend_set:
-            score += 30
 
-    if age >= 60:
-        if "high_calcium" in recommend_set or "elderly" in recommend_set:
-            score += 30
+    for rule in _MEMBER_HEALTH_RULES:
+        cond = rule["condition"]
+        try:
+            matched = cond(health_tags, bmi=bmi, age=age)
+        except TypeError:
+            matched = cond(health_tags)
+        if matched and rule["tag_match"] & recommend_set:
+            score += rule["score"]
 
     taste_preferences = _parse_csv_field(member.taste_preferences)
     product_health_tags = _safe_json_list(product.health_tags)
@@ -114,39 +134,21 @@ def score_product_for_member(member: Member, product: MallProduct) -> int:
 def build_recommend_reason(member: Member, product: MallProduct) -> str:
     health_tags = _get_member_health_tags(member)
     relation = member.relation or "家人"
-
-    hypertension_keywords = ["高血压", "血压偏高", "血压高"]
-    if _has_health_condition(health_tags, hypertension_keywords):
-        recommend_tags = set(_safe_json_list(product.recommend_tags))
-        if "low_sodium" in recommend_tags or "hypertension" in recommend_tags:
-            return f"{member.name}（{relation}）血压偏高，建议优先选择低钠调味品。"
-
-    diabetes_keywords = ["糖尿病", "血糖偏高", "控糖", "血糖高"]
-    if _has_health_condition(health_tags, diabetes_keywords):
-        recommend_tags = set(_safe_json_list(product.recommend_tags))
-        sugar_tags = {"sugar_control", "low_gi", "no_sugar", "diabetes"}
-        if sugar_tags & recommend_tags:
-            return f"{member.name}（{relation}）有控糖需求，低GI主食更适合日常食用。"
+    recommend_set = set(_safe_json_list(product.recommend_tags))
 
     bmi = _get_member_bmi(member)
-    if bmi is not None and bmi >= 24:
-        recommend_tags = set(_safe_json_list(product.recommend_tags))
-        weight_tags = {"low_fat", "high_protein", "low_gi", "high_fiber"}
-        if weight_tags & recommend_tags:
-            return f"{member.name}（{relation}）建议控制脂肪摄入，该商品更适合健康饮食。"
-
     age = _get_member_age(member)
-    if age < 18:
-        recommend_tags = set(_safe_json_list(product.recommend_tags))
-        if "high_calcium" in recommend_tags or "children" in recommend_tags:
-            return f"{member.name}（{relation}）正处于生长发育期，高钙食品有助于骨骼健康。"
 
-    if age >= 60:
-        recommend_tags = set(_safe_json_list(product.recommend_tags))
-        if "high_calcium" in recommend_tags or "elderly" in recommend_tags:
-            return f"{member.name}（{relation}）需要关注骨骼健康，高钙食品是不错的选择。"
+    for rule in _MEMBER_HEALTH_RULES:
+        cond = rule["condition"]
+        try:
+            matched = cond(health_tags, bmi=bmi, age=age)
+        except TypeError:
+            matched = cond(health_tags)
+        if matched and rule["tag_match"] & recommend_set:
+            return rule["reason_tpl"].format(name=member.name, relation=relation)
 
-    return f"该商品适合全家日常健康饮食，本推荐不构成医疗建议。"
+    return "该商品适合全家日常健康饮食，本推荐不构成医疗建议。"
 
 
 def filter_allergy_products(member: Member, products: list[MallProduct]) -> list[MallProduct]:
@@ -399,7 +401,7 @@ def build_daily_recommendations(
         family_score = (
             sum(score_product_for_member(m, product) for m in members) if members else 0
         )
-        jitter = random.random() * max(80.0, family_score)
+        jitter = random.random() * (max(30.0, family_score * 0.3) if family_score > 0 else 10.0)
         by_category.setdefault(product.category_code, []).append((family_score + jitter, product))
     for items in by_category.values():
         items.sort(key=lambda item: item[0], reverse=True)

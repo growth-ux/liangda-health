@@ -1780,6 +1780,9 @@ select {
 
 .msg-product-section .product-row {
   display: flex;
+  /* safe center: 溢出场景退回 flex-start，避免首张卡片被左侧裁掉 */
+  justify-content: safe center;
+  align-items: center;
   gap: 10px;
   overflow-x: auto;
   padding: 2px 0;
@@ -1806,7 +1809,12 @@ select {
   border-color: #10b981;
 }
 
-.msg-product-section .product-image {
+.msg-product-section .product-card .product-image {
+  /* 特异性 0,3,0，胜过 .product-card .product-image (0,2,0)，
+     把图片区从被误用的 72px 拉回到卡片内容区全宽 */
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: auto;
   height: 90px;
   background: #f5f7f5;
   display: flex;
