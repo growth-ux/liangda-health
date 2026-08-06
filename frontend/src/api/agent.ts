@@ -15,6 +15,7 @@ export type ProductRecommendationItem = {
   image_url: string | null;
   image_emoji: string | null;
   score: number;
+  member_id?: string | null;
 };
 
 export type AgentMessage = {

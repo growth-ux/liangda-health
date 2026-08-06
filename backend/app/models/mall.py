@@ -73,3 +73,18 @@ class MallProductRelation(Base):
     product_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     related_product_id: Mapped[str] = mapped_column(String(64), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class MallProductFeedback(Base):
+    """用户对推荐商品的即时反馈，用于重排下一轮推荐。"""
+    __tablename__ = "mall_product_feedback"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    product_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    feedback_type: Mapped[str] = mapped_column(
+        String(20), nullable=False
+    )  # like / dislike / too_expensive / purchased
+    member_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    session_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    message_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utc_now)

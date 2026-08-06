@@ -1798,6 +1798,7 @@ select {
   transition: all 0.1s;
   text-decoration: none;
   color: inherit;
+  display: block;
 }
 
 .msg-product-section .product-card:hover,
@@ -1844,6 +1845,155 @@ select {
   font-size: 13px;
   color: #f97316;
   font-weight: 600;
+}
+
+/* 商品反馈按钮行 */
+.msg-product-section .product-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.msg-product-section .product-feedback-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.msg-product-section .feedback-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #f9fafb;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.msg-product-section .feedback-btn .feedback-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.msg-product-section .feedback-btn .feedback-label {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  color: #fff;
+  background: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  z-index: 10;
+}
+
+/* tooltip 小三角 */
+.msg-product-section .feedback-btn .feedback-label::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #374151;
+}
+
+.msg-product-section .feedback-btn:hover:not(:disabled) {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.msg-product-section .feedback-btn:hover:not(:disabled) .feedback-label {
+  opacity: 1;
+  visibility: visible;
+  color: #fff;
+}
+
+.msg-product-section .feedback-btn.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.msg-product-section .feedback-btn.active .feedback-label {
+  color: #fff;
+  background: #047857;
+}
+
+.msg-product-section .feedback-btn.active .feedback-label::after {
+  border-top-color: #047857;
+}
+
+.msg-product-section .feedback-btn.disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* 加购按钮：突出显示 */
+.msg-product-section .feedback-btn.cart-btn {
+  background: #f0f9ff;
+  border-color: #bfdbfe;
+}
+
+.msg-product-section .feedback-btn.cart-btn:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.msg-product-section .feedback-btn.cart-btn:hover:not(:disabled) .feedback-label {
+  color: #fff;
+  background: #2563eb;
+}
+
+.msg-product-section .feedback-btn.cart-btn:hover:not(:disabled) .feedback-label::after {
+  border-top-color: #2563eb;
+}
+
+.msg-product-section .feedback-btn.cart-btn.done {
+  background: #dcfce7;
+  border-color: #22c55e;
+}
+
+.msg-product-section .feedback-btn.cart-btn.done .feedback-label {
+  color: #fff;
+  background: #15803d;
+}
+
+.msg-product-section .feedback-btn.cart-btn.done .feedback-label::after {
+  border-top-color: #15803d;
+}
+
+.msg-product-section .product-feedback-toast {
+  padding: 8px 14px;
+  background: #047857;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 0 0 8px 8px;
+  text-align: center;
+  animation: feedbackToastIn 0.2s ease;
+}
+
+@keyframes feedbackToastIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .chat-evidence-modal-backdrop {

@@ -234,7 +234,7 @@ def _normalize_results(raw_items) -> list:
 
 
 def _is_family_scope(content: str) -> bool:
-    family_words = ("全家", "我们家", "家里人", "一家人")
+    family_words = ("全家", "我们家", "家里人", "一家人", "家人")
     return any(word in content for word in family_words)
 
 

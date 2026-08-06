@@ -76,6 +76,44 @@ class MealProductRecommendationService:
         self.mall_repository = mall_repository or SqlAlchemyMallRepository(db)
         self.profile_service = profile_service or HealthProfileService(db)
 
+    def _load_feedback_scores(self, member_ids: list[str]) -> dict[str, int]:
+        """从 mall_product_feedback 表加载最近反馈，返回 {product_id: score_delta}。
+
+        评分规则：
+        - dislike: -100（实质排除）
+        - too_expensive: -50（降权）
+        - like: +30（加权）
+        - purchased: -20（已买降低优先级）
+        """
+        from app.models.mall import MallProductFeedback
+
+        _PENALTY = {"dislike": -100, "too_expensive": -50, "like": 30, "purchased": -20}
+        rows = (
+            self.db.query(MallProductFeedback)
+            .filter(MallProductFeedback.member_id.in_(member_ids + [None]))
+            .order_by(MallProductFeedback.created_at.desc())
+            .limit(50)
+            .all()
+        )
+        scores: dict[str, int] = {}
+        for row in rows:
+            delta = _PENALTY.get(row.feedback_type, 0)
+            if row.product_id not in scores or abs(delta) > abs(scores[row.product_id]):
+                scores[row.product_id] = delta
+        return scores
+
+    def _load_replaced_items(
+        self, feedback_scores: dict[str, int], products: list[MallProduct]
+    ) -> list[dict]:
+        """找出因 dislike/too_expensive 被降权的商品，用于告知 Agent 替换了哪些。"""
+        product_map = {p.product_id: p for p in products}
+        replaced = []
+        for product_id, delta in feedback_scores.items():
+            if delta < 0 and product_id in product_map:
+                p = product_map[product_id]
+                replaced.append({"product_id": p.product_id, "name": p.name, "reason": "用户反馈不喜欢/太贵"})
+        return replaced
+
     def recommend(
         self,
         *,
@@ -85,46 +123,38 @@ class MealProductRecommendationService:
         query_text: str = "",
         limit: int = 5,
     ) -> dict:
-        """返回结构化推荐结果。
-
-        结构：
-          {
-            "items": [
-              {
-                "product_id": str,
-                "name": str,
-                "reason": str,
-                "price_text": str,
-                "image_url": str | None,
-                "image_emoji": str | None,
-                "score": int,
-              },
-              ...
-            ],
-            "is_error": bool,
-            "error": str | None,
-          }
-
-        错误情况（缺少 member_id / scope 非法等）也会通过 is_error + error 字段表达，
-        调用方（agent runner / agent tool wrapper）按需要决定是当作文本错误继续走，
-        还是当作结构化空结果直接交前端。
-        """
+        """返回结构化推荐结果，包含反馈重排信息。"""
         if scope == "member":
             if not member_id:
-                return {"items": [], "blocked_items": [], "is_error": True, "error": "单人商品推荐必须传入 member_id"}
+                return {"items": [], "blocked_items": [], "replaced_items": [], "is_error": True, "error": "单人商品推荐必须传入 member_id"}
             profile = self.profile_service.get_member_profile(member_id)
             member = self.db.query(Member).filter(Member.member_id == member_id).one_or_none()
             if member is None:
-                return {"items": [], "blocked_items": [], "is_error": True, "error": "家人不存在"}
+                return {"items": [], "blocked_items": [], "replaced_items": [], "is_error": True, "error": "家人不存在"}
+            member_ids = [member_id]
             recs, blocked = self._recommend_for_member(profile, member, meal_plan_text, query_text, limit)
         elif scope == "family":
             profile = self.profile_service.get_family_profile()
             members = self.db.query(Member).filter(real_only(Member.member_id)).all()
+            member_ids = [m.member_id for m in members]
             recs, blocked = self._recommend_for_family(profile, members, meal_plan_text, query_text, limit)
         else:
-            return {"items": [], "blocked_items": [], "is_error": True, "error": "scope 只能是 member 或 family"}
+            return {"items": [], "blocked_items": [], "replaced_items": [], "is_error": True, "error": "scope 只能是 member 或 family"}
+
+        # 反馈重排：加载反馈并返回替换信息
+        feedback_scores = self._load_feedback_scores(member_ids) if member_ids else {}
+        all_products = self._products()
+        replaced = self._load_replaced_items(feedback_scores, all_products)
+
+        # 序列化并注入 member_id，让前端反馈时知道是给谁推荐的
+        serialized_items = []
+        for rec in recs:
+            item = self._serialize(rec)
+            item["member_id"] = member_id  # scope=member 时有值，family 时为 None
+            serialized_items.append(item)
+
         return {
-            "items": [self._serialize(rec) for rec in recs],
+            "items": serialized_items,
             "blocked_items": [
                 {
                     "product_id": item.product.product_id,
@@ -133,6 +163,7 @@ class MealProductRecommendationService:
                 }
                 for item in blocked[:BLOCKED_REPORT_LIMIT]
             ],
+            "replaced_items": replaced[:3],
             "is_error": False,
             "error": None,
         }
@@ -204,6 +235,10 @@ class MealProductRecommendationService:
         else:
             avoid_sources = []
 
+        # 反馈重排：加载反馈分数（dislike -100 / too_expensive -50 / like +30 / purchased -20）
+        member_ids = [m.member_id for m in members]
+        feedback_scores = self._load_feedback_scores(member_ids) if member_ids else {}
+
         scored: list[MealProductRecommendation] = []
         blocked: list[BlockedProduct] = []
         for product in products:
@@ -216,7 +251,9 @@ class MealProductRecommendationService:
             tag_score, tag_reason = _score_tags(context, tags)
             member_score = sum(max(0, score_product_for_member(member, product)) for member in members)
             requested_score = 200 if requested_category and product.category_code == requested_category else 0
-            score = requested_score + category_score + tag_score + member_score
+            # 应用反馈重排分
+            feedback_delta = feedback_scores.get(product.product_id, 0)
+            score = requested_score + category_score + tag_score + member_score + feedback_delta
             reason, evidence_source = _build_evidence_reason(
                 product=product,
                 members=members,
@@ -226,6 +263,9 @@ class MealProductRecommendationService:
                 category_reason=category_reason,
                 tag_reason=tag_reason,
             )
+            # 反馈替换提示：不喜欢/太贵的商品若仍进入列表，加上替换说明
+            if feedback_delta < 0 and score > 0:
+                reason = f"因您反馈已调整推荐，本商品优先级已降低。{reason}"
             if score > 0:
                 scored.append(
                     MealProductRecommendation(

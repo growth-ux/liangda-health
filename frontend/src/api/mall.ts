@@ -161,3 +161,34 @@ export async function deleteMallCartItem(productId: string): Promise<void> {
     throw new Error(detail?.detail ?? '删除购物车商品失败');
   }
 }
+
+// -------- 商品反馈 --------
+
+export type ProductFeedbackType = 'like' | 'dislike' | 'too_expensive' | 'purchased';
+
+export type ProductFeedbackResponse = {
+  ok: boolean;
+  message: string;
+  feedback_type: string;
+  product_name: string | null;
+  replacement_hint: string | null;
+};
+
+export async function submitProductFeedback(
+  productId: string,
+  feedbackType: ProductFeedbackType,
+  options?: { memberId?: string; sessionId?: string; messageId?: string },
+): Promise<ProductFeedbackResponse> {
+  const response = await fetch(`${API_BASE}/api/mall/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      product_id: productId,
+      feedback_type: feedbackType,
+      member_id: options?.memberId ?? null,
+      session_id: options?.sessionId ?? null,
+      message_id: options?.messageId ?? null,
+    }),
+  });
+  return readJson<ProductFeedbackResponse>(response, '反馈提交失败');
+}

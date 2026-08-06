@@ -54,7 +54,11 @@ export function MessageBubble({
             <StructuredCard card={message.card} />
           )}
           {!isUser && productItems.length > 0 && (
-            <ProductRecommendationCards items={productItems} />
+            <ProductRecommendationCards
+              items={productItems}
+              sessionId={message.session_id}
+              messageId={message.message_id}
+            />
           )}
         </div>
         {isAssistant && (

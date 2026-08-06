@@ -161,3 +161,19 @@ class MallCartItemCreateRequest(BaseModel):
 
 class MallCartItemUpdateRequest(BaseModel):
     quantity: int
+
+
+class ProductFeedbackRequest(BaseModel):
+    product_id: str
+    feedback_type: str  # like / dislike / too_expensive / purchased
+    member_id: str | None = None
+    session_id: str | None = None
+    message_id: str | None = None
+
+
+class ProductFeedbackResponse(BaseModel):
+    ok: bool
+    message: str
+    feedback_type: str
+    product_name: str | None = None
+    replacement_hint: str | None = None  # 仅 dislike/too_expensive 时填“已替换”提示
