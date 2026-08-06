@@ -26,6 +26,7 @@ import {
   type LiveEvent,
   type LiveEventType
 } from '../api/dashboard';
+import { OpsChatPanel } from '../components/OpsChatPanel';
 
 function formatNumber(value: number): string {
   return value.toLocaleString('zh-CN');
@@ -39,7 +40,6 @@ const LIVE_EVENT_META: Record<LiveEventType, { label: string; className: string 
   report_upload: { label: '报告上传', className: 'upload' },
   fact_extract: { label: '事实提取', className: 'fact' },
   ai_recommend: { label: 'AI 推荐', className: 'recommend' },
-  ai_card: { label: 'AI 服务', className: 'card' },
   cart_add: { label: '加购转化', className: 'cart' }
 };
 
@@ -146,9 +146,27 @@ function BrandMatrixPanel({ data }: { data: DashboardResponse }) {
 
 function FunnelPanel({ data }: { data: DashboardResponse }) {
   const maxValue = Math.max(...data.funnel.map((step) => step.value), 1);
-  const first = data.funnel[0]?.value ?? 0;
-  const last = data.funnel[data.funnel.length - 1]?.value ?? 0;
-  const rate = first > 0 ? Math.round((last / first) * 100) : 0;
+
+  // 计算逐级转化率
+  const stepRates = data.funnel.slice(1).map((step, i) => {
+    const prev = data.funnel[i];
+    const rate = prev.value > 0 ? Math.round((step.value / prev.value) * 100) : 0;
+    // 曝光 > 推荐消息时用倍数（一条消息推荐多个商品）
+    const isMultiplier = step.value > prev.value && prev.value > 0;
+    return { rate, isMultiplier, from: prev.name, to: step.name };
+  });
+
+  // 底部核心指标：曝光→加购转化率 + 全链路转化率
+  const exposureIdx = data.funnel.findIndex((s) => s.name === '推荐商品曝光');
+  const cartIdx = data.funnel.findIndex((s) => s.name === '加入购物车');
+  const exposureToCart =
+    exposureIdx >= 0 && cartIdx >= 0 && data.funnel[exposureIdx].value > 0
+      ? Math.round((data.funnel[cartIdx].value / data.funnel[exposureIdx].value) * 100)
+      : 0;
+  const overallRate =
+    data.funnel.length >= 2 && data.funnel[0].value > 0
+      ? Math.round((data.funnel[data.funnel.length - 1].value / data.funnel[0].value) * 100)
+      : 0;
 
   return (
     <section className="dash-panel">
@@ -158,23 +176,38 @@ function FunnelPanel({ data }: { data: DashboardResponse }) {
         <span className="dash-panel-tag">AI 驱动全链路</span>
       </div>
       <div className="dash-funnel">
-        {data.funnel.map((step) => (
-          <div className="dash-funnel-row" key={step.name}>
-            <div className="dash-funnel-label">{step.name}</div>
-            <div className="dash-funnel-track">
-              <div
-                className="dash-funnel-bar"
-                style={{ width: `${Math.max((step.value / maxValue) * 100, 4)}%` }}
-              />
+        {data.funnel.map((step, index) => (
+          <div key={step.name}>
+            {index > 0 && stepRates[index - 1] && (
+              <div className={`dash-funnel-step-rate${stepRates[index - 1].isMultiplier ? ' multiplier' : ''}`}>
+                {stepRates[index - 1].isMultiplier
+                  ? `↑ ${stepRates[index - 1].rate}%（均 ${(step.value / data.funnel[index - 1].value).toFixed(1)} 件/条）`
+                  : `↓ ${stepRates[index - 1].rate}%`}
+              </div>
+            )}
+            <div className="dash-funnel-row">
+              <div className="dash-funnel-label">{step.name}</div>
+              <div className="dash-funnel-track">
+                <div
+                  className="dash-funnel-bar"
+                  style={{ width: `${Math.max((step.value / maxValue) * 100, 4)}%` }}
+                />
+              </div>
+              <div className="dash-funnel-value">{formatNumber(step.value)}</div>
             </div>
-            <div className="dash-funnel-value">{formatNumber(step.value)}</div>
           </div>
         ))}
       </div>
-      <div className="dash-funnel-rate">
-        <div className="dash-funnel-rate-label">推荐消息 → 加购 转化率</div>
-        <div className="dash-funnel-rate-value">{rate}%</div>
-        <div className="dash-funnel-rate-sub">画像 + 记忆驱动的个性化推荐</div>
+      <div className="dash-funnel-rates">
+        <div className="dash-funnel-rate">
+          <div className="dash-funnel-rate-label">曝光 → 加购 转化率</div>
+          <div className="dash-funnel-rate-value">{exposureToCart}%</div>
+        </div>
+        <div className="dash-funnel-rate">
+          <div className="dash-funnel-rate-label">全链路转化率</div>
+          <div className="dash-funnel-rate-value">{overallRate}%</div>
+          <div className="dash-funnel-rate-sub">咨询 → 下单 · 画像 + 记忆驱动</div>
+        </div>
       </div>
     </section>
   );
@@ -492,25 +525,6 @@ function HealthRiskPanel({ data }: { data: DashboardResponse }) {
           })}
         </div>
       )}
-      {data.risk_members.length > 0 && (
-        <>
-          <div className="dash-risk-subtitle">重点干预成员</div>
-          <div className="dash-risk-members">
-            {data.risk_members.map((member) => (
-              <div className="dash-risk-member" key={member.member_id}>
-                <span className="dash-risk-member-name">
-                  {member.member_name}
-                  {member.relation && <i>{member.relation}</i>}
-                </span>
-                <span className="dash-risk-member-badges">
-                  {member.danger_count > 0 && <b className="danger">干预 {member.danger_count}</b>}
-                  {member.warning_count > 0 && <b className="warning">关注 {member.warning_count}</b>}
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
     </section>
   );
 }
@@ -704,6 +718,7 @@ export function DashboardPage() {
           </>
         )}
       </div>
+      <OpsChatPanel />
     </div>
   );
 }

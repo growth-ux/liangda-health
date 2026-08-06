@@ -109,7 +109,7 @@ export type HotProductItem = {
   amount_yuan: number;
 };
 
-export type LiveEventType = 'report_upload' | 'fact_extract' | 'ai_recommend' | 'ai_card' | 'cart_add';
+export type LiveEventType = 'report_upload' | 'fact_extract' | 'ai_recommend' | 'cart_add';
 
 export type LiveEvent = {
   event_type: LiveEventType;

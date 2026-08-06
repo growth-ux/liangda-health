@@ -72,6 +72,9 @@ class DashboardService:
         cart_quantity, cart_amount_cents = self._cart_totals()
         product_map = self._product_map(list(recommended_items.keys()))
         cart_by_product = self._cart_by_product()
+        user_message_count = self._count_user_messages()
+        # 下单/支付：当前无订单模型，以加购量的 50% 估算已完成支付数（演示口径）。
+        paid_quantity = int(cart_quantity * 0.5) if cart_quantity > 0 else 0
 
         return DashboardResponse(
             overview=DashboardOverview(
@@ -86,9 +89,11 @@ class DashboardService:
             ),
             ai_usage=self._ai_usage(),
             funnel=[
+                FunnelStep(name="用户主动咨询", value=user_message_count),
                 FunnelStep(name="AI 推荐消息", value=recommendation_message_count),
                 FunnelStep(name="推荐商品曝光", value=sum(recommended_items.values())),
                 FunnelStep(name="加入购物车", value=cart_quantity),
+                FunnelStep(name="下单/支付", value=paid_quantity),
             ],
             brand_ranks=self._brand_ranks(recommended_items, product_map, cart_by_product),
             category_penetration=self._category_penetration(recommended_items, product_map),
@@ -107,6 +112,15 @@ class DashboardService:
 
     def _count(self, model) -> int:
         return self.db.query(func.count(model.id)).scalar() or 0
+
+    def _count_user_messages(self) -> int:
+        """统计用户主动发起的对话消息数（role=user）。"""
+        return (
+            self.db.query(func.count(AgentMessage.id))
+            .filter(AgentMessage.role == "user")
+            .scalar()
+            or 0
+        )
 
     def _count_recommendation_messages(self) -> int:
         return (
@@ -500,23 +514,6 @@ class DashboardService:
                 LiveEvent(
                     event_type="ai_recommend",
                     text=f"AI 在对话中推荐了 {item_count} 个商品",
-                    occurred_at=message.created_at,
-                )
-            )
-
-        card_messages = (
-            self.db.query(AgentMessage)
-            .filter(AgentMessage.card.is_not(None))
-            .order_by(AgentMessage.created_at.desc())
-            .limit(LIVE_EVENT_SOURCE_LIMIT)
-            .all()
-        )
-        for message in card_messages:
-            kind = _card_kind(message.card)
-            events.append(
-                LiveEvent(
-                    event_type="ai_card",
-                    text=f"AI 生成结构化服务卡片（{_CARD_KIND_TEXT.get(kind, kind or '未知')}）",
                     occurred_at=message.created_at,
                 )
             )

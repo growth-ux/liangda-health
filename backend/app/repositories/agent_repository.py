@@ -29,6 +29,7 @@ class SqlAlchemyAgentRepository:
         return (
             self.db.query(AgentSession)
             .filter(real_only(AgentSession.session_id))
+            .filter(~AgentSession.session_id.startswith("ops_sess_"))
             .order_by(AgentSession.updated_at.desc())
             .all()
         )

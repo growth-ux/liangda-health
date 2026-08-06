@@ -158,10 +158,14 @@ def test_dashboard_aggregates_overview_and_funnel(db_session):
     assert overview["health_fact_count"] == 2
 
     funnel = payload["funnel"]
-    assert [step["name"] for step in funnel] == ["AI 推荐消息", "推荐商品曝光", "加入购物车"]
-    assert funnel[0]["value"] == 2
-    assert funnel[1]["value"] == 3
-    assert funnel[2]["value"] == 2
+    assert [step["name"] for step in funnel] == [
+        "用户主动咨询", "AI 推荐消息", "推荐商品曝光", "加入购物车", "下单/支付"
+    ]
+    assert funnel[0]["value"] == 1   # 1 条用户消息
+    assert funnel[1]["value"] == 2   # 2 条含推荐的消息
+    assert funnel[2]["value"] == 3   # 推荐商品曝光总数
+    assert funnel[3]["value"] == 2   # 购物车数量
+    assert funnel[4]["value"] == 1   # 下单/支付估算值
 
 
 def test_dashboard_brand_ranks_sorted_by_recommend_count(db_session):
@@ -226,9 +230,11 @@ def test_dashboard_empty_database_returns_zeros(db_session):
     payload = response.json()
     assert payload["overview"]["message_count"] == 0
     assert payload["funnel"] == [
+        {"name": "用户主动咨询", "value": 0},
         {"name": "AI 推荐消息", "value": 0},
         {"name": "推荐商品曝光", "value": 0},
         {"name": "加入购物车", "value": 0},
+        {"name": "下单/支付", "value": 0},
     ]
     assert payload["brand_ranks"] == []
     assert payload["category_penetration"] == []
@@ -400,4 +406,4 @@ def test_dashboard_hot_products_and_live_events(db_session):
     assert hot[0]["amount_yuan"] == 19.8
 
     event_types = {event["event_type"] for event in payload["live_events"]}
-    assert {"report_upload", "fact_extract", "ai_recommend", "ai_card", "cart_add"} <= event_types
+    assert {"report_upload", "fact_extract", "ai_recommend", "cart_add"} <= event_types

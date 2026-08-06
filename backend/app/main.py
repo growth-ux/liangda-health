@@ -15,6 +15,7 @@ from app.api.health_analysis import router as health_analysis_router
 from app.api.kb import router as kb_router
 from app.api.mall import router as mall_router
 from app.api.members import router as members_router
+from app.api.ops_agent import router as ops_agent_router
 from app.api.notice import router as notice_router
 from app.core.config import settings
 from app.db.session import Base, SessionLocal, engine
@@ -124,6 +125,7 @@ def create_app(session_factory: Callable[[], object] = SessionLocal) -> FastAPI:
     app.include_router(mall_router)
     app.include_router(members_router)
     app.include_router(notice_router)
+    app.include_router(ops_agent_router)
     app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
     app.mount("/mall-products", StaticFiles(directory=mall_products_dir), name="mall-products")
 
