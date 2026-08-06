@@ -1,0 +1,27 @@
+frontend/src/styles.css
+  s_e06acb3d7cf83c::t_52d9628e8398ec 1815-1817
+  s_e06acb3d7cf83c::t_17cf366ba99abf 1812-1814
+  s_e06acb3d7cf83c::t_8a066cd0f1e42f 1783-1784
+  s_e06acb3d7cf83c::t_29042fde012258 1785
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "c379624e4060717afad473bee023f9ff58cabb53",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_e06acb3d7cf83c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ce38e93-c05b-4c99-ad01-75d3373aa2d5",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
