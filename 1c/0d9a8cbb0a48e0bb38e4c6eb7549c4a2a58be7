@@ -1,0 +1,49 @@
+backend/tests/test_langchain_agent.py
+  s_1ddde187411aa4::t_d35919fb91d516 249-287,290-291,293-299,301-308,310-314,316-317,319-321,323,330-331,333-339,341-348,350-351,353-355,357
+  s_1ddde187411aa4::t_d8126da9801b8a 210-248,325
+  s_1ddde187411aa4::t_232cfecf0b324f 288-289
+  s_1ddde187411aa4::t_01fe226321fcce 292
+  s_1ddde187411aa4::t_1501196eed94a4 300
+  s_1ddde187411aa4::t_5036d389074ec8 309
+  s_1ddde187411aa4::t_7cb9152b5c5ecf 315
+  s_1ddde187411aa4::t_f2842cd6dad567 318
+  s_1ddde187411aa4::t_1f22aadd892eff 322
+  s_1ddde187411aa4::t_fe17e4b73aaa6b 324
+  s_1ddde187411aa4::t_933a95a93c8597 326-329
+  s_1ddde187411aa4::t_db2f0fe7d6ab75 332
+  s_1ddde187411aa4::t_601c7f54df8b7c 340
+  s_1ddde187411aa4::t_a4dac4ad981895 349
+  s_1ddde187411aa4::t_e8026e021005e5 352
+  s_1ddde187411aa4::t_b9c511bcaa9790 356
+  s_1ddde187411aa4::t_cd29744bff7c15 358-360
+backend/tests/test_multi_agent.py
+  s_1ddde187411aa4::t_6b1f67ab8cf8e0 59-60
+backend/app/services/langchain_agent.py
+  s_1ddde187411aa4::t_d35919fb91d516 715-720
+  s_1ddde187411aa4::t_d8126da9801b8a 713-714
+backend/app/services/multi_agent.py
+  s_1ddde187411aa4::t_9290662898fa0b 45-48
+docs/architecture_picture/bak/liangda-health-data-flow-b2b2c-bak.drawio
+  s_1ddde187411aa4::t_96a45278af5e12 1-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1c0d9a8cbb0a48e0bb38e4c6eb7549c4a2a58be7",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_1ddde187411aa4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fd6dd-2d63-76c0-ac9e-3482c45b1e58",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": null
+    }
+  }
+}
