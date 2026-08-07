@@ -542,7 +542,7 @@ def create_swimlane(slide, c: Cell, abs_x: float, abs_y: float) -> None:
     set_line(body, sc, width_pt=width, dashed=False)
     set_no_shadow(body)
 
-    # 标题条 - 一个 textbox 置于顶部,  紧贴形状边沿
+    # 标题条 - 解析 raw_value (含 <br>) 后生成多行 run
     title_h = max(start_size, 32)  # 至少 32pt
     tb = slide.shapes.add_textbox(
         Pt(abs_x * SCALE + 14),
@@ -558,18 +558,20 @@ def create_swimlane(slide, c: Cell, abs_x: float, abs_y: float) -> None:
     tf.margin_left = Pt(0); tf.margin_right = Pt(0)
     tf.margin_top = Pt(0); tf.margin_bottom = Pt(0)
     tf.vertical_anchor = MSO_ANCHOR.TOP
-    p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.LEFT
-    for r in list(p.runs):
-        r._r.getparent().remove(r._r)
-    run = p.add_run()
-    run.text = c.raw_value
-    f = run.font
-    f.size = Pt(font_size_of(c))
-    f.bold = True
-    col = hex_to_rgb(font_color_of(c) or "#0f172a")
-    if col:
-        f.color.rgb = col
+    parser = TextParser(c.raw_value,
+                        default_size=font_size_of(c),
+                        default_bold=True,  # swimlane 标题统一加粗, 与原 drawio 视觉一致
+                        default_color=font_color_of(c) or "#0f172a")
+    # 单独构造每个 paragraph 以保证 <br> 产生真换行
+    lines = parser.get_lines()
+    if lines:
+        p0 = tf.paragraphs[0]
+        p0.alignment = PP_ALIGN.LEFT
+        _runs_to_paragraph(p0, lines[0])
+        for ln in lines[1:]:
+            p = tf.add_paragraph()
+            p.alignment = PP_ALIGN.LEFT
+            _runs_to_paragraph(p, ln)
 
 
 # ---------------------------------------------------------------------------

@@ -1,8 +1,13 @@
-import { ArrowLeft, ChevronDown, ChevronUp, Eye, FileText, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Eye, FileText, ListChecks, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getDocument, getDocumentPdfUrl, listDocumentChunks } from '../api/kb';
+import {
+  getDocument,
+  getDocumentPdfUrl,
+  listDocumentChunks,
+  listDocumentHealthFacts
+} from '../api/kb';
 import { factStatusLabel, factStatusTagClass, shouldPollFactStatus } from '../components/reportStatus';
 
 const documentStatusLabel = {
@@ -15,6 +20,7 @@ export function DocumentDetailPage() {
   const { documentId } = useParams();
   const [openChunkId, setOpenChunkId] = useState<string | null>(null);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const [factPreviewOpen, setFactPreviewOpen] = useState(false);
   const documentQuery = useQuery({
     queryKey: ['document', documentId],
     queryFn: () => getDocument(documentId!),
@@ -29,15 +35,23 @@ export function DocumentDetailPage() {
     queryFn: () => listDocumentChunks(documentId!),
     enabled: Boolean(documentId)
   });
+  const factsQuery = useQuery({
+    queryKey: ['document-facts', documentId],
+    queryFn: () => listDocumentHealthFacts(documentId!),
+    enabled: factPreviewOpen && Boolean(documentId)
+  });
 
   useEffect(() => {
-    if (!pdfPreviewOpen) return;
+    if (!pdfPreviewOpen && !factPreviewOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPdfPreviewOpen(false);
+      if (event.key === 'Escape') {
+        setPdfPreviewOpen(false);
+        setFactPreviewOpen(false);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [pdfPreviewOpen]);
+  }, [factPreviewOpen, pdfPreviewOpen]);
 
   return (
     <main className="page-shell">
@@ -78,6 +92,10 @@ export function DocumentDetailPage() {
                 <button className="detail-preview-btn" onClick={() => setPdfPreviewOpen(true)} type="button">
                   <Eye size={16} />
                   预览完整 PDF
+                </button>
+                <button className="detail-preview-btn" onClick={() => setFactPreviewOpen(true)} type="button">
+                  <ListChecks size={16} />
+                  预览问题
                 </button>
               </div>
               {documentQuery.data.fact_extract_status === 'failed' && documentQuery.data.fact_extract_error && (
@@ -127,6 +145,61 @@ export function DocumentDetailPage() {
                   src={getDocumentPdfUrl(documentQuery.data)}
                   title={`${documentQuery.data.file_name} PDF 预览`}
                 />
+              </section>
+            </div>
+          )}
+
+          {factPreviewOpen && (
+            <div
+              aria-label="健康事实预览"
+              aria-modal="true"
+              className="pdf-preview-backdrop"
+              onMouseDown={() => setFactPreviewOpen(false)}
+              role="dialog"
+            >
+              <section className="fact-preview-dialog" onMouseDown={(event) => event.stopPropagation()}>
+                <header className="pdf-preview-header">
+                  <div>
+                    <div className="pdf-preview-title">报告健康问题</div>
+                    <div className="pdf-preview-meta">来自 {documentQuery.data.file_name} 的 AI 提取结果</div>
+                  </div>
+                  <div className="pdf-preview-actions">
+                    <button
+                      aria-label="关闭健康事实预览"
+                      className="icon-btn"
+                      onClick={() => setFactPreviewOpen(false)}
+                      title="关闭"
+                      type="button"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </header>
+                <div className="fact-preview-content">
+                  {factsQuery.isLoading && <div className="empty-state">正在提取健康问题...</div>}
+                  {factsQuery.isError && <div className="error-box">健康问题加载失败</div>}
+                  {factsQuery.data?.items.length === 0 && (
+                    <div className="empty-state">该报告暂未发现需要关注的健康问题。</div>
+                  )}
+                  {[...(factsQuery.data?.items ?? [])]
+                    .sort((a, b) => healthFactPriority(b.status) - healthFactPriority(a.status))
+                    .map((fact) => (
+                    <article className="fact-preview-item" key={fact.fact_id}>
+                      <div className="fact-preview-item-head">
+                        <strong>{fact.name}</strong>
+                        <span className={healthFactTagClass(fact.status)}>{healthFactStatusLabel(fact.status)}</span>
+                      </div>
+                      {(fact.value || fact.reference_range) && (
+                        <div className="fact-preview-values">
+                          {fact.value && <span>结果：{fact.value}{fact.unit ? ` ${fact.unit}` : ''}</span>}
+                          {fact.reference_range && <span>参考范围：{fact.reference_range}</span>}
+                        </div>
+                      )}
+                      <p>{fact.evidence_text}</p>
+                      <div className="fact-preview-source">报告第 {fact.source_page_no} 页</div>
+                    </article>
+                  ))}
+                </div>
               </section>
             </div>
           )}
@@ -212,4 +285,22 @@ function formatTextSize(text: string) {
   const bytes = new Blob([text]).size;
   if (bytes < 1024) return `${bytes}B`;
   return `${(bytes / 1024).toFixed(2)}KB`;
+}
+
+function healthFactStatusLabel(status: string) {
+  if (status === 'danger') return '高风险';
+  if (status === 'warning') return '需关注';
+  return '已记录';
+}
+
+function healthFactTagClass(status: string) {
+  if (status === 'danger') return 'tag tag-danger';
+  if (status === 'warning') return 'tag tag-warning';
+  return 'tag tag-success';
+}
+
+function healthFactPriority(status: string) {
+  if (status === 'danger') return 2;
+  if (status === 'warning') return 1;
+  return 0;
 }

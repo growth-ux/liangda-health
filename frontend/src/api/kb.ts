@@ -43,6 +43,28 @@ export type DocumentChunk = {
   content: string;
 };
 
+export type HealthFact = {
+  fact_id: string;
+  member_id: string;
+  fact_type: string;
+  name: string;
+  value: string | null;
+  unit: string | null;
+  reference_range: string | null;
+  status: 'normal' | 'warning' | 'danger' | string;
+  source_document_id: string;
+  source_page_no: number;
+  source_chunk_id: string | null;
+  evidence_text: string;
+  created_at: string;
+};
+
+export type HealthFactsResponse = {
+  fact_extract_status: KbDocument['fact_extract_status'];
+  fact_extract_error: string | null;
+  items: HealthFact[];
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 export function getDocumentPdfUrl(document: KbDocument): string {
@@ -73,6 +95,12 @@ export async function listDocumentChunks(documentId: string): Promise<DocumentCh
   if (!response.ok) throw new Error('获取分块列表失败');
   const data = await response.json();
   return data.items;
+}
+
+export async function listDocumentHealthFacts(documentId: string): Promise<HealthFactsResponse> {
+  const response = await fetch(`${API_BASE}/api/kb/documents/${documentId}/facts`);
+  if (!response.ok) throw new Error('获取健康事实失败');
+  return response.json();
 }
 
 export async function uploadPdf({
