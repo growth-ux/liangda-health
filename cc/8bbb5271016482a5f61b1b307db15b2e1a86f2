@@ -1,0 +1,44 @@
+frontend/src/api/kb.ts
+  s_9b6611182a7173::t_d0b8038194c444 46-67,100-103
+  s_9b6611182a7173::t_f094587e48ec24 104-105
+docs/architecture_picture/drawio_to_pptx.py
+  s_0832a08b5c2ec2::t_487dc5401339c2 563
+  s_0832a08b5c2ec2::t_42605c7442a10c 545,561-562,564-574
+frontend/src/pages/DocumentDetailPage.tsx
+  s_9b6611182a7173::t_d0b8038194c444 1,23,38-42,96-99,152-183,187-188,190-206,289-299
+  s_9b6611182a7173::t_2c2c53e1589219 9,184-186,189
+  s_9b6611182a7173::t_01727931c784be 5-8,10
+  s_9b6611182a7173::t_9ef9263869b0f5 45,47-50,54,300-306
+frontend/src/styles.css
+  s_9b6611182a7173::t_d0b8038194c444 1362-1373,1418-1463
+  s_9b6611182a7173::t_3e8ef3da144937 1464
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "cc8bbb5271016482a5f61b1b307db15b2e1a86f2",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_0832a08b5c2ec2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5ada6cf8-ddb5-42bb-bafe-c77f62ce4f0b",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9b6611182a7173": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdac8-519d-7ac2-8066-246c9a4eb0e3",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
