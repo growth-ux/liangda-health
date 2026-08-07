@@ -50,11 +50,11 @@ class MemoryService:
         if owner is None:
             return
         prompt = (
-            "只沉淀 preference、avoidance、marketing_feedback。\n"
+            "只沉淀 preference、avoidance、goal、marketing_feedback。\n"
             "不要记录健康禁忌、诊断结论、报告事实或手环数据。\n"
             "不要记录一次性推荐请求、当前问答意图、临时购买需求。\n"
             "不要记录围绕体检报告、异常指标、是否干预、健康风险解释的提问。\n"
-            "不要记录长期目标、阶段目标、照护意图或对当前对话的总结性改写。\n"
+            "不要记录对当前对话的总结性改写。\n"
             "记忆内容必须使用简体中文，不要翻译成英文。\n"
             f"记忆归属：{owner.user_id}\n"
             f"用户原话：{content.strip()}"
@@ -240,15 +240,16 @@ def _mem0_config() -> dict:
         },
         "history_db_path": str(settings.memory_history_db_path),
         "custom_instructions": (
-            "只沉淀以下三类长期记忆：preference、avoidance、marketing_feedback。\n"
+            "只沉淀以下四类长期记忆：preference、avoidance、goal、marketing_feedback。\n"
             "preference 表示饮食、口味、商品或生活方式偏好。\n"
             "avoidance 表示不喜欢、排斥、不吃、不愿购买或负反馈。\n"
+            "goal 表示阶段性健康目标，如控糖、控脂、补钙、减重等。\n"
             "marketing_feedback 表示对推荐、商品、价格、品牌、购买意愿的反馈。\n"
             "不要记录健康禁忌、诊断结论、体检报告事实、手环数据、一次性闲聊或临时问题。\n"
             "不要记录一次性推荐请求、当前问答意图、临时购买需求。\n"
             "不要记录围绕体检报告、异常指标、是否干预、健康风险解释的提问。\n"
-            "不要记录长期目标、阶段目标、照护意图或对当前对话的总结性改写。\n"
-            "如果用户消息没有上述三类长期记忆价值，返回空记忆。\n"
+            "不要记录对当前对话的总结性改写。\n"
+            "如果用户消息没有上述四类长期记忆价值，返回空记忆。\n"
             "memory 字段必须使用简体中文，不要输出英文改写。"
         ),
     }
@@ -269,9 +270,9 @@ def _is_family_scope(content: str) -> bool:
 
 def _memory_extraction_prompt() -> str:
     return (
-        "从用户消息中抽取长期记忆，只保留 preference、avoidance、marketing_feedback 三类。\n"
+        "从用户消息中抽取长期记忆，只保留 preference、avoidance、goal、marketing_feedback 四类。\n"
         "memory 字段必须使用简体中文，不要翻译成英文，不要使用 User/father/mother 等英文表达。\n"
-        "不要输出 goal，不要输出长期目标、阶段目标、照护意图或对当前对话的总结性改写。\n"
+        "goal 类型用于记录阶段性健康目标，如控糖、控脂、补钙、减重。\n"
         "如果没有长期记忆价值，返回空 memory 列表。"
     )
 
@@ -330,13 +331,30 @@ def _should_skip_memory_write(content: str) -> bool:
     normalized = content.strip()
     if not normalized:
         return True
+    if _is_session_only_noise(normalized):
+        return True
     if _is_one_off_recommendation_request(normalized):
         return True
     if _is_health_fact_question(normalized):
         return True
-    if _is_goal_like_message(normalized):
-        return True
     if _is_preference_query(normalized):
+        return True
+    return False
+
+
+def _is_session_only_noise(content: str) -> bool:
+    """过滤只对当前会话有效的临时表达，不写入长期记忆。"""
+    noise_patterns = (
+        "随便", "都行", "都可以", "无所谓", "先看看",
+        "今天不想吃", "今晚不吃", "这顿不吃",
+        "一般般", "看起来一般", "还行吧",
+    )
+    if any(pattern in content for pattern in noise_patterns):
+        return True
+    # 仅针对当次餐单的临时否定（"今天/这次/这顿" + 否定词）
+    session_markers = ("今天", "这次", "这顿", "今晚", "今早")
+    negation_words = ("不想", "不要", "别", "不吃")
+    if any(marker in content for marker in session_markers) and any(neg in content for neg in negation_words):
         return True
     return False
 
@@ -386,18 +404,4 @@ def _is_health_fact_question(content: str) -> bool:
     return any(re.search(pattern, content) for pattern in health_fact_patterns)
 
 
-def _is_goal_like_message(content: str) -> bool:
-    goal_like_patterns = (
-        r"最近想",
-        r"想控(糖|脂)",
-        r"要控(糖|脂)",
-        r"长期关注",
-        r"阶段目标",
-        r"长期目标",
-        r"照护意图",
-        r"关怀意图",
-        r"体现出.*意图",
-        r"安排今晚.*(晚餐|饮食)",
-        r"晚餐安排",
-    )
-    return any(re.search(pattern, content) for pattern in goal_like_patterns)
+

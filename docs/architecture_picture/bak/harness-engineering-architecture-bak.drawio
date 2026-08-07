@@ -1,10 +1,10 @@
 <mxfile host="Electron" agent="Codex">
   <diagram id="harness-engineering-architecture" name="Harness Engineering Architecture">
-    <mxGraphModel dx="1371" dy="1367" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="1800" math="0" shadow="0">
+    <mxGraphModel dx="1371" dy="1385" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="1800" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="7G7wAvqXQohLLXFJLk8Y-39" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#111827;" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;Harness Engineering 技术架构&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 14px; color: #6B7280;&quot;&gt;实线 = 已实现 · 虚线灰底 = 未来" vertex="1">
+        <mxCell id="7G7wAvqXQohLLXFJLk8Y-39" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#111827;" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;Harness Engineering 技术架构&lt;/font&gt;" vertex="1">
           <mxGeometry height="54" width="740" x="1490" y="234" as="geometry" />
         </mxCell>
         <mxCell id="7G7wAvqXQohLLXFJLk8Y-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#1F2937;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;spacing=10;" value="变更触发&#xa;Prompt / Tool / RAG / 推荐规则 / 商品标签 / 模型" vertex="1">
@@ -67,7 +67,7 @@
         <mxCell id="7G7wAvqXQohLLXFJLk8Y-59" parent="7G7wAvqXQohLLXFJLk8Y-53" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D79B00;fontSize=18;align=center;verticalAlign=middle;spacing=8;fontStyle=1" value="Response Schema Check&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="72" width="140" x="1160" y="68" as="geometry" />
         </mxCell>
-        <mxCell id="7G7wAvqXQohLLXFJLk8Y-60" parent="7G7wAvqXQohLLXFJLk8Y-53" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#D79B00;dashed=1;fontSize=18;fontColor=#374151;fontStyle=3;align=center;verticalAlign=middle;spacing=8;" value="（未来）Recommendation Quality Check&#xa;健康匹配 / 偏好 / 预算 / 类目 / 推荐证据" vertex="1">
+        <mxCell id="7G7wAvqXQohLLXFJLk8Y-60" parent="7G7wAvqXQohLLXFJLk8Y-53" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D79B00;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;spacing=8;" value="Recommendation Quality Check&#xa;健康匹配 / 偏好 / 预算 / 类目 / 推荐证据" vertex="1">
           <mxGeometry height="62" width="480" x="420" y="166" as="geometry" />
         </mxCell>
         <mxCell id="7G7wAvqXQohLLXFJLk8Y-61" parent="1" style="swimlane;html=1;startSize=36;horizontal=1;rounded=1;fillColor=#F8EAFE;strokeColor=#B85450;fontColor=#1F2937;fontSize=18;fontStyle=1;whiteSpace=wrap;" value="Diagnosis Layer：解释失败原因" vertex="1">
@@ -97,10 +97,10 @@
         <mxCell id="7G7wAvqXQohLLXFJLk8Y-69" parent="7G7wAvqXQohLLXFJLk8Y-66" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0E8088;fontSize=18;align=center;verticalAlign=middle;spacing=8;fontStyle=1" value="Quality Metrics&#xa;工具调用率 / 证据命中率&#xa;安全通过率 / 推荐质量" vertex="1">
           <mxGeometry height="78" width="250" x="600" y="76" as="geometry" />
         </mxCell>
-        <mxCell id="7G7wAvqXQohLLXFJLk8Y-70" parent="7G7wAvqXQohLLXFJLk8Y-66" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#0E8088;dashed=1;fontSize=18;fontColor=#374151;fontStyle=3;align=center;verticalAlign=middle;spacing=8;" value="（未来）Failed Case Replay&#xa;失败用例回放和对比" vertex="1">
+        <mxCell id="7G7wAvqXQohLLXFJLk8Y-70" parent="7G7wAvqXQohLLXFJLk8Y-66" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0E8088;fontSize=18;align=center;verticalAlign=middle;spacing=8;fontStyle=1" value="Failed Case Replay&#xa;失败用例回放和对比" vertex="1">
           <mxGeometry height="78" width="220" x="890" y="76" as="geometry" />
         </mxCell>
-        <mxCell id="7G7wAvqXQohLLXFJLk8Y-71" parent="7G7wAvqXQohLLXFJLk8Y-66" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#0E8088;dashed=1;fontSize=18;fontColor=#374151;fontStyle=3;align=center;verticalAlign=middle;spacing=8;" value="（未来）Harness Dashboard&lt;br&gt;展示 / 研发调试" vertex="1">
+        <mxCell id="7G7wAvqXQohLLXFJLk8Y-71" parent="7G7wAvqXQohLLXFJLk8Y-66" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5F6;strokeColor=#0E8088;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;spacing=8;" value="Harness Dashboard&lt;br&gt;展示 / 研发调试" vertex="1">
           <mxGeometry height="77" width="154" x="1150" y="77" as="geometry" />
         </mxCell>
         <mxCell id="7G7wAvqXQohLLXFJLk8Y-72" edge="1" parent="1" source="7G7wAvqXQohLLXFJLk8Y-40" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;html=1;strokeColor=#6B7280;fontSize=18;endArrow=block;endFill=1;fontStyle=1" target="7G7wAvqXQohLLXFJLk8Y-41" value="触发回归">

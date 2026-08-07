@@ -161,6 +161,7 @@ def test_kb_document_list_and_detail_endpoints():
     assert detail_response.json()["file_name"] == "report.pdf"
     assert detail_response.json()["member_relation"] == "本人"
     assert detail_response.json()["thumbnail_url"] == "/uploads/doc_1/thumbnail.png"
+    assert detail_response.json()["pdf_url"] == "/uploads/doc_1/report.pdf"
 
 
 def test_kb_document_chunks_endpoint_returns_document_chunks():

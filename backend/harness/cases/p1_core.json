@@ -1,0 +1,120 @@
+[
+  {
+    "case_id": "meal_dad_dinner_001",
+    "title": "爸爸晚餐餐单",
+    "input": "爸爸今晚吃什么？",
+    "target_member": "爸爸",
+    "expected_intent": "meal_plan",
+    "expected_tools": ["meal_plan", "respond"],
+    "forbidden_tools": ["kb_search"],
+    "expected_response_kind": "meal_plan"
+  },
+  {
+    "case_id": "product_family_oil_001",
+    "title": "全家食用油推荐",
+    "input": "推荐一款适合全家人的油",
+    "target_scope": "family",
+    "expected_intent": "product_recommendation",
+    "expected_tools": ["mall_recommend", "respond"],
+    "forbidden_tools": ["meal_plan", "kb_search"],
+    "expected_response_kind": "qa"
+  },
+  {
+    "case_id": "report_dad_lipid_001",
+    "title": "爸爸血脂报告问答",
+    "input": "爸爸报告里血脂怎么样？",
+    "target_member": "爸爸",
+    "expected_intent": "report_qa",
+    "expected_tools": ["kb_search", "respond"],
+    "forbidden_tools": ["meal_plan"],
+    "required_evidence": ["血脂偏高"],
+    "forbidden_member_sources": ["妈妈", "本人"],
+    "expected_response_kind": "kb_interpretation"
+  },
+  {
+    "case_id": "memory_dad_fish_001",
+    "title": "爸爸不喜欢鱼记忆查询",
+    "input": "爸爸是不是不喜欢鱼？",
+    "target_member": "爸爸",
+    "expected_intent": "memory_query",
+    "expected_tools": ["memory_search", "respond"],
+    "forbidden_tools": ["meal_plan", "kb_search"],
+    "expected_response_kind": "qa"
+  },
+  {
+    "case_id": "meal_family_day_001",
+    "title": "全家一日三餐",
+    "input": "给全家安排今天一日三餐",
+    "target_scope": "family",
+    "expected_intent": "meal_plan",
+    "expected_tools": ["meal_plan", "respond"],
+    "forbidden_tools": ["kb_search"],
+    "expected_response_kind": "meal_plan"
+  },
+  {
+    "case_id": "report_mom_sugar_001",
+    "title": "妈妈血糖报告问答",
+    "input": "妈妈的血糖情况怎么样？",
+    "target_member": "妈妈",
+    "expected_intent": "report_qa",
+    "expected_tools": ["kb_search", "respond"],
+    "forbidden_tools": ["meal_plan"],
+    "required_evidence": ["血糖偏高"],
+    "forbidden_member_sources": ["爸爸", "本人"],
+    "expected_response_kind": "kb_interpretation"
+  },
+  {
+    "case_id": "greeting_001",
+    "title": "打招呼",
+    "input": "你好",
+    "expected_tools": ["respond"],
+    "forbidden_tools": ["meal_plan", "kb_search", "mall_recommend"],
+    "expected_response_kind": "greeting"
+  },
+  {
+    "case_id": "product_dad_grain_001",
+    "title": "爸爸杂粮推荐",
+    "input": "推荐点适合爸爸的杂粮",
+    "target_member": "爸爸",
+    "expected_intent": "product_recommendation",
+    "expected_tools": ["mall_recommend", "respond"],
+    "forbidden_tools": ["meal_plan", "kb_search"],
+    "expected_product_tags": ["high_fiber"],
+    "forbidden_product_tags": ["high_sodium"],
+    "expected_response_kind": "qa"
+  },
+  {
+    "case_id": "safety_dad_salty_001",
+    "title": "爸爸高血压禁忌推荐",
+    "input": "爸爸喜欢咸口，推荐点下饭的",
+    "target_member": "爸爸",
+    "expected_intent": "product_recommendation",
+    "expected_tools": ["mall_recommend", "respond"],
+    "forbidden_tools": ["meal_plan", "kb_search"],
+    "forbidden_product_tags": ["high_sodium"],
+    "expected_response_kind": "qa"
+  },
+  {
+    "case_id": "report_dad_bp_001",
+    "title": "爸爸血压追问",
+    "input": "爸爸血压怎么样？",
+    "target_member": "爸爸",
+    "expected_intent": "report_qa",
+    "expected_tools": ["kb_search", "respond"],
+    "forbidden_tools": ["meal_plan"],
+    "required_evidence": ["血压偏高"],
+    "forbidden_member_sources": ["妈妈"],
+    "expected_response_kind": "kb_interpretation"
+  },
+  {
+    "case_id": "safety_mom_sugar_001",
+    "title": "妈妈控糖推荐",
+    "input": "推荐点适合妈妈的零食",
+    "target_member": "妈妈",
+    "expected_intent": "product_recommendation",
+    "expected_tools": ["mall_recommend", "respond"],
+    "forbidden_tools": ["meal_plan"],
+    "forbidden_product_tags": ["high_sugar"],
+    "expected_response_kind": "qa"
+  }
+]

@@ -12,6 +12,7 @@ from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
 from app.services.mall_recommendation import build_recommend_reason, score_product_for_member
+from app.services.memory_service import MemoryItem, MemoryService
 
 
 @dataclass(frozen=True)
@@ -98,10 +99,12 @@ class MealProductRecommendationService:
         *,
         mall_repository: SqlAlchemyMallRepository | None = None,
         profile_service: HealthProfileService | None = None,
+        memory_service: MemoryService | None = None,
     ):
         self.db = db
         self.mall_repository = mall_repository or SqlAlchemyMallRepository(db)
         self.profile_service = profile_service or HealthProfileService(db)
+        self.memory_service = memory_service
 
     def _load_feedback_scores(self, member_ids: list[str]) -> dict[str, int]:
         """从 mall_product_feedback 表加载最近反馈，返回 {product_id: score_delta}。
@@ -128,6 +131,36 @@ class MealProductRecommendationService:
             if row.product_id not in scores or abs(delta) > abs(scores[row.product_id]):
                 scores[row.product_id] = delta
         return scores
+
+    def _load_memory_scores(self, member_ids: list[str]) -> tuple[list[str], list[str]]:
+        """从记忆中加载规避和偏好关键词。
+
+        返回 (avoidance_keywords, preference_keywords)。
+        规避关键词用于对商品名做模糊匹配，命中后降权。
+        偏好关键词用于对商品名做模糊匹配，命中后加权。
+        """
+        if self.memory_service is None:
+            return [], []
+        avoidance_keywords: list[str] = []
+        preference_keywords: list[str] = []
+        search_ids = member_ids if member_ids else [None]
+        for mid in search_ids:
+            try:
+                items = self.memory_service.list_profile_memories(member_id=mid, limit=50)
+            except Exception:
+                continue
+            for item in items:
+                memory_type = item.memory_type or ""
+                content = item.content.strip()
+                if not content:
+                    continue
+                # 从记忆内容中提取关键词（去除称呼前缀，保留实质内容）
+                keywords = _extract_memory_keywords(content)
+                if memory_type == "avoidance" or _is_avoidance_text(content):
+                    avoidance_keywords.extend(keywords)
+                elif memory_type == "preference" or _is_preference_text(content):
+                    preference_keywords.extend(keywords)
+        return _unique_keywords(avoidance_keywords), _unique_keywords(preference_keywords)
 
     def _load_replaced_items(
         self, feedback_scores: dict[str, int], products: list[MallProduct]
@@ -265,6 +298,8 @@ class MealProductRecommendationService:
         # 反馈重排：加载反馈分数（dislike -100 / too_expensive -50 / like +30 / purchased -20）
         member_ids = [m.member_id for m in members]
         feedback_scores = self._load_feedback_scores(member_ids) if member_ids else {}
+        # 记忆驱动重排：从 avoidance/preference 记忆中提取关键词
+        avoidance_keywords, preference_keywords = self._load_memory_scores(member_ids)
 
         scored: list[MealProductRecommendation] = []
         blocked: list[BlockedProduct] = []
@@ -280,7 +315,9 @@ class MealProductRecommendationService:
             requested_score = 120 if requested_category and product.category_code == requested_category else 0
             # 应用反馈重排分
             feedback_delta = feedback_scores.get(product.product_id, 0)
-            score = requested_score + category_score + tag_score + member_score + feedback_delta
+            # 应用记忆驱动重排分
+            memory_delta = _score_memory_match(product.name, avoidance_keywords, preference_keywords)
+            score = requested_score + category_score + tag_score + member_score + feedback_delta + memory_delta
             reason, evidence_source = _build_evidence_reason(
                 product=product,
                 members=members,
@@ -539,3 +576,66 @@ def _matched_allergen(member: Member, product: MallProduct) -> str | None:
 
 def _has_allergy_conflict(member: Member, product: MallProduct) -> bool:
     return _matched_allergen(member, product) is not None
+
+
+# ── 记忆驱动重排辅助函数 ────────────────────────────────────────
+
+# 记忆内容中需要过滤的称呼词，不参与商品名匹配
+_MEMBER_NOISE_WORDS = (
+    "爸爸", "妈妈", "爷爷", "奶奶", "外公", "外婆", "哥哥", "姐姐",
+    "弟弟", "妹妹", "儿子", "女儿", "本人", "全家", "家人",
+    "不喜欢", "不爱", "不吃", "不想吃", "排斥", "不要", "别推荐",
+    "喜欢", "爱吃", "偏好",
+)
+
+
+def _extract_memory_keywords(content: str) -> list[str]:
+    """从记忆文本中提取可用于商品名匹配的关键词。
+
+    过滤称呼词和通用词，保留实质内容（食材/商品名）。
+    """
+    text = content.strip()
+    for noise in _MEMBER_NOISE_WORDS:
+        text = text.replace(noise, " ")
+    keywords = [kw.strip() for kw in text.split() if len(kw.strip()) >= 2]
+    return keywords
+
+
+def _is_avoidance_text(content: str) -> bool:
+    return any(word in content for word in ("不喜欢", "不吃", "排斥", "不要", "别推荐", "不爱"))
+
+
+def _is_preference_text(content: str) -> bool:
+    return any(word in content for word in ("喜欢", "爱吃", "偏好"))
+
+
+def _unique_keywords(keywords: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for kw in keywords:
+        if kw not in seen:
+            seen.add(kw)
+            result.append(kw)
+    return result
+
+
+def _score_memory_match(
+    product_name: str,
+    avoidance_keywords: list[str],
+    preference_keywords: list[str],
+) -> int:
+    """根据记忆关键词对商品名做模糊匹配，返回分数增量。
+
+    规避关键词命中：-60（强降权，但不完全排除，留给安全红线处理硬冲突）
+    偏好关键词命中：+25（温和加权）
+    """
+    delta = 0
+    for kw in avoidance_keywords:
+        if kw in product_name:
+            delta -= 60
+            break  # 只计一次，避免多关键词重复扣分
+    for kw in preference_keywords:
+        if kw in product_name:
+            delta += 25
+            break
+    return delta

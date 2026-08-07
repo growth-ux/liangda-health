@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from urllib.parse import quote
 
 from pydantic import BaseModel, ConfigDict, computed_field
 
@@ -34,6 +35,11 @@ class DocumentListItem(BaseModel):
     @property
     def thumbnail_url(self) -> str:
         return f"/uploads/{self.document_id}/thumbnail.png"
+
+    @computed_field
+    @property
+    def pdf_url(self) -> str:
+        return f"/uploads/{self.document_id}/{quote(self.file_name, safe='')}"
 
 
 class DocumentDetail(DocumentListItem):

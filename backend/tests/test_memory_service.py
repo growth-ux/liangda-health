@@ -113,13 +113,16 @@ def test_memory_service_skips_health_fact_risk_question():
     assert client.add_calls == []
 
 
-def test_memory_service_skips_goal_like_message():
+def test_memory_service_allows_goal_like_message():
+    """goal 类型记忆已放开，"爸爸最近想控糖" 应正常写入。"""
     client = FakeMem0Client()
     service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
 
     service.add_from_user_message("爸爸最近想控糖")
 
-    assert client.add_calls == []
+    assert len(client.add_calls) == 1
+    assert client.add_calls[0]["user_id"] == "mem_dad"
+    assert "爸爸最近想控糖" in client.add_calls[0]["messages"][0]["content"]
 
 
 def test_memory_service_skips_preference_question_what_does_dad_not_eat():
@@ -297,7 +300,38 @@ def test_mem0_config_uses_dashscope_openai_compatible_llm_and_embedding(monkeypa
     assert config["vector_store"]["config"]["embedding_model_dims"] == 1024
     assert config["vector_store"]["config"]["metric_type"] == "COSINE"
     assert config["history_db_path"] == str(settings.memory_dir / "history.db")
-    assert "preference、avoidance、marketing_feedback" in config["custom_instructions"]
+    assert "preference、avoidance、goal、marketing_feedback" in config["custom_instructions"]
     assert "不要记录健康禁忌" in config["custom_instructions"]
-    assert "不要记录长期目标、阶段目标、照护意图" in config["custom_instructions"]
+    assert "goal 表示阶段性健康目标" in config["custom_instructions"]
     assert "memory 字段必须使用简体中文" in config["custom_instructions"]
+
+
+def test_memory_service_skips_session_only_noise():
+    """“随便”这类无信息量表达不写入长期记忆。"""
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("随便")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_skips_today_only_negation():
+    """“今天不想吃鱼”只对当前会话有效，不写入长期记忆。"""
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("今天不想吃鱼")
+
+    assert client.add_calls == []
+
+
+def test_memory_service_allows_long_term_avoidance():
+    """“爸爸不喜欢鱼”是长期规避，应正常写入。"""
+    client = FakeMem0Client()
+    service = MemoryService(client=client, family_user_id="default_family", member_provider=_members, enabled=True)
+
+    service.add_from_user_message("爸爸不喜欢鱼")
+
+    assert len(client.add_calls) == 1
+    assert "goal" in client.add_calls[0]["prompt"]

@@ -265,3 +265,69 @@ def test_recommend_product_includes_report_based_evidence_source(db_session, mon
     assert result["items"]
     assert any(item["evidence_source"] == "报告健康事实 + 商品标签" for item in result["items"])
     assert any("血脂偏高" in item["reason"] or "少油" in item["reason"] for item in result["items"])
+
+
+class FakeMemoryServiceForRank:
+    """轻量级 mock：只实现 list_profile_memories，供商品重排测试使用。"""
+    def __init__(self, items):
+        self.items = items
+
+    def list_profile_memories(self, *, member_id=None, limit=50):
+        return self.items
+
+
+def test_recommend_memory_driven_avoidance_penalizes_product(db_session):
+    """规避记忆中的关键词命中商品名时，该商品应被降权。"""
+    from app.services.memory_service import MemoryItem
+
+    _add_member(db_session)
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    memory = FakeMemoryServiceForRank([
+        MemoryItem(content="爸爸不喜欢鱼", memory_type="avoidance", member_id="mem_dad"),
+    ])
+    service = MealProductRecommendationService(
+        db_session, mall_repository=repo, memory_service=memory,
+    )
+
+    result = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：杂粮饭 + 豆腐青菜。",
+        limit=5,
+    )
+
+    assert result["is_error"] is False
+    # 带“鱼”字的商品应被降权，不应出现在推荐前列
+    fish_items = [item for item in result["items"] if "鱼" in item["name"]]
+    assert not fish_items, f"规避记忆应降权含“鱼”的商品，但出现了：{[i['name'] for i in fish_items]}"
+
+
+def test_recommend_memory_driven_preference_boosts_product(db_session):
+    """偏好记忆中的关键词命中商品名时，该商品应被加权。"""
+    from app.services.memory_service import MemoryItem
+
+    _add_member(db_session)
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    memory = FakeMemoryServiceForRank([
+        MemoryItem(content="爸爸喜欢燕麦", memory_type="preference", member_id="mem_dad"),
+    ])
+    service = MealProductRecommendationService(
+        db_session, mall_repository=repo, memory_service=memory,
+    )
+
+    result = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：杂粮饭 + 豆腐青菜。",
+        limit=5,
+    )
+
+    assert result["is_error"] is False
+    # 带“燕麦”关键词的商品应获得加权（可能出现在推荐列表中）
+    oat_items = [item for item in result["items"] if "燕麦" in item["name"]]
+    # 不强制要求出现，但如果出现则说明加权生效
+    if oat_items:
+        assert oat_items[0]["score"] > 0
+

@@ -199,8 +199,9 @@ def test_health_profile_memory_avoidance_stays_out_of_health_avoid_tags(db_sessi
 
     assert memory.list_calls == [("mem_dad", 50)]
     assert memory.calls == []
-    assert "爸爸不喜欢鱼" in profile.preferences
+    assert "爸爸不喜欢鱼" in profile.avoidance_memories
     assert "爸爸不喜欢鱼" not in profile.avoid_tags
+    assert "爸爸不喜欢鱼" not in profile.preferences
     assert "互动记忆" in profile.source_notes
 
 
@@ -214,7 +215,7 @@ def test_health_profile_uses_member_memory_full_recall_for_preferences(db_sessio
 
     assert memory.list_calls == [("mem_dad", 50)]
     assert memory.calls == []
-    assert "爸爸不喜欢鱼" in profile.preferences
+    assert "爸爸不喜欢鱼" in profile.avoidance_memories
 
 
 def test_family_profile_merges_health_facts_and_family_memory(db_session):

@@ -23,6 +23,7 @@ from app.services.context_pipeline import (
     PRIORITY_SAFETY,
 )
 from app.services.device_service import DeviceService
+from app.services.loop_feedback import ConflictDetector, detect_conflicts, suggest_safe_alternatives
 from app.services.memory_service import MemoryItem, MemoryService
 
 
@@ -42,11 +43,13 @@ class HealthProfile:
     diet_principles: list[str]
     avoid_tags: list[str]
     preferences: list[str]
+    avoidance_memories: list[str]
     goals: list[str]
     marketing_feedback: list[str]
     today_modifiers: list[str]
     source_notes: list[str]
     evidence_notes: list[str]
+    conflicts: list[dict] | None = None
 
 
 @dataclass(frozen=True)
@@ -141,7 +144,9 @@ class HealthProfileService:
             f"{member.name} {member.relation} 饮食 偏好 排斥 阶段目标 购买反馈",
             member_id=member.member_id,
         )
+        avoidance_memories = _unique(memory_groups["avoidances"])
         preferences = _unique([*taste_preferences, *memory_groups["preferences"]])
+        goals = memory_groups["goals"]
         source_notes = ["健康档案"]
         if any(fact.status in {"warning", "danger"} for fact in facts):
             source_notes.append("报告健康事实")
@@ -149,6 +154,16 @@ class HealthProfileService:
             source_notes.append("最近7天手环")
         if any(memory_groups.values()):
             source_notes.append("互动记忆")
+
+        # 冲突检测：偏好 vs 健康约束
+        all_avoid_tags = _unique([*avoid_tags, *allergies])
+        conflicts = detect_conflicts(
+            preferences=preferences,
+            avoidance_memories=avoidance_memories,
+            avoid_tags=all_avoid_tags,
+            long_term_risks=_unique(long_term_risks),
+            health_tags=health_tags,
+        )
 
         return HealthProfile(
             scope="member",
@@ -163,13 +178,15 @@ class HealthProfileService:
             long_term_risks=_unique(long_term_risks),
             recent_states=_unique(recent_states),
             diet_principles=_unique(principles),
-            avoid_tags=_unique([*avoid_tags, *allergies]),
+            avoid_tags=all_avoid_tags,
             preferences=preferences,
-            goals=memory_groups["goals"],
+            avoidance_memories=avoidance_memories,
+            goals=goals,
             marketing_feedback=memory_groups["marketing_feedback"],
             today_modifiers=_unique(modifiers),
             source_notes=source_notes,
             evidence_notes=_unique(evidence_notes),
+            conflicts=conflicts if conflicts else None,
         )
 
     def _apply_health_rules(
@@ -289,7 +306,7 @@ class HealthProfileService:
                 avoid_tags.extend(["辛辣", "生冷", "过油"])
 
     def _memory_groups(self, query: str, member_id: str | None = None) -> dict[str, list[str]]:
-        groups = {"preferences": [], "goals": [], "marketing_feedback": []}
+        groups = {"preferences": [], "avoidances": [], "goals": [], "marketing_feedback": []}
         if self.memory_service is None:
             return groups
         items = self.memory_service.list_profile_memories(member_id=member_id, limit=50)
@@ -400,7 +417,7 @@ class HealthProfileService:
             content=f"{label}{'，'.join(profile_parts)}",
         ))
 
-        # --- memory (300)：偏好 + 目标 + 营销反馈 ---
+        # --- memory (300)：偏好 + 规避 + 目标 + 营销反馈 ---
         for pref in profile.preferences:
             if pref not in profile.taste_preferences:
                 items.append(ContextItem(
@@ -408,6 +425,12 @@ class HealthProfileService:
                     priority=PRIORITY_MEMORY,
                     content=f"{label}偏好：{pref}",
                 ))
+        for avoid_mem in profile.avoidance_memories:
+            items.append(ContextItem(
+                source="memory",
+                priority=PRIORITY_MEMORY,
+                content=f"{label}规避：{avoid_mem}",
+            ))
         for goal in profile.goals:
             items.append(ContextItem(
                 source="memory",
@@ -481,6 +504,8 @@ def _memory_group(item: MemoryItem) -> str | None:
         return "goals"
     if memory_type == "marketing_feedback" or any(keyword in text for keyword in ("贵", "便宜", "跳过", "购买", "不买")):
         return "marketing_feedback"
-    if memory_type in {"preference", "avoidance"} or any(keyword in text for keyword in ("喜欢", "偏好", "不喜欢", "不吃", "排斥")):
+    if memory_type == "avoidance" or any(keyword in text for keyword in ("不喜欢", "不吃", "排斥", "不要", "别推荐")):
+        return "avoidances"
+    if memory_type == "preference" or any(keyword in text for keyword in ("喜欢", "偏好", "爱吃")):
         return "preferences"
     return None

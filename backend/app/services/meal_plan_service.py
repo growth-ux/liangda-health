@@ -10,6 +10,7 @@ from app.schemas.agent_response import EvidenceItem
 from app.services.context_pipeline import ContextPipeline, PruningLog
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
 from app.services.llm_logging import log_llm_request
+from app.services.loop_feedback import suggest_safe_alternatives
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +192,7 @@ class MealPlanService:
 
 
 def _member_prompt(profile: HealthProfile, *, goal: str | None, meal_type: str) -> str:
+    conflict_lines = _conflict_prompt_lines(profile.conflicts)
     return "\n".join(
         [
             "你是粮达健康的家庭营养餐单助手。请基于健康画像生成餐单，不要使用固定模板。",
@@ -215,11 +217,13 @@ def _member_prompt(profile: HealthProfile, *, goal: str | None, meal_type: str) 
             f"- 饮食原则：{_join_or(profile.diet_principles, '均衡清淡')}",
             f"- 健康避免项：{_join_or(profile.avoid_tags, '高油高糖和过量重口调味')}",
             f"- 过敏：{_join_or(profile.allergies, '无')}",
-            f"- 口味和互动偏好：{_join_or(profile.preferences, '无')}",
+            f"- 口味偏好：{_join_or(profile.preferences, '无')}",
+            f"- 规避记忆（用户主动说不吃的）：{_join_or(profile.avoidance_memories, '无')}",
             f"- 阶段目标：{_join_or(profile.goals, '无')}",
             f"- 今日修正：{_join_or(profile.today_modifiers, '无')}",
             f"- 依据来源：{_join_or(profile.source_notes, '无')}",
             f"- 报告依据：{_join_or(profile.evidence_notes, '无')}",
+            *conflict_lines,
             "",
             "请按以下结构输出：",
             "1. 一句话说明本餐关注点",
@@ -232,7 +236,7 @@ def _member_prompt(profile: HealthProfile, *, goal: str | None, meal_type: str) 
 
 def _family_prompt(profile: FamilyHealthProfile, *, goal: str | None, meal_type: str) -> str:
     members = [
-        f"{item.name}（{item.relation}）：原则={_join_or(item.diet_principles, '均衡清淡')}；避免={_join_or(item.avoid_tags, '无')}；偏好={_join_or(item.preferences, '无')}"
+        f"{item.name}（{item.relation}）：原则={_join_or(item.diet_principles, '均衡清淡')}；避免={_join_or(item.avoid_tags, '无')}；偏好={_join_or(item.preferences, '无')}；规避={_join_or(item.avoidance_memories, '无')}"
         for item in profile.members
     ]
     return "\n".join(
@@ -279,6 +283,17 @@ def _meal_type_text(meal_type: str) -> str:
         "dinner": "晚餐",
         "day": "一日三餐",
     }.get(meal_type, "一日三餐")
+
+
+def _conflict_prompt_lines(conflicts: list[dict] | None) -> list[str]:
+    """如果有冲突检测结果，生成提示行让 LLM 用安全替代方案。"""
+    if not conflicts:
+        return []
+    lines = ["", "【偏好与健康冲突提示】以下偏好与健康约束存在冲突，请优先安排安全替代方案："]
+    alternatives = suggest_safe_alternatives(conflicts)
+    for alt in alternatives[:3]:
+        lines.append(f"- {alt}")
+    return lines
 
 
 def _join_or(items: list[str], fallback: str) -> str:
@@ -371,7 +386,7 @@ def _pipeline_family_prompt(
     logger.info("meal_plan pipeline family %s", summary)
 
     members = [
-        f"{item.name}（{item.relation}）：原则={_join_or(item.diet_principles, '均衡清淡')}；避免={_join_or(item.avoid_tags, '无')}；偏好={_join_or(item.preferences, '无')}"
+        f"{item.name}（{item.relation}）：原则={_join_or(item.diet_principles, '均衡清淡')}；避免={_join_or(item.avoid_tags, '无')}；偏好={_join_or(item.preferences, '无')}；规避={_join_or(item.avoidance_memories, '无')}"
         for item in profile.members
     ]
 

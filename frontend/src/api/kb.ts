@@ -14,6 +14,7 @@ export type KbDocument = {
   page_count: number;
   created_at: string;
   thumbnail_url: string;
+  pdf_url: string;
   file_path?: string;
   file_size?: number;
   error_message?: string | null;
@@ -43,6 +44,10 @@ export type DocumentChunk = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+
+export function getDocumentPdfUrl(document: KbDocument): string {
+  return `${API_BASE}${document.pdf_url}`;
+}
 
 export async function listDocuments(): Promise<KbDocument[]> {
   const response = await fetch(`${API_BASE}/api/kb/documents`);

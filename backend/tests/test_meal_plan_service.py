@@ -228,3 +228,49 @@ def test_meal_plan_service_builds_report_and_device_evidence_items(db_session):
     assert items[0].source_label == "爸爸体检报告.pdf p3"
     assert "睡眠不足" in items[1].excerpt
     assert "步数偏低" in items[1].excerpt
+
+
+def test_meal_plan_member_includes_avoidance_memories_in_prompt(db_session):
+    """规避记忆应独立显示在 prompt 中，与口味偏好分开。"""
+    _add_member(
+        db_session,
+        member_id="mem_dad",
+        name="李建国",
+        relation="爸爸",
+        gender="男",
+        health_tags=["高血压"],
+    )
+    memory = FakeMemoryService([
+        MemoryItem(content="爸爸不喜欢鱼", memory_type="avoidance", member_id="mem_dad"),
+        MemoryItem(content="爸爸喜欢咸口", memory_type="preference", member_id="mem_dad"),
+    ])
+    generator = FakeMealPlanGenerator("家人：李建国（爸爸）\n晚餐：低钠蒸菜\n避免：重盐调味")
+
+    MealPlanService(db_session, memory_service=memory, generator=generator).build_member_plan("mem_dad")
+
+    prompt = generator.prompts[0]
+    assert "规避记忆" in prompt
+    assert "爸爸不喜欢鱼" in prompt
+    assert "口味偏好" in prompt
+
+
+def test_meal_plan_member_includes_conflict_prompt_when_salty_vs_hypertension(db_session):
+    """当偏好与健康约束冲突时，prompt 应包含安全替代提示。"""
+    _add_member(
+        db_session,
+        member_id="mem_dad",
+        name="李建国",
+        relation="爸爸",
+        gender="男",
+        health_tags=["高血压"],
+    )
+    memory = FakeMemoryService([
+        MemoryItem(content="爸爸喜欢咸口", memory_type="preference", member_id="mem_dad"),
+    ])
+    generator = FakeMealPlanGenerator("家人：李建国（爸爸）\n晚餐：低钠蒸菜\n避免：重盐调味")
+
+    MealPlanService(db_session, memory_service=memory, generator=generator).build_member_plan("mem_dad")
+
+    prompt = generator.prompts[0]
+    assert "冲突" in prompt or "替代" in prompt
+

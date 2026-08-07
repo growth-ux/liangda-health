@@ -1,8 +1,8 @@
-import { ArrowLeft, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Eye, FileText, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getDocument, listDocumentChunks } from '../api/kb';
+import { getDocument, getDocumentPdfUrl, listDocumentChunks } from '../api/kb';
 import { factStatusLabel, factStatusTagClass, shouldPollFactStatus } from '../components/reportStatus';
 
 const documentStatusLabel = {
@@ -14,6 +14,7 @@ const documentStatusLabel = {
 export function DocumentDetailPage() {
   const { documentId } = useParams();
   const [openChunkId, setOpenChunkId] = useState<string | null>(null);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const documentQuery = useQuery({
     queryKey: ['document', documentId],
     queryFn: () => getDocument(documentId!),
@@ -28,6 +29,15 @@ export function DocumentDetailPage() {
     queryFn: () => listDocumentChunks(documentId!),
     enabled: Boolean(documentId)
   });
+
+  useEffect(() => {
+    if (!pdfPreviewOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPdfPreviewOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [pdfPreviewOpen]);
 
   return (
     <main className="page-shell">
@@ -65,6 +75,10 @@ export function DocumentDetailPage() {
                   value={factStatusLabel[documentQuery.data.fact_extract_status]}
                   className={factStatusTagClass[documentQuery.data.fact_extract_status]}
                 />
+                <button className="detail-preview-btn" onClick={() => setPdfPreviewOpen(true)} type="button">
+                  <Eye size={16} />
+                  预览完整 PDF
+                </button>
               </div>
               {documentQuery.data.fact_extract_status === 'failed' && documentQuery.data.fact_extract_error && (
                 <div className="error-box">{documentQuery.data.fact_extract_error}</div>
@@ -81,6 +95,41 @@ export function DocumentDetailPage() {
               </div>
             </div>
           </section>
+
+          {pdfPreviewOpen && (
+            <div
+              aria-label="PDF 预览"
+              aria-modal="true"
+              className="pdf-preview-backdrop"
+              onMouseDown={() => setPdfPreviewOpen(false)}
+              role="dialog"
+            >
+              <section className="pdf-preview-dialog" onMouseDown={(event) => event.stopPropagation()}>
+                <header className="pdf-preview-header">
+                  <div>
+                    <div className="pdf-preview-title">{documentQuery.data.title || documentQuery.data.file_name}</div>
+                    <div className="pdf-preview-meta">完整 PDF · {documentQuery.data.page_count} 页</div>
+                  </div>
+                  <div className="pdf-preview-actions">
+                    <button
+                      aria-label="关闭 PDF 预览"
+                      className="icon-btn"
+                      onClick={() => setPdfPreviewOpen(false)}
+                      title="关闭"
+                      type="button"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                </header>
+                <iframe
+                  className="pdf-preview-frame"
+                  src={getDocumentPdfUrl(documentQuery.data)}
+                  title={`${documentQuery.data.file_name} PDF 预览`}
+                />
+              </section>
+            </div>
+          )}
 
           <section className="chunks-panel">
             <div className="chunks-title">报告分块</div>

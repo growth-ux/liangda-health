@@ -68,6 +68,7 @@ def get_agent_runner(
             service=MealProductRecommendationService(
                 db,
                 mall_repository=SqlAlchemyMallRepository(db),
+                memory_service=memory_service,
             ),
             allowed_member_ids=allowed_member_ids,
         ),
