@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
+from app.services.context_pipeline import ContextPipeline, PruningLog
 from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
 from app.services.llm_logging import log_llm_request
 
@@ -48,10 +49,12 @@ class LangChainMealPlanGenerator:
 
 
 class MealPlanService:
-    def __init__(self, db: Session, memory_service=None, generator=None):
+    def __init__(self, db: Session, memory_service=None, generator=None, pipeline: ContextPipeline | None = None):
         self.profile_service = HealthProfileService(db, memory_service=memory_service)
         self.kb_repository = SqlAlchemyKbRepository(db)
         self.generator = generator or LangChainMealPlanGenerator()
+        self.pipeline = pipeline
+        self.last_pruning_log: PruningLog | None = None
 
     def build(
         self,
@@ -71,7 +74,17 @@ class MealPlanService:
 
     def build_member_plan(self, member_id: str, goal: str | None = None, meal_type: str = "day") -> str:
         profile = self.profile_service.get_member_profile(member_id)
-        prompt = _member_prompt(profile, goal=goal, meal_type=meal_type)
+        self.last_pruning_log = None
+
+        # 如果配置了 Pipeline，走 Context Engineering 路径
+        if self.pipeline is not None:
+            context_items = self.profile_service.member_context_items(member_id)
+            pruning = self.pipeline.process(context_items)
+            self.last_pruning_log = pruning
+            prompt = _pipeline_member_prompt(pruning, profile, goal=goal, meal_type=meal_type)
+        else:
+            prompt = _member_prompt(profile, goal=goal, meal_type=meal_type)
+
         logger.info(
             "meal_plan llm_generate start scope=member member_id=%s meal_type=%s prompt=%s",
             member_id,
@@ -84,7 +97,17 @@ class MealPlanService:
         profile = self.profile_service.get_family_profile()
         if not profile.members:
             return "当前没有可用家人，无法生成全家餐单。"
-        prompt = _family_prompt(profile, goal=goal, meal_type=meal_type)
+        self.last_pruning_log = None
+
+        # 如果配置了 Pipeline，走 Context Engineering 路径
+        if self.pipeline is not None:
+            context_items = self.profile_service.family_context_items()
+            pruning = self.pipeline.process(context_items)
+            self.last_pruning_log = pruning
+            prompt = _pipeline_family_prompt(pruning, profile, goal=goal, meal_type=meal_type)
+        else:
+            prompt = _family_prompt(profile, goal=goal, meal_type=meal_type)
+
         logger.info(
             "meal_plan llm_generate start scope=family meal_type=%s prompt_chars=%s",
             meal_type,
@@ -292,3 +315,90 @@ def _truncate_text(text: str, *, max_length: int) -> str:
     if len(text) <= max_length:
         return text
     return text[: max_length - 1].rstrip() + "…"
+
+
+# ── Pipeline 版 prompt 拼装 ─────────────────────────────────
+
+
+def _pipeline_member_prompt(
+    pruning: PruningLog,
+    profile: HealthProfile,
+    *,
+    goal: str | None,
+    meal_type: str,
+) -> str:
+    """基于 Pipeline 裁剪后的 ContextItem 拼装单人餐单 prompt。"""
+    kept_text = pruning.kept_text(separator="\n")
+    summary = pruning.summary()
+    logger.info("meal_plan pipeline member %s", summary)
+
+    return "\n".join(
+        [
+            "你是粮达健康的家庭营养餐单助手。请基于健康画像生成餐单，不要使用固定模板。",
+            "必须遵守：健康禁忌、过敏、报告事实和饮食原则优先于口味偏好；不做诊断，不替代医生。",
+            "如果偏好与健康约束冲突，保留健康约束，并用温和替代方案满足偏好。",
+            "输出要求：只输出给用户看的简体中文餐单；不要输出 member_id、内部字段名或工具调用信息。",
+            "表达风格：像家人之间讨论今晚吃什么，先给餐单，不要先写一大段健康画像；不要复述年龄、BMI、完整指标列表、长期风险和用户动机。",
+            "健康背景最多一句话，只保留和本餐直接相关的关注点，例如“爸爸血脂偏高，晚餐按少油、高纤维来安排”。",
+            "原因解释最多 2-3 条短句，只解释关键取舍；不要逐个食材写营养成分说明。",
+            "份量表达：默认使用一小碗、一碗、一盘、一杯、一掌心、一个等日常说法；不要展开每个食材的克数、毫升数或配方级用量。",
+            "只有用户明确要求精确克数、营养计算、热量估算或详细食谱时，才给克数；主食如果必须给重量，写熟饭大概份量，不写生米重量。",
+            f"餐单范围：{_meal_type_text(meal_type)}",
+            f"本次目标：{goal or '无'}",
+            "",
+            "【以下健康画像已经过优先级排序和裁剪，只保留最重要的信息】",
+            kept_text,
+            "",
+            "请按以下结构输出：",
+            "1. 一句话说明本餐关注点",
+            "2. 早餐/午餐/晚餐，若只要求某一餐则只输出该餐",
+            "3. 简短理由，最多 2-3 条",
+            "4. 需要避免或替代的食物，能合并就合并成一句",
+        ]
+    )
+
+
+def _pipeline_family_prompt(
+    pruning: PruningLog,
+    profile: FamilyHealthProfile,
+    *,
+    goal: str | None,
+    meal_type: str,
+) -> str:
+    """基于 Pipeline 裁剪后的 ContextItem 拼装全家餐单 prompt。"""
+    kept_text = pruning.kept_text(separator="\n")
+    summary = pruning.summary()
+    logger.info("meal_plan pipeline family %s", summary)
+
+    members = [
+        f"{item.name}（{item.relation}）：原则={_join_or(item.diet_principles, '均衡清淡')}；避免={_join_or(item.avoid_tags, '无')}；偏好={_join_or(item.preferences, '无')}"
+        for item in profile.members
+    ]
+
+    return "\n".join(
+        [
+            "你是粮达健康的家庭营养餐单助手。请基于全家健康画像生成共餐餐单，不要使用固定模板。",
+            "必须遵守：任一成员的过敏、健康禁忌、报告事实和饮食原则都优先于口味偏好。",
+            "共餐方案要兼顾全家，成员差异用局部替换或份量调整解决；不做诊断，不替代医生。",
+            "输出要求：只输出给用户看的简体中文餐单；不要输出 member_id、内部字段名或工具调用信息。",
+            "表达风格：像家人之间讨论今晚吃什么，先给餐单，不要先写一大段家庭健康画像；不要复述完整风险、指标列表和用户动机。",
+            "健康背景最多一句话，只保留和本餐直接相关的共同原则，例如“今晚按全家少油、控糖、低钠来安排”。",
+            "原因解释最多 2-3 条短句，只解释关键取舍；不要逐个食材写营养成分说明。",
+            "份量表达：默认使用一小碗、一碗、一盘、一杯、一掌心、一个等日常说法；不要展开每个食材的克数、毫升数或配方级用量。",
+            "只有用户明确要求精确克数、营养计算、热量估算或详细食谱时，才给克数；主食如果必须给重量，写熟饭大概份量，不写生米重量。",
+            f"餐单范围：{_meal_type_text(meal_type)}",
+            f"本次目标：{goal or '无'}",
+            "",
+            "【以下健康画像已经过优先级排序和裁剪，只保留最重要的信息】",
+            kept_text,
+            "",
+            "成员画像摘要：",
+            *[f"- {item}" for item in members],
+            "",
+            "请按以下结构输出：",
+            "1. 一句话说明本餐共餐原则",
+            "2. 早餐/午餐/晚餐，若只要求某一餐则只输出该餐",
+            "3. 成员差异调整，最多 2-3 条",
+            "4. 需要避免或替代的食物，能合并就合并成一句",
+        ]
+    )

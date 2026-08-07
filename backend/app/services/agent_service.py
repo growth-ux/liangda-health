@@ -12,10 +12,11 @@ from app.services.langchain_agent import LlmConfigError
 
 
 class AgentService:
-    def __init__(self, repository: SqlAlchemyAgentRepository, runner, memory_service=None):
+    def __init__(self, repository: SqlAlchemyAgentRepository, runner, memory_service=None, session_summarizer=None):
         self.repository = repository
         self.runner = runner
         self.memory_service = memory_service
+        self.session_summarizer = session_summarizer
 
     def create_session(self, title: str):
         return self.repository.create_session(session_id=f"sess_{uuid.uuid4().hex[:16]}", title=title)
@@ -24,11 +25,19 @@ class AgentService:
         items = []
         for session in self.repository.list_sessions():
             latest = self.repository.get_latest_message(session.session_id)
+            preview = latest.content[:80] if latest is not None else ""
+            # content 为空但有 card 时（card 消息），从 card JSON 中提取 summary_text 作为预览
+            if not preview and latest is not None and latest.card:
+                try:
+                    card_data = json.loads(latest.card)
+                    preview = (card_data.get("summary_text") or "")[:80]
+                except (json.JSONDecodeError, TypeError):
+                    pass
             items.append(
                 {
                     "session_id": session.session_id,
                     "title": session.title,
-                    "preview": latest.content[:80] if latest is not None else "",
+                    "preview": preview,
                     "updated_at": session.updated_at,
                 }
             )
@@ -205,10 +214,26 @@ class AgentService:
         logger.info("agent memory write done")
 
     def _history(self, session_id: str):
-        return [
+        messages = self.repository.list_recent_messages(session_id, limit=20)
+        history = [
             {"role": message.role, "content": message.content}
-            for message in self.repository.list_recent_messages(session_id, limit=8)
+            for message in messages
         ]
+
+        # Context Summarization: 消息过多时把旧消息压缩为摘要
+        if self.session_summarizer is not None and len(history) > self.session_summarizer.recent_keep:
+            split = len(history) - self.session_summarizer.recent_keep
+            older = history[:split]
+            recent = history[split:]
+            summary = self.session_summarizer.summarize(older)
+            if summary:
+                logger.info(
+                    "context_summarization applied session_id=%s older_count=%s recent_count=%s summary_chars=%s",
+                    session_id, len(older), len(recent), len(summary),
+                )
+                return [{"role": "system", "content": f"【之前对话摘要】{summary}"}, *recent]
+
+        return history
 
     def _event(self, event: str, data: dict[str, object]) -> str:
         return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"

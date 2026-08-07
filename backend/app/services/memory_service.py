@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from collections.abc import Callable, Iterable
 
 from app.core.config import settings
+from app.services.context_pipeline import ContextItem, PRIORITY_MEMORY
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +147,34 @@ class MemoryService:
             len(items),
         )
         return items
+
+    # ── Context Pipeline 接口 ─────────────────────────────
+
+    def search_context_items(
+        self, query: str, *, member_id: str | None = None, limit: int = 5
+    ) -> list[ContextItem]:
+        """检索记忆并返回 ContextItem 列表。"""
+        items = self.search(query, member_id=member_id, limit=limit)
+        return self._items_to_context(items)
+
+    def list_context_items(
+        self, *, member_id: str | None = None, limit: int = 50
+    ) -> list[ContextItem]:
+        """列出画像记忆并返回 ContextItem 列表。"""
+        items = self.list_profile_memories(member_id=member_id, limit=limit)
+        return self._items_to_context(items)
+
+    @staticmethod
+    def _items_to_context(items: list[MemoryItem]) -> list[ContextItem]:
+        result: list[ContextItem] = []
+        for item in items:
+            label = item.memory_type or "memory"
+            result.append(ContextItem(
+                source="memory",
+                priority=PRIORITY_MEMORY,
+                content=f"[{label}] {item.content}",
+            ))
+        return result
 
     def _get_client(self):
         settings.memory_dir.mkdir(parents=True, exist_ok=True)

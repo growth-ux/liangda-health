@@ -460,10 +460,13 @@ Snapshot 示例：
 ## 8. 后续迭代
 
 ```text
-P1 明确五类 Context Sources 的结构化输出
-P2 增加 Context Compression 和 Context Summarization
-P3 增加 Context Ranking / Budgeting / Pruning
-P4 增加 Context Snapshot
-P5 建立 Context Eval 用例
-P6 增加 Context Debug 展示页
+P1 明确五类 Context Sources 的结构化输出（已完成）
+P2 增加 Context Compression 和 Context Summarization（已完成）
+   - Compression: agent_tools._compress_chunk_content()，kb_search chunk 句边界压缩至 200 字
+   - Summarization: session_summarizer.SessionSummarizer，LLM 摘要 + 规则降级，接入 AgentService._history()
+P3 增加 Context Ranking / Budgeting / Pruning（已完成）
+   - context_pipeline.ContextPipeline 三件套，优先级体系 + 按类型预算 + 总量裁剪
+P4 增加 Context Snapshot（未实现）
+P5 建立 Context Eval 用例（未实现）
+P6 增加 Context Debug 展示页（未实现）
 ```

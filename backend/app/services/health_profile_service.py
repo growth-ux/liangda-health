@@ -13,6 +13,15 @@ from app.models.member import Member
 from app.repositories.device_repository import SqlAlchemyDeviceRepository
 from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
+from app.services.context_pipeline import (
+    ContextItem,
+    PRIORITY_DEVICE_ANOMALY,
+    PRIORITY_MEMBER_CONSTRAINT,
+    PRIORITY_MEMBER_PROFILE,
+    PRIORITY_MEMORY,
+    PRIORITY_REPORT_FACT,
+    PRIORITY_SAFETY,
+)
 from app.services.device_service import DeviceService
 from app.services.memory_service import MemoryItem, MemoryService
 
@@ -302,6 +311,117 @@ class HealthProfileService:
         if "控制总热量" in profile.diet_principles:
             return f"{label}控热量：晚餐主食稍减，少油炸。"
         return ""
+
+    # ── Context Pipeline 接口 ─────────────────────────────
+
+    def member_context_items(self, member_id: str) -> list[ContextItem]:
+        """把指定成员的健康画像转为 ContextItem 列表。"""
+        profile = self.get_member_profile(member_id)
+        return self._profile_to_items(profile)
+
+    def family_context_items(self) -> list[ContextItem]:
+        """把全家健康画像转为 ContextItem 列表。"""
+        family = self.get_family_profile()
+        items: list[ContextItem] = []
+        for profile in family.members:
+            items.extend(self._profile_to_items(profile))
+        return items
+
+    @staticmethod
+    def _profile_to_items(profile: HealthProfile) -> list[ContextItem]:
+        """把单个 HealthProfile 拆分为不同优先级的 ContextItem。"""
+        items: list[ContextItem] = []
+        label = f"{profile.name}（{profile.relation}）"
+
+        # --- safety (1000)：过敏原 ---
+        for allergy in profile.allergies:
+            items.append(ContextItem(
+                source="safety",
+                priority=PRIORITY_SAFETY,
+                content=f"{label}过敏原：{allergy}",
+                evidence_id=f"allergy:{profile.member_id}:{allergy}",
+            ))
+
+        # --- report_fact (900)：报告异常事实 + 长期风险 ---
+        for note in profile.evidence_notes:
+            items.append(ContextItem(
+                source="report_fact",
+                priority=PRIORITY_REPORT_FACT,
+                content=f"{label}{note}",
+            ))
+        for risk in profile.long_term_risks:
+            items.append(ContextItem(
+                source="report_fact",
+                priority=PRIORITY_REPORT_FACT,
+                content=f"{label}长期风险：{risk}",
+            ))
+
+        # --- device_anomaly (700)：近期设备异常状态 ---
+        for state in profile.recent_states:
+            items.append(ContextItem(
+                source="device_anomaly",
+                priority=PRIORITY_DEVICE_ANOMALY,
+                content=f"{label}近7天：{state}",
+            ))
+        for modifier in profile.today_modifiers:
+            items.append(ContextItem(
+                source="device_anomaly",
+                priority=PRIORITY_DEVICE_ANOMALY,
+                content=f"{label}今日修正：{modifier}",
+            ))
+
+        # --- member_constraint (500)：饮食原则 + 避免项（去掉已在 safety 的过敏原）---
+        allergy_set = set(profile.allergies)
+        for tag in profile.avoid_tags:
+            if tag not in allergy_set:
+                items.append(ContextItem(
+                    source="member_constraint",
+                    priority=PRIORITY_MEMBER_CONSTRAINT,
+                    content=f"{label}避免：{tag}",
+                ))
+        for principle in profile.diet_principles:
+            items.append(ContextItem(
+                source="member_constraint",
+                priority=PRIORITY_MEMBER_CONSTRAINT,
+                content=f"{label}饮食原则：{principle}",
+            ))
+
+        # --- member_profile (400)：基础画像 ---
+        profile_parts = [f"年龄{profile.age}"]
+        if profile.bmi is not None:
+            profile_parts.append(f"BMI{profile.bmi}")
+        if profile.health_tags:
+            profile_parts.append(f"健康标签：{'、'.join(profile.health_tags)}")
+        if profile.taste_preferences:
+            profile_parts.append(f"口味：{'、'.join(profile.taste_preferences)}")
+        items.append(ContextItem(
+            source="member_profile",
+            priority=PRIORITY_MEMBER_PROFILE,
+            content=f"{label}{'，'.join(profile_parts)}",
+        ))
+
+        # --- memory (300)：偏好 + 目标 + 营销反馈 ---
+        for pref in profile.preferences:
+            if pref not in profile.taste_preferences:
+                items.append(ContextItem(
+                    source="memory",
+                    priority=PRIORITY_MEMORY,
+                    content=f"{label}偏好：{pref}",
+                ))
+        for goal in profile.goals:
+            items.append(ContextItem(
+                source="memory",
+                priority=PRIORITY_MEMORY,
+                content=f"{label}目标：{goal}",
+            ))
+        for fb in profile.marketing_feedback:
+            items.append(ContextItem(
+                source="memory",
+                priority=PRIORITY_MEMORY,
+                content=f"{label}反馈：{fb}",
+            ))
+
+        return items
 
 
 def _recent_7_days() -> list[date]:

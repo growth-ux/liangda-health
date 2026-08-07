@@ -1,6 +1,7 @@
 import type { MealItem, MealPlanPayload, MemberAdjustment } from '../../../schemas/agentResponse';
+import { MarkdownContent } from '../markdown';
 
-type Props = { payload: MealPlanPayload };
+type Props = { payload: MealPlanPayload; summaryText?: string };
 
 const SLOT_LABEL: Record<NonNullable<MealItem['slot']>, string> = {
   breakfast: '早餐',
@@ -20,15 +21,19 @@ const SLOT_TITLE: Record<NonNullable<MealItem['slot']>, string> = {
   dinner: 'text-violet-700',
 };
 
-export function MealPlanCard({ payload }: Props) {
+export function MealPlanCard({ payload, summaryText }: Props) {
   const { scope, target_member_name, meal_items, member_adjustments, avoid_tags, extra_note } = payload;
 
-  // 按 slot 分组
-  const bySlot: Record<NonNullable<MealItem['slot']>, MealItem[]> = {
-    breakfast: [], lunch: [], dinner: [],
+  // 按 slot 分组，slot 为 null 的归入“其他”
+  const bySlot: Record<string, MealItem[]> = {
+    breakfast: [], lunch: [], dinner: [], other: [],
   };
   for (const item of meal_items) {
-    if (item.slot) bySlot[item.slot].push(item);
+    if (item.slot && bySlot[item.slot]) {
+      bySlot[item.slot].push(item);
+    } else {
+      bySlot.other.push(item);
+    }
   }
 
   return (
@@ -41,15 +46,19 @@ export function MealPlanCard({ payload }: Props) {
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {(['breakfast', 'lunch', 'dinner'] as const).map((slot) => {
+        {(['breakfast', 'lunch', 'dinner', 'other'] as const).map((slot) => {
           const items = bySlot[slot];
           if (items.length === 0) return null;
+          const label = slot === 'other' ? '其他' : SLOT_LABEL[slot as keyof typeof SLOT_LABEL];
+          const color = slot === 'other' ? 'border-stone-300' : SLOT_COLOR[slot as keyof typeof SLOT_COLOR];
+          const titleColor = slot === 'other' ? 'text-stone-600' : SLOT_TITLE[slot as keyof typeof SLOT_TITLE];
           return (
-            <div key={slot} className={`rounded-lg border-t-4 ${SLOT_COLOR[slot]} bg-white p-3`}>
-              <div className={`text-xs font-semibold ${SLOT_TITLE[slot]} mb-1.5`}>{SLOT_LABEL[slot]}</div>
+            <div key={slot} className={`rounded-lg border-t-4 ${color} bg-white p-3`}>
+              <div className={`text-xs font-semibold ${titleColor} mb-1.5`}>{label}</div>
               {items.map((item, i) => (
                 <div key={i} className="text-stone-700 leading-relaxed">
-                  {item.title}
+                  <div className="font-medium">{item.title}</div>
+                  {item.summary && <div className="text-stone-500 text-xs mt-0.5">{item.summary}</div>}
                 </div>
               ))}
             </div>
@@ -85,6 +94,13 @@ export function MealPlanCard({ payload }: Props) {
 
       {extra_note && (
         <div className="text-xs text-stone-500 px-1">💡 {extra_note}</div>
+      )}
+
+      {/* summary_text 兜底：当 payload 字段缺失时仍显示摘要 */}
+      {meal_items.length <= 1 && summaryText && (
+        <div className="rounded-lg bg-white p-3 text-stone-700 leading-relaxed">
+          <MarkdownContent text={summaryText} />
+        </div>
       )}
     </div>
   );

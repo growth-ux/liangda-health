@@ -56,6 +56,8 @@ def test_supervisor_prompt_routes_experts():
     for kind in ["meal_plan", "qa", "greeting", "kb_interpretation", "general_advice"]:
         assert kind in prompt
     assert "必须调用 respond" in prompt.replace("`", "")
+    assert "调用了 ask_meal_planner" in prompt
+    assert "respond.kind 必须是 meal_plan" in prompt
 
 
 def test_expert_prompts_focus_on_own_domain():
@@ -218,9 +220,9 @@ def test_multi_agent_stream_emits_activity_product_delta_card_in_order(monkeypat
         "agent_activity",  # supervisor start
         "agent_activity",  # meal_planner start
         "agent_activity",  # meal_planner done
-        "product_recommendations",
         "delta",
         "card",
+        "product_recommendations",  # 延迟到 card 之后再推送
         "agent_activity",  # supervisor done
     ]
     activities = [payload for kind, payload in events if kind == "agent_activity"]

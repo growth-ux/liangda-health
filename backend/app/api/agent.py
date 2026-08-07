@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.kb import get_embedding_service, get_vector_store
+from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
@@ -23,6 +24,7 @@ from app.services.multi_agent import MultiAgentRunner
 from app.services.meal_product_recommendation_service import MealProductRecommendationService
 from app.services.meal_plan_service import MealPlanService
 from app.services.memory_service import MemoryService
+from app.services.session_summarizer import SessionSummarizer
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
@@ -83,6 +85,7 @@ def get_agent_service(
         repository=SqlAlchemyAgentRepository(db),
         runner=runner,
         memory_service=memory_service,
+        session_summarizer=SessionSummarizer() if settings.session_summarization_enabled else None,
     )
 
 

@@ -270,10 +270,12 @@ class BaseAgentRunner:
                     list(respond_args_state.keys()),
                 )
                 events.append(("delta", respond_chunk_text))
-            text = _content_to_text(getattr(chunk, "content", ""))
-            if text:
-                logger.info("agent stream emit delta from content chars=%s", len(text))
-                events.append(("delta", text))
+                # respond 工具已在 summary_text 中输出内容，跳过同一 chunk 的普通文本以避免重复
+            else:
+                text = _content_to_text(getattr(chunk, "content", ""))
+                if text:
+                    logger.info("agent stream emit delta from content chars=%s", len(text))
+                    events.append(("delta", text))
             return events, False
 
         logger.info("agent stream skip internal_message type=%s", chunk.__class__.__name__)
@@ -667,10 +669,18 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
         return getattr(tc, key, default)
 
     def _decode(captured: str) -> str:
-        try:
-            return json.loads(f'"{captured}"')
-        except (TypeError, json.JSONDecodeError):
-            return captured
+        # chunk 边界可能把 \n、\uXXXX 等转义切成两半导致解码失败；
+        # 此时逐步截断到上一个反斜杠重试，保证 decoded 始终是正确前缀，
+        # 绝不能回退返回原始串——长度基准一旦错乱，已输出的文本会被当成新增 delta 重发。
+        text = captured
+        while True:
+            try:
+                return json.loads(f'"{text}"')
+            except (TypeError, json.JSONDecodeError):
+                index = text.rfind("\\")
+                if index <= 0:
+                    return ""
+                text = text[:index]
 
     def _resolve_state_keys(tc, current_state: dict[str, str]) -> list[str]:
         name = _tc_attr(tc, "name")
@@ -700,7 +710,14 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
         raw_delta = _tc_attr(tc, "args", "") or ""
         primary_key = state_keys[0]
         prev_args = state.get(primary_key, "")
-        new_args = prev_args + raw_delta
+        # OpenAI 兼容接口通常返回新增片段，但部分模型会返回截至当前的完整参数。
+        # 后一种格式若继续拼接，会把已输出的 summary_text 当成新文本再次发送。
+        is_summary_snapshot = (
+            prev_args
+            and raw_delta.lstrip().startswith("{")
+            and '"summary_text"' in raw_delta
+        )
+        new_args = raw_delta if (prev_args and raw_delta.startswith(prev_args)) or is_summary_snapshot else prev_args + raw_delta
         for key in dict.fromkeys(state_keys):
             state[key] = new_args
         logger.info(
@@ -710,12 +727,22 @@ def _extract_respond_summary_text_delta(tool_call_chunks: list, state: dict[str,
             len(prev_args),
             len(new_args),
         )
-        m = SUMMARY_RE.search(new_args)
+        # chunk 边界把 \n、\uXXXX 切成两半时，尾部会残留落单反斜杠：
+        # 既不能解码，也会让正则把它当普通字符吃掉导致长度基准错乱。
+        # 这里先视为未消费（等下个 chunk 补齐），prev 同样处理，保证两边基准一致。
+        new_for_match = new_args
+        tail_backslashes = len(new_for_match) - len(new_for_match.rstrip("\\"))
+        if tail_backslashes % 2 == 1:
+            new_for_match = new_for_match[:-1]
+        m = SUMMARY_RE.search(new_for_match)
         if not m:
             continue
         decoded = _decode(m.group(1))
-        # 增量 = decoded 减去上次的 decoded 长度
-        prev_match = SUMMARY_RE.search(prev_args)
+        prev_stripped = prev_args
+        tail_backslashes = len(prev_stripped) - len(prev_stripped.rstrip("\\"))
+        if tail_backslashes % 2 == 1:
+            prev_stripped = prev_stripped[:-1]
+        prev_match = SUMMARY_RE.search(prev_stripped)
         if prev_match:
             prev_decoded = _decode(prev_match.group(1))
             delta = decoded[len(prev_decoded):]

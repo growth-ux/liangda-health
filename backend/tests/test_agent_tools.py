@@ -405,3 +405,88 @@ def test_kb_search_tool_pushes_first_chunk_only_as_evidence():
     assert collector.content_items[0].type == "report_fact"
     assert "report.pdf" in collector.content_items[0].source_label
     assert "p2" in collector.content_items[0].source_label
+
+
+# ── Context Compression ────────────────────────────────────
+
+
+def test_compress_chunk_content_short_text_unchanged():
+    from app.services.agent_tools import _compress_chunk_content
+
+    text = "血压 152，偏高"
+    assert _compress_chunk_content(text) == text
+
+
+def test_compress_chunk_content_truncates_at_sentence_boundary():
+    from app.services.agent_tools import _compress_chunk_content
+
+    # 200+ 字，包含多个句号和分号
+    text = "总胆固醇 6.2mmol/L，明显偏高。" + "x" * 180 + "空腹血糖 6.5mmol/L。" + "y" * 100
+    result = _compress_chunk_content(text, max_chars=200)
+
+    assert len(result) <= 210  # 容许包含句号的微小超出
+    assert result.endswith("。") or result.endswith("…")
+
+
+def test_compress_chunk_content_exact_limit():
+    from app.services.agent_tools import _compress_chunk_content
+
+    text = "x" * 200
+    assert _compress_chunk_content(text) == text
+
+
+def test_compress_chunk_content_no_sentence_boundary():
+    from app.services.agent_tools import _compress_chunk_content
+
+    text = "a" * 300  # 没有任何句边界
+    result = _compress_chunk_content(text, max_chars=200)
+
+    assert len(result) <= 201  # 200 + 省略号
+    assert result.endswith("…")
+
+
+def test_compress_chunk_content_applied_in_kb_search():
+    """KbSearchTool 返回的 chunk 内容应该被压缩。"""
+    long_content = "收缩压 145mmHg，偏高。" + "x" * 300 + "舒张压 96mmHg。" + "y" * 200
+
+    class LongChunkRepository:
+        def get_chunks_by_ids(self, chunk_ids):
+            return [
+                KbChunk(
+                    chunk_id="chunk_long",
+                    document_id="doc_1",
+                    member_id="mem_1",
+                    page_no=1,
+                    content=long_content,
+                    created_at=datetime(2026, 6, 13, 10, 0, 0),
+                )
+            ]
+
+        def get_document(self, document_id):
+            return KbDocument(
+                document_id=document_id,
+                file_name="report.pdf",
+                file_path="/tmp/report.pdf",
+                file_size=128,
+                page_count=1,
+                title="体检报告",
+                status="ready",
+                created_at=datetime(2026, 6, 13, 10, 0, 0),
+                updated_at=datetime(2026, 6, 13, 10, 0, 0),
+            )
+
+    tool = KbSearchTool(
+        LongChunkRepository(),
+        FakeEmbeddingService(),
+        FakeVectorStore(),
+        allowed_member_ids=["mem_1"],
+    )
+
+    result = tool.search(query="血压", member_id="mem_1")
+
+    # 结果中的内容部分应该被压缩，不再是完整的 500+ 字
+    content_start = result.find("内容：")
+    content_text = result[content_start + 3:]
+    assert len(content_text) < len(long_content)
+    assert "收缩压 145mmHg" in content_text  # 关键指标保留
+

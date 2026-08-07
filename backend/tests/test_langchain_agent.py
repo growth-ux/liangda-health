@@ -207,6 +207,158 @@ def test_langchain_agent_stream_summary_delta_preserves_markdown_and_chinese(mon
     assert "".join(deltas) == "📌 **爸爸晚餐**\n✅ 清淡少油"
 
 
+def test_langchain_agent_stream_does_not_duplicate_cumulative_respond_args(monkeypatch):
+    """部分 OpenAI 兼容接口返回累计 args，不能再次与上一个 chunk 拼接。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"第一行\\n第二行',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"第一行\\n第二行\\n第三行", "payload": {"question_topic": "t", "answer": "a", "tips": []}}',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = BaseAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [payload for kind, payload in runner.stream([{"role": "user", "content": "x"}]) if kind == "delta"]
+
+    assert "".join(deltas) == "第一行\n第二行\n第三行"
+
+
+def test_langchain_agent_stream_does_not_duplicate_summary_snapshots_with_different_payload(monkeypatch):
+    """摘要快照与前一分片的 payload 不同，也应按快照覆盖而不是拼接。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"第一行", "payload": {"question_topic": "t"}}',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"qa","summary_text":"第一行\\n第二行',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = BaseAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [payload for kind, payload in runner.stream([{"role": "user", "content": "x"}]) if kind == "delta"]
+
+    assert "".join(deltas) == "第一行\n第二行"
+
+
+def test_langchain_agent_stream_does_not_replay_when_newline_escape_split_across_chunks(monkeypatch):
+    """dashscope 会把 \\n 转义切成 "\\" 和 "n" 两个 chunk，恢复后不应把整段文本重发。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"meal_plan","summary_text":"第一行\\',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name=None, args='n第二行', index=0, id=""),
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name=None, args='\\n第三行","payload":{}}', index=0, id=""),
+                ],
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = BaseAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [payload for kind, payload in runner.stream([{"role": "user", "content": "x"}]) if kind == "delta"]
+
+    assert "".join(deltas) == "第一行\n第二行\n第三行"
+
+
+def test_langchain_agent_stream_does_not_replay_when_unicode_escape_split_across_chunks(monkeypatch):
+    """\\uXXXX 转义被切开时也不应重发，更不能把 \\n 等转义原样输出成字面反斜杠。"""
+    from langchain_core.messages import AIMessageChunk
+    from langchain_core.messages.tool import ToolCallChunk
+
+    class FakeAgent:
+        def stream(self, payload, stream_mode):
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(
+                        name="respond",
+                        args='{"kind":"greeting","summary_text":"\\u4f6',
+                        index=0,
+                        id="call_1",
+                    )
+                ],
+            ), {}
+            yield AIMessageChunk(
+                content="",
+                tool_call_chunks=[
+                    ToolCallChunk(name=None, args='0好\\n晚安","payload":{}}', index=0, id=""),
+                ],
+            ), {}
+
+    monkeypatch.setattr(settings, "llm_api_key", "test-key")
+    runner = BaseAgentRunner()
+    monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
+
+    deltas = [payload for kind, payload in runner.stream([{"role": "user", "content": "x"}]) if kind == "delta"]
+
+    assert "".join(deltas) == "你好\n晚安"
+
+
 def test_langchain_agent_stream_extracts_card_when_respond_id_appears_late(monkeypatch):
     """部分兼容层先按 index 送 args，后面 ToolMessage 才带 call_id，stream() 仍应还原 card。"""
     from langchain_core.messages import AIMessageChunk, ToolMessage

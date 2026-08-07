@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     memory_dir: Path = PROJECT_ROOT / "backend" / "runtime" / "mem0"
     memory_history_db_path: Path = PROJECT_ROOT / "backend" / "runtime" / "mem0" / "history.db"
 
+    session_summarization_enabled: bool = False
+
     @model_validator(mode="after")
     def normalize_memory_credentials(self):
         if not self.embedding_api_key:

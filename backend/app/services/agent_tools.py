@@ -8,6 +8,33 @@ from app.services.meal_plan_service import MealPlanService
 
 logger = logging.getLogger(__name__)
 
+# Context Compression: 报告 chunk 最大字符数，超出后在句边界截断
+MAX_CHUNK_CONTENT_CHARS = 200
+
+
+def _compress_chunk_content(content: str, max_chars: int = MAX_CHUNK_CONTENT_CHARS) -> str:
+    """Context Compression：把长 chunk 压缩为结构化摘要，保留关键信息。
+
+    策略：在句子边界截断，避免切断指标数值或证据短句。
+    """
+    content = content.strip()
+    if len(content) <= max_chars:
+        return content
+
+    truncated = content[:max_chars]
+
+    # 在句边界截断：优先 。！？；\n，其次 ，、
+    best = 0
+    for sep in ('。', '！', '？', '；', '\n', '，', '、'):
+        pos = truncated.rfind(sep)
+        if pos > best:
+            best = pos
+
+    if best > max_chars // 3:
+        return truncated[:best + 1].strip()
+
+    return truncated.rstrip() + '…'
+
 
 def _normalize_evidence_excerpt(text: str, *, max_length: int = 160, strip_square_tags: bool = False) -> str:
     normalized = text.replace("\n", " ").strip()
@@ -65,11 +92,12 @@ class KbSearchTool:
         for index, chunk in enumerate(chunks, start=1):
             document = self.repository.get_document(chunk.document_id)
             title = (document.title or document.file_name) if document is not None else chunk.document_id
+            compressed = _compress_chunk_content(chunk.content)
             parts.append(
                 f"[报告片段 {index}]\n"
                 f"文档：{title}\n"
                 f"页码：{chunk.page_no}\n"
-                f"内容：{chunk.content}"
+                f"内容：{compressed}"
             )
         # 证据只收第一条：一次返回多 chunk 时右栏只展示主依据，避免塞满。
         if self.evidence_collector is not None and chunks:

@@ -42,6 +42,10 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 - 如果商品导购师返回中包含 replaced_items 列表，说明用户之前对某些商品做了反馈（不喜欢/太贵），系统已自动替换。
 - 此时在 summary_text 开头加一句“因您之前的反馈，已调整了部分推荐商品”。不要列出具体被替换的商品名。
 
+卡片类型硬约束：
+- 只要本轮调用了 ask_meal_planner，最终 respond.kind 必须是 meal_plan，绝不能使用 general_advice、qa 或其他类型替代。
+- 此时 payload 必须按 meal_plan 结构填写：把餐单拆成 meal_items；本轮只有晚餐/午餐/早餐时，也只填对应 slot；同时填写可得出的 member_adjustments、avoid_tags 和 extra_note。
+
 回复风格：
 1. 用简体中文回答，不做诊断，不替代医生。
 2. 语气像日常健康顾问，回复短一点、口语一点，优先说用户马上能理解和执行的做法。

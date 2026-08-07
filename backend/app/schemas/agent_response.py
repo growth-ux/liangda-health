@@ -66,6 +66,8 @@ class MessageEvidence(BaseModel):
     product_items: list[EvidenceItem] = Field(default_factory=list)
     # 安全红线拦截记录：推荐过程中被过敏原/健康禁忌拦下的商品及原因
     safety_items: list[EvidenceItem] = Field(default_factory=list)
+    # Context Pipeline 裁剪摘要：保留了多少条、裁剪了多少条、各来源分布
+    pruning_summary: str | None = Field(default=None, max_length=200)
 
 
 class SuggestionItem(BaseModel):

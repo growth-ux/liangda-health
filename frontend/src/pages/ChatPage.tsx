@@ -181,7 +181,6 @@ export function ChatPage() {
           );
         },
         onCard: (payload) => {
-          // 与 onProductRecommendations 同样的策略：把 card 写进本地 message 状态
           setLocalMessages((items) =>
             items.map((item) =>
               item.message_id === payload.message_id && item.role === 'assistant'
