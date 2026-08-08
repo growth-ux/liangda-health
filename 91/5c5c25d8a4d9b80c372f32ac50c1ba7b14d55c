@@ -1,0 +1,34 @@
+backend/app/api/agent.py
+  h_7549b7dc6a6921 9,23,57-58,61,79-83
+backend/app/db/session.py
+  h_7549b7dc6a6921 21-23
+backend/app/schemas/agent_response.py
+  h_7549b7dc6a6921 119
+backend/app/services/agent_service.py
+  h_7549b7dc6a6921 3,55,95,217-254
+backend/app/services/agent_tools.py
+  h_7549b7dc6a6921 5,13,90-93,135-206
+backend/app/services/langchain_agent.py
+  h_7549b7dc6a6921 59,550,553,596
+backend/app/services/multi_agent.py
+  h_7549b7dc6a6921 53,59,95-97,99-114,124,132,139-144,206-213,216
+backend/harness/checks.py
+  h_7549b7dc6a6921 59,63
+backend/tests/test_agent_response_schema.py
+  h_7549b7dc6a6921 155
+backend/tests/test_agent_service.py
+  h_7549b7dc6a6921 2,77,88,101
+backend/tests/test_multi_agent.py
+  h_7549b7dc6a6921 73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "915c5c25d8a4d9b80c372f32ac50c1ba7b14d55c",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
