@@ -2,6 +2,7 @@ import json
 import logging
 import re
 
+from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
 from app.services.meal_plan_service import MealPlanService
@@ -9,7 +10,7 @@ from app.services.meal_plan_service import MealPlanService
 logger = logging.getLogger(__name__)
 
 # Context Compression: 报告 chunk 最大字符数，超出后在句边界截断
-MAX_CHUNK_CONTENT_CHARS = 200
+MAX_CHUNK_CONTENT_CHARS = 500
 
 
 def _compress_chunk_content(content: str, max_chars: int = MAX_CHUNK_CONTENT_CHARS) -> str:
@@ -86,6 +87,10 @@ class KbSearchTool:
             chunks = self.repository.get_chunks_by_ids([hit.chunk_id for hit in hits])
         except Exception as exc:
             logger.exception("kb_search failed member_id=%s top_k=%s", member_id, top_k)
+            try:
+                self.repository.db.rollback()
+            except Exception:
+                pass
             return f"Error: 检索失败 {exc}"
 
         parts = []
@@ -125,6 +130,78 @@ class KbSearchTool:
         if self.vector_store is None and self.vector_store_factory is not None:
             self.vector_store = self.vector_store_factory()
         return self.vector_store
+
+
+class ReportFactTool:
+    """直接查询 health_facts 表获取某位家人的所有结构化健康事实。
+
+    报告上传时已由 LLM 提取完成结构化入库，这里只需一次 SQL 查询，
+    无需 embedding 和向量搜索，比多次 RAG 检索更快更全。
+    """
+
+    def __init__(
+        self,
+        fact_repository: SqlAlchemyHealthFactRepository,
+        kb_repository: SqlAlchemyKbRepository,
+        allowed_member_ids: list[str] | None = None,
+        evidence_collector=None,
+    ):
+        self.fact_repository = fact_repository
+        self.kb_repository = kb_repository
+        self.allowed_member_ids = set(allowed_member_ids or [])
+        self.evidence_collector = evidence_collector
+
+    def get_facts(self, member_id: str) -> str:
+        if not member_id:
+            return "Error: 必须传入 member_id"
+        if member_id not in self.allowed_member_ids:
+            return f"Error: member_id={member_id} 不在可用家人列表中，可用：{sorted(self.allowed_member_ids)}"
+        try:
+            facts = self.fact_repository.list_by_member(member_id)
+        except Exception as exc:
+            logger.exception("report_facts failed member_id=%s", member_id)
+            try:
+                self.fact_repository.db.rollback()
+            except Exception:
+                pass
+            return f"Error: 查询健康事实失败 {exc}"
+
+        if not facts:
+            logger.info("report_facts empty member_id=%s", member_id)
+            return f"该家人暂无已提取的健康事实（member_id={member_id}），可能报告尚未上传或提取失败。"
+
+        lines = [f"该家人共有 {len(facts)} 条已提取的健康事实：", ""]
+        for index, fact in enumerate(facts, start=1):
+            document = self.kb_repository.get_document(fact.source_document_id)
+            doc_name = (document.title or document.file_name) if document else fact.source_document_id
+            value_part = f"，实测值：{fact.value}{fact.unit or ''}" if fact.value else ""
+            range_part = f"，参考范围：{fact.reference_range}" if fact.reference_range else ""
+            status_label = {"normal": "正常", "warning": "偏高/偏低", "danger": "异常"}.get(fact.status, fact.status)
+            lines.append(
+                f"{index}. [{status_label}] {fact.name}{value_part}{range_part}"
+                f"\n   来源：{doc_name} 第{fact.source_page_no}页"
+                f"\n   说明：{fact.evidence_text}"
+            )
+
+        # 写入证据链：每条异常事实都记录
+        if self.evidence_collector is not None:
+            for fact in facts:
+                if fact.status not in {"warning", "danger"}:
+                    continue
+                document = self.kb_repository.get_document(fact.source_document_id)
+                doc_name = (document.title or document.file_name) if document else fact.source_document_id
+                self.evidence_collector.add_content(
+                    EvidenceItem(
+                        type="report_fact",
+                        title=fact.name[:80],
+                        excerpt=_normalize_evidence_excerpt(fact.evidence_text, max_length=180),
+                        source_id=fact.fact_id,
+                        source_label=f"{doc_name} p{fact.source_page_no}",
+                    )
+                )
+
+        logger.info("report_facts done member_id=%s fact_count=%s", member_id, len(facts))
+        return "\n".join(lines)
 
 
 class MealPlanTool:

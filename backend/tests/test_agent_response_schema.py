@@ -152,7 +152,7 @@ def test_unknown_kind_rejected():
 def test_summary_text_too_long_rejected():
     payload = {
         "kind": "qa",
-        "summary_text": "x" * 401,
+        "summary_text": "x" * 1201,
         "payload": {"question_topic": "x", "answer": "x", "tips": []},
     }
     with pytest.raises(ValidationError):

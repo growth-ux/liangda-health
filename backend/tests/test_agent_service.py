@@ -1,4 +1,5 @@
 import json
+import time
 
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
 from app.services.agent_service import AgentService
@@ -73,6 +74,7 @@ def test_agent_service_writes_user_message_to_memory(db_session):
     session = service.create_session("新对话")
 
     service.send_message(session.session_id, "爸爸不喜欢鱼")
+    time.sleep(0.1)
 
     assert memory.calls == [("爸爸不喜欢鱼", None)]
 
@@ -83,6 +85,7 @@ def test_agent_service_memory_failure_does_not_block_send(db_session):
     session = service.create_session("新对话")
 
     user_message, assistant_message = service.send_message(session.session_id, "爸爸不喜欢鱼")
+    time.sleep(0.1)
 
     assert user_message.content == "爸爸不喜欢鱼"
     assert assistant_message.content == "收到：爸爸不喜欢鱼"
@@ -95,6 +98,7 @@ def test_agent_service_stream_writes_user_message_to_memory(db_session):
     session = service.create_session("新对话")
 
     events = list(service.stream_message(session.session_id, "爸爸不喜欢鱼"))
+    time.sleep(0.1)
 
     assert memory.calls == [("爸爸不喜欢鱼", None)]
     assert any("assistant_done" in event for event in events)

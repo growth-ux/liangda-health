@@ -70,7 +70,7 @@ def test_expert_prompts_focus_on_own_domain():
     assert "mall_recommend" in shop
 
     report = runner._expert_prompt(REPORT_READER_PROMPT_TEMPLATE)
-    assert "kb_search" in report
+    assert "report_facts" in report
 
 
 def test_run_expert_invokes_expert_and_returns_text(monkeypatch):

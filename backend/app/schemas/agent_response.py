@@ -116,7 +116,7 @@ _PAYLOAD_MODELS = {
 
 class StructuredResponse(BaseModel):
     kind: ResponseKind
-    summary_text: str = Field(..., min_length=1, max_length=400)
+    summary_text: str = Field(..., min_length=1, max_length=1200)
     payload: (
         MealPlanPayload
         | QaPayload

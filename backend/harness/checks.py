@@ -56,11 +56,11 @@ def check_response_schema(card: dict | None, expected_kind: str | None) -> list[
         ))
 
     summary = card.get("summary_text", "")
-    if summary and len(summary) > 400:
+    if summary and len(summary) > 1200:
         results.append(CheckResult(
             check_type="summary_length",
             passed=False,
-            details=f"summary_text too long: {len(summary)} chars (max 400)",
+            details=f"summary_text too long: {len(summary)} chars (max 1200)",
         ))
 
     return results

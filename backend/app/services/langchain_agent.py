@@ -56,7 +56,7 @@ def _respond(
 
     Args:
         kind: 回复类型枚举，meal_plan/qa/greeting/kb_interpretation/general_advice。
-        summary_text: Markdown 摘要（≤ 400 字），可用少量加粗、emoji 和短列表，会流式输出。
+        summary_text: Markdown 摘要（餐单/一般回复≤ 400 字，报告解读 kb_interpretation ≤ 1200 字），可用少量加粗、emoji 和短列表，会流式输出。
         payload: 按 kind 决定的结构化内容，前端按它渲染卡片。
     """
     return "ok"
@@ -547,10 +547,10 @@ def _build_generic_response_card(data: dict) -> dict | None:
     topic = payload.get("topic") or payload.get("question_topic") or data.get("kind") or "健康建议"
     generic = {
         "kind": "general_advice",
-        "summary_text": summary_text[:400],
+        "summary_text": summary_text[:1200],
         "payload": {
             "topic": str(topic)[:80] if str(topic).strip() else "健康建议",
-            "advice": summary_text[:400],
+            "advice": summary_text[:1200],
             "cautions": [],
         },
     }
@@ -593,7 +593,7 @@ def _format_summary_text(text: str) -> str:
             formatted.append(f"✅ **{label}**：{value}")
         else:
             formatted.append(line)
-    return "\n".join(formatted)[:400]
+    return "\n".join(formatted)[:1200]
 
 
 def _parse_respond_payload_from_args_state(state: dict[str, str], tool_call_id: str | None = None) -> dict | None:

@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 import uuid
 from collections.abc import Iterable
 
@@ -51,7 +52,7 @@ class AgentService:
         session = self._require_session(session_id)
         logger.info("agent send start session_id=%s input_chars=%s", session_id, len(content))
         user_message = self._save_user_message(session_id, content)
-        self._remember_user_message(content)
+        self._remember_user_message_async(content)
         try:
             result = self.runner.run(self._history(session_id))
         except LlmConfigError as exc:
@@ -91,7 +92,7 @@ class AgentService:
         session = self._require_session(session_id)
         logger.info("agent stream request start session_id=%s input_chars=%s", session_id, len(content))
         user_message = self._save_user_message(session_id, content)
-        self._remember_user_message(content)
+        self._remember_user_message_async(content)
         assistant_id = f"msg_{uuid.uuid4().hex[:16]}"
         yield self._event(
             "user_message",
@@ -212,6 +213,44 @@ class AgentService:
             logger.exception("memory write failed for agent user message")
             return
         logger.info("agent memory write done")
+
+    def _remember_user_message_async(self, content: str) -> None:
+        """把 mem0 记忆写入放到后台线程，不阻塞对话响应。
+
+        owner 解析（含 member_provider DB 查询）必须在主线程完成，
+        否则后台线程拿不到已关闭的请求级 DB session。
+        """
+        ms = self.memory_service
+        if ms is None or not content.strip():
+            return
+        if not getattr(ms, 'enabled', True):
+            return
+        # 主线程里提前解析 owner（需要 DB session）
+        resolve_owner = getattr(ms, '_resolve_owner', None)
+        resolved_member_id = None
+        if resolve_owner is not None:
+            from app.services.memory_service import _should_skip_memory_write
+            if _should_skip_memory_write(content):
+                return
+            try:
+                owner = resolve_owner(content)
+            except Exception:
+                logger.exception("memory owner resolve failed, skipping async write")
+                return
+            if owner is None:
+                return
+            resolved_member_id = owner.member_id
+
+        def _bg_write():
+            logger.info("agent memory write start (async) input_chars=%s member_id=%s", len(content), resolved_member_id)
+            try:
+                ms.add_from_user_message(content, member_id=resolved_member_id)
+            except Exception:
+                logger.exception("memory write failed for agent user message")
+                return
+            logger.info("agent memory write done (async)")
+
+        threading.Thread(target=_bg_write, daemon=True).start()
 
     def _history(self, session_id: str):
         messages = self.repository.list_recent_messages(session_id, limit=20)

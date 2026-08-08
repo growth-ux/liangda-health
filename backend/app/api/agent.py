@@ -6,6 +6,7 @@ from app.api.kb import get_embedding_service, get_vector_store
 from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
+from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.repositories.mall_repository import SqlAlchemyMallRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
@@ -19,7 +20,7 @@ from app.schemas.agent import (
     QuickActionItem,
 )
 from app.services.agent_service import AgentService
-from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool
+from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool, ReportFactTool
 from app.services.multi_agent import MultiAgentRunner
 from app.services.meal_product_recommendation_service import MealProductRecommendationService
 from app.services.meal_plan_service import MealPlanService
@@ -53,9 +54,11 @@ def get_agent_runner(
 
     allowed_member_ids = [m.member_id for m in member_provider()]
 
+    kb_repository = SqlAlchemyKbRepository(db)
+
     return MultiAgentRunner(
         kb_tool=KbSearchTool(
-            repository=SqlAlchemyKbRepository(db),
+            repository=kb_repository,
             allowed_member_ids=allowed_member_ids,
             embedding_service_factory=get_embedding_service,
             vector_store_factory=get_vector_store,
@@ -73,6 +76,11 @@ def get_agent_runner(
             allowed_member_ids=allowed_member_ids,
         ),
         memory_tool=MemorySearchTool(memory_service),
+        report_fact_tool=ReportFactTool(
+            fact_repository=SqlAlchemyHealthFactRepository(db),
+            kb_repository=kb_repository,
+            allowed_member_ids=allowed_member_ids,
+        ),
         member_provider=member_provider,
     )
 

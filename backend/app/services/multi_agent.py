@@ -50,13 +50,13 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 1. 用简体中文回答，不做诊断，不替代医生。
 2. 语气像日常健康顾问，回复短一点、口语一点，优先说用户马上能理解和执行的做法。
 3. 商品推荐结果会由系统自动附加商品卡片，不要把商品名、价格、推荐理由写进你的文本回复。
-4. 餐单/报告解读这类信息密集回复，summary_text 只写“结论 + 关键安排 + 注意点”。
+4. 餐单类回复，summary_text 只写"结论 + 关键安排 + 注意点"。报告解读类回复（kind=kb_interpretation）不受此限制，要把所有异常指标完整写入 summary_text。
 5. 餐单份量默认用日常说法（一小碗、一盘、一杯、一掌心），不要展开克数；只有用户明确要求精确克数或热量时才给。
 6. 【硬性禁止】面向用户的文本中绝不能出现 member_id、session_id 等内部标识符，称呼家人用姓名或家庭称呼。
 
 【硬性要求】完成一次用户回复必须调用 respond 工具，不能直接用普通文本对用户说话。respond 参数：
 - kind：5 选 1——meal_plan / qa / greeting / kb_interpretation / general_advice
-- summary_text：Markdown 摘要（≤400字），易扫读，可用少量加粗、emoji、短列表
+- summary_text：Markdown 摘要，易扫读，可用少量加粗、emoji、短列表。餐单/一般回复≤400字；报告解读（kind=kb_interpretation）≤1200字，必须把所有异常指标完整列出
 - payload：按 kind 决定的结构化字段：
   * meal_plan.payload：scope / target_member_name / meal_items[] (slot/title/summary) / member_adjustments[] (member_name/note/tags) / avoid_tags[] / extra_note
   * qa.payload：question_topic / answer / tips[]
@@ -92,11 +92,26 @@ SHOPPING_GUIDE_PROMPT_TEMPLATE = """你是粮达健康的「商品导购师」�
 
 
 REPORT_READER_PROMPT_TEMPLATE = """你是粮达健康的「报告解读师」专家 Agent，只对总调度负责。
+
+【核心原则】你必须全面检索、完整输出——绝不允许只报告一个异常就结束。
+
 工作流程：
-1. 按任务中的 member_id 调用 kb_search 检索报告片段；跨家人对比时对每位家人分别检索再合成。
-2. 基于检索结果给出简洁解读：说明来自哪份报告或页码，不做诊断，不替代医生。
-3. 检索无结果或工具返回 "Error:" 时如实说明。
-4. 最终回复中不得出现 member_id 等内部标识符，称呼家人用姓名或家庭称呼。
+1. 【一次查询拿到全部指标】调用 report_facts(member_id=xxx) 工具，该工具直接从数据库返回该家人所有已提取的结构化健康事实（无需多次查询）。
+   - 每条事实已包含：指标名称、实测值、参考范围、状态（正常/偏高/偏低/异常）、来源报告名称和页码、证据说明。
+   - 这是报告上传时由 LLM 提取并入库的结构化数据，比 RAG 检索更全更准。
+
+2. 【完整输出所有异常】从 report_facts 返回的全部事实中，找出所有异常指标（status 为“偏高/偏低”或“异常”的），列出每一个，格式如下：
+   对每个异常指标：
+   - 指标名称、实测值、参考范围
+   - 通俗解读：偏高/偏低意味着什么
+   - 生活建议：饮食、运动、注意事项
+   - 来源：哪份报告、第几页
+   禁止只说一个异常就停下——有几个就说几个，宁可多列也不能遗漏。
+
+3. 如果所有事实均正常，明确告诉总调度"该家人报告指标均在正常范围内"。
+4. 工具返回 "Error:" 开头时如实说明。
+5. 最终回复中不得出现 member_id 等内部标识符，称呼家人用姓名或家庭称呼。
+6. 不做诊断，不替代医生。
 {members_block}
 """
 
@@ -106,7 +121,7 @@ class MultiAgentRunner(BaseAgentRunner):
 
     SYSTEM_PROMPT_TEMPLATE = SUPERVISOR_PROMPT_TEMPLATE
 
-    def __init__(self, kb_tool=None, meal_plan_tool=None, memory_tool=None, mall_recommend_tool=None, member_provider=None):
+    def __init__(self, kb_tool=None, meal_plan_tool=None, memory_tool=None, mall_recommend_tool=None, report_fact_tool=None, member_provider=None):
         super().__init__(
             kb_tool=kb_tool,
             meal_plan_tool=meal_plan_tool,
@@ -114,11 +129,18 @@ class MultiAgentRunner(BaseAgentRunner):
             mall_recommend_tool=mall_recommend_tool,
             member_provider=member_provider,
         )
+        self.report_fact_tool = report_fact_tool
         self._activity_queue = None
         self._product_payloads = []
         self._experts_cache = None
 
     # ---- 提示词 ----
+
+    def _attach_evidence_collector(self):
+        collector = super()._attach_evidence_collector()
+        if self.report_fact_tool is not None:
+            self.report_fact_tool.evidence_collector = collector
+        return collector
 
     def _expert_prompt(self, template: str) -> str:
         return template.format(members_block=_build_members_block(self.member_provider()))
@@ -181,9 +203,17 @@ class MultiAgentRunner(BaseAgentRunner):
 
     def _report_reader_tools(self):
         tools = []
+        if self.report_fact_tool is not None:
+            def report_facts(member_id: str) -> str:
+                """查询指定家人的所有已提取健康事实（结构化数据，无需向量搜索）。一次返回全部指标。"""
+                logger.info("expert tool call name=report_facts member_id=%s", member_id)
+                return self.report_fact_tool.get_facts(member_id=member_id)
+
+            tools.append(report_facts)
+        # 保留 kb_search 作为兑底：用户追问报告细节原文时使用
         if self.kb_tool is not None:
             def kb_search(query: str, member_id: str, top_k: int = 5) -> str:
-                """检索指定家人的健康报告片段。"""
+                """检索指定家人的健康报告片段（仅在需要查看报告原文细节时使用）。"""
                 logger.info("expert tool call name=kb_search member_id=%s top_k=%s", member_id, top_k)
                 return self.kb_tool.search(query=query, member_id=member_id, top_k=top_k)
 
