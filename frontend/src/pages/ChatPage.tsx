@@ -178,7 +178,7 @@ export function ChatPage() {
           setLocalMessages((items) =>
             items.map((item) =>
               item.message_id === payload.message_id && item.role === 'assistant'
-                ? ({ ...item, product_recommendations: payload.items } as AgentMessage)
+                ? ({ ...item, product_recommendations: payload.items, replaced_items: payload.replaced_items } as AgentMessage)
                 : item
             )
           );

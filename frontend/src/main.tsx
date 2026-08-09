@@ -15,6 +15,7 @@ import { MallProductDetailPage } from './pages/MallProductDetailPage';
 import { MallCartPage } from './pages/MallCartPage';
 import { DevicePage } from './pages/DevicePage';
 import { NoticePage } from './pages/NoticePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import './styles.css';
 
@@ -40,6 +41,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/mall/cart" element={<MallCartPage />} />
           <Route path="/devices" element={<DevicePage />} />
           <Route path="/notice" element={<NoticePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </BrowserRouter>

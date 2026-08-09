@@ -64,6 +64,7 @@ export function MessageBubble({
           {!isUser && productItems.length > 0 && (
             <ProductRecommendationCards
               items={productItems}
+              replacedItems={message.replaced_items}
               sessionId={message.session_id}
               messageId={message.message_id}
             />

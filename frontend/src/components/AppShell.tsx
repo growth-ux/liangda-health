@@ -5,6 +5,7 @@ import {
   Landmark,
   MessageCircle,
   Search,
+  Settings,
   ShoppingBag,
   Upload,
   Users
@@ -27,6 +28,7 @@ const navItems = [
   { id: 'members', icon: Users, label: '家人', href: '/members' },
   { id: 'device', icon: Cpu, label: '手环', href: '/devices' },
   { id: 'notice', icon: Bell, label: '通知', href: '/notice' },
+  { id: 'settings', icon: Settings, label: '设置', href: '/settings' },
   { id: 'dashboard', icon: Landmark, label: '集团看板', href: '/dashboard' }
 ];
 

@@ -107,6 +107,7 @@ class AgentService:
 
         delta_chunks: list[str] = []
         product_recs_items: list[dict] | None = None
+        replaced_items: list[dict] | None = None
         card_dict: dict | None = None
         try:
             for event_type, payload in self.runner.stream(self._history(session_id)):
@@ -131,13 +132,15 @@ class AgentService:
                     items = (payload or {}).get("items") if isinstance(payload, dict) else None
                     if items:
                         product_recs_items = items
+                        replaced_items = (payload or {}).get("replaced_items") or []
                         logger.info(
-                            "agent stream service forward product_recommendations item_count=%s",
+                            "agent stream service forward product_recommendations item_count=%s replaced_count=%s",
                             len(items),
+                            len(replaced_items),
                         )
                         yield self._event(
                             "product_recommendations",
-                            {"message_id": assistant_id, "items": items},
+                            {"message_id": assistant_id, "items": items, "replaced_items": replaced_items},
                         )
         except LlmConfigError as exc:
             logger.warning("agent stream service llm config error session_id=%s detail=%s", session_id, str(exc))

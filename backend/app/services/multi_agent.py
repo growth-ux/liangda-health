@@ -52,7 +52,11 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
    - 拿到餐单后传给 ask_shopping_guide 时，同样要带上与餐单一致的 scope 和 member_id。
 2. 纯商品/类目问题：直接调 ask_shopping_guide。
 3. 专家返回以 "Error:" 开头的结果时，温和降级说明（如“暂时无法推荐商品”），同一专家最多重试 1 次。
-4. 简单寒暄、普通健康问答不需要调度专家，直接调用 respond。
+4. 不需要调度专家、直接调用 respond 的场景（用 kind=qa 或 kind=greeting）：
+   - 简单寒暄："你好""谢谢""晚安"等。
+   - 关于家人偏好/习惯的闲聊："爸爸喜欢吃鱼吗""妈妈爱喝什么茶""儿子最近胃口怎么样"——这类问题不需要生成餐单也不需要查报告，先调 memory_search 查相关记忆后直接 respond。
+   - 普通健康常识问答："感冒了吃什么好""高血压能喝酒吗"——不涉及具体家人的报告数据。
+   - 判断标准：如果回复不需要生成餐单、不需要推荐商品、也不需要查体检报告，就不要调度专家，直接 respond。
 {members_block}
 反馈重排规则：
 - 如果商品导购师返回中包含 replaced_items 列表，说明用户之前对某些商品做了反馈（不喜欢/太贵），系统已自动替换。
@@ -183,7 +187,19 @@ class MultiAgentRunner(BaseAgentRunner):
 
         from app.services.langchain_agent import _RESPOND_TOOL
 
-        return [ask_meal_planner, ask_shopping_guide, ask_report_reader, _RESPOND_TOOL]
+        tools = [ask_meal_planner, ask_shopping_guide, ask_report_reader]
+
+        # 总调度自己也能查记忆，用于回答家人偏好/闲聊类问题时提供依据
+        if self.memory_tool is not None:
+            def memory_search(query: str, member_id: str | None = None, limit: int = 5) -> str:
+                """检索家庭或指定家人的长期互动记忆，包括偏好、排斥、阶段目标。在直接回答用户闲聊/偏好问题时使用。"""
+                logger.info("supervisor tool call name=memory_search member_id=%s limit=%s", member_id, limit)
+                return self.memory_tool.search(query=query, member_id=member_id, limit=limit)
+
+            tools.append(memory_search)
+
+        tools.append(_RESPOND_TOOL)
+        return tools
 
     def _meal_planner_tools(self):
         tools = []

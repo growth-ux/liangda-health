@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, FileText, PencilLine, Watch } from 'lucide-react';
+import { ArrowLeft, FileText, PencilLine, Shield, Watch } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { deleteMember, getMember, listMemberDocuments } from '../api/members';
+import { listAlertRules } from '../api/alert';
 import { getMemberHealthAnalysis } from '../api/healthAnalysis';
 import { uploadPdf, type KbDocument } from '../api/kb';
 import { AppShell } from '../components/AppShell';
@@ -31,6 +32,10 @@ export function MemberDetailPage() {
     queryKey: ['member-health-analysis', memberId],
     queryFn: () => getMemberHealthAnalysis(memberId!),
     enabled: Boolean(memberId)
+  });
+  const alertRulesQuery = useQuery({
+    queryKey: ['alert-rules'],
+    queryFn: listAlertRules
   });
   const deleteMutation = useMutation({
     mutationFn: deleteMember,
@@ -116,6 +121,15 @@ export function MemberDetailPage() {
             ))}
             {member.allergies && <span className="tag tag-info">{member.allergies}</span>}
             {healthAnalysisQuery.data && <span className="tag tag-success">{healthAnalysisQuery.data.member_card.status_text}</span>}
+            {alertRulesQuery.data && (
+              <span
+                className={`member-alert-badge ${alertRulesQuery.data.member_coverage[member.member_id] ? 'has-rules' : 'no-rules'}`}
+                onClick={() => navigate('/settings')}
+              >
+                <Shield size={12} />
+                {alertRulesQuery.data.member_coverage[member.member_id] ? '预警已开启' : '预警未配置'}
+              </span>
+            )}
           </div>
         </div>
         <div className="member-hero-actions">
