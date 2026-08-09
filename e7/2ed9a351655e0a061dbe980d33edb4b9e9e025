@@ -1,0 +1,103 @@
+docs/ppt/data-source-layer-slide.js
+  s_143955199d2ca6::t_0d0d482898e319 1-57,59-82,85-93
+  s_143955199d2ca6::t_aed0643e5c4223 58,83-84
+frontend/src/components/chat/MessageBubble.tsx
+  s_9efa3847d54d48::t_a5bef5265c7db3 52-54,59
+  s_9efa3847d54d48::t_56e8b0a84e4e8c 51
+  s_9efa3847d54d48::t_ef8c56608d6111 55-58
+  s_9efa3847d54d48::t_52b069867503f9 60-62
+  h_7549b7dc6a6921 39
+backend/app/services/langchain_agent.py
+  s_6716a71c08a96e::t_2ffc83a4e615f1 629-634,637,642-646,653
+  s_6716a71c08a96e::t_49d9a25c7ca4b2 159-165
+  s_6716a71c08a96e::t_9de0ea07cc0889 259-265
+scripts/create_supervisor_slide.js
+  s_d5b051d12f37ab::t_eafdc39fc79af4 1-78
+backend/app/services/multi_agent.py
+  s_6716a71c08a96e::t_3719d80801d9ed 69,134
+  s_6716a71c08a96e::t_6d659aa6efa6a4 156,262-263,266-272,274-275,307,309-311,330-335,346,386-390,394,413-419
+  s_6716a71c08a96e::t_3818cfdde01fc3 72-74,80
+  h_7549b7dc6a6921 18-32,124-128,273
+  s_6716a71c08a96e::t_256e3d1c60189f 260-261
+  s_6716a71c08a96e::t_5b42f65e00a396 70-71
+  s_6716a71c08a96e::t_4d83644b2aaa27 257-259
+  h_7549b7dc6a6921 5,67,248-250,256,421-422,440-441,450-451
+docs/ppt/group-cockpit-slide.js
+  s_143955199d2ca6::t_069a0447e29a3a 1-11,15-19,21-26,28-33,37,40-66,68-76,78-91
+  s_143955199d2ca6::t_5b08cb1acd98d8 12-14,20,27,34-36,38-39,67,77
+docs/ppt/multi-agent-supervisor-slide.js
+  s_143955199d2ca6::t_84da3726023d02 74-75
+  s_143955199d2ca6::t_b414537208d551 1-73,76-107
+frontend/src/styles.css
+  h_7549b7dc6a6921 5836
+  s_143955199d2ca6::t_01a9ab8d4a9f2a 5806-5835,5837-6038
+frontend/src/components/chat/cards/KbInterpretationCard.tsx
+  s_6716a71c08a96e::t_945f889787a6fb 17-18,20-33
+  s_6716a71c08a96e::t_aad840234902d7 14-16
+  h_7549b7dc6a6921 2,4,6
+backend/app/schemas/agent_response.py
+  h_7549b7dc6a6921 57-58,60-84,96-104,109-115,138
+backend/app/services/agent_tools.py
+  h_7549b7dc6a6921 176,182,192,199
+backend/app/services/meal_plan_service.py
+  h_7549b7dc6a6921 207,254,363,407
+backend/tests/test_meal_plan_service.py
+  h_7549b7dc6a6921 72-75,115-118
+backend/tests/test_multi_agent.py
+  h_7549b7dc6a6921 229-231,233-235
+frontend/src/api/agent.ts
+  h_7549b7dc6a6921 48-52
+frontend/src/components/chat/AgentOrchestrationPanel.tsx
+  h_7549b7dc6a6921 1-202
+frontend/src/components/chat/StructuredCard.tsx
+  h_7549b7dc6a6921 13,19
+frontend/src/pages/ChatPage.tsx
+  h_7549b7dc6a6921 20-21,53,197,285,348-352
+frontend/src/pages/DocumentDetailPage.tsx
+  h_7549b7dc6a6921 96-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "e72ed9a351655e0a061dbe980d33edb4b9e9e025",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_143955199d2ca6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe171-7b9a-7bc1-b0b8-6fa125bddca8",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_6716a71c08a96e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdfe5-d313-73d2-b3b6-7ede8d68f63f",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_9efa3847d54d48": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdfb1-b785-73a2-9430-4d972cd11baf",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_d5b051d12f37ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe574-bbbb-7772-9a8f-5a5df7dadc3c",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
