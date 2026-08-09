@@ -17,6 +17,8 @@ import { MessageList } from '../components/chat/MessageList';
 import { SessionList } from '../components/chat/SessionList';
 import { AgentTeamStrip, INITIAL_TEAM_STATE, applyTeamActivity } from '../components/chat/AgentTeamStrip';
 import type { TeamState } from '../components/chat/AgentTeamStrip';
+import { AgentOrchestrationPanel, INITIAL_TRACE, applyTrace } from '../components/chat/AgentOrchestrationPanel';
+import type { TraceState } from '../components/chat/AgentOrchestrationPanel';
 import { UploadReportDialog } from '../components/UploadReportDialog';
 import { EvidenceModal } from '../components/chat/evidence/EvidenceModal';
 import type { EvidenceModalState } from '../components/chat/evidence/EvidenceActions';
@@ -48,6 +50,7 @@ export function ChatPage() {
   const [modalState, setModalState] = useState<EvidenceModalState>(CLOSED_EVIDENCE_MODAL);
   const [teamState, setTeamState] = useState<TeamState>(INITIAL_TEAM_STATE);
   const [teamVisible, setTeamVisible] = useState(false);
+  const [traceState, setTraceState] = useState<TraceState>(INITIAL_TRACE);
 
   const sessionsQuery = useQuery({ queryKey: ['agent-sessions'], queryFn: listAgentSessions });
   const quickActionsQuery = useQuery({ queryKey: ['agent-quick-actions'], queryFn: listQuickActions });
@@ -191,6 +194,7 @@ export function ChatPage() {
         },
         onAgentActivity: (payload) => {
           setTeamState((prev) => applyTeamActivity(prev, payload));
+          setTraceState((prev) => applyTrace(prev, payload));
         },
         onAssistantDone: (message) => {
           // 注意：message 里可能没带 product_recommendations（如果后端没在 done 事件里回填），
@@ -278,6 +282,7 @@ export function ChatPage() {
     setSendError(null);
     setTeamState(INITIAL_TEAM_STATE);
     setTeamVisible(true);
+    setTraceState(INITIAL_TRACE);
     sendMutation.mutate({ content, messageAttachments: attachments });
   }
 
@@ -340,6 +345,11 @@ export function ChatPage() {
             onQuickAction={(action) => setDraft(action.label)}
           />
         </section>
+        <AgentOrchestrationPanel
+          visible={true}
+          trace={traceState}
+          onReset={() => setTraceState(INITIAL_TRACE)}
+        />
       </div>
       <EvidenceModal
         message={selectedEvidenceMessage}

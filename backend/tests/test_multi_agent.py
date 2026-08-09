@@ -226,9 +226,13 @@ def test_multi_agent_stream_emits_activity_product_delta_card_in_order(monkeypat
         "agent_activity",  # supervisor done
     ]
     activities = [payload for kind, payload in events if kind == "agent_activity"]
-    assert activities[0] == {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"}
+    assert activities[0]["agent"] == "supervisor"
+    assert activities[0]["action"] == "start"
+    assert activities[0]["user_query"] == "今晚吃什么"
     assert activities[1]["agent"] == "meal_planner"
-    assert activities[-1] == {"agent": "supervisor", "action": "done", "detail": "调度中心完成"}
+    assert activities[-1]["agent"] == "supervisor"
+    assert activities[-1]["action"] == "done"
+    assert "elapsed_seconds" in activities[-1]
     products = [payload for kind, payload in events if kind == "product_recommendations"]
     assert products[0]["items"][0]["product_id"] == "p_oil"
     deltas = [payload for kind, payload in events if kind == "delta"]

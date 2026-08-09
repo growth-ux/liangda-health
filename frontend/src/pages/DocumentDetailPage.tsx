@@ -89,13 +89,13 @@ export function DocumentDetailPage() {
                   value={factStatusLabel[documentQuery.data.fact_extract_status]}
                   className={factStatusTagClass[documentQuery.data.fact_extract_status]}
                 />
-                <button className="detail-preview-btn" onClick={() => setPdfPreviewOpen(true)} type="button">
-                  <Eye size={16} />
-                  预览完整 PDF
-                </button>
                 <button className="detail-preview-btn" onClick={() => setFactPreviewOpen(true)} type="button">
                   <ListChecks size={16} />
                   预览问题
+                </button>
+                <button className="detail-preview-btn" onClick={() => setPdfPreviewOpen(true)} type="button">
+                  <Eye size={16} />
+                  预览完整 PDF
                 </button>
               </div>
               {documentQuery.data.fact_extract_status === 'failed' && documentQuery.data.fact_extract_error && (

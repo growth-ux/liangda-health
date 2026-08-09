@@ -45,6 +45,11 @@ export type AgentActivityPayload = {
   agent: 'supervisor' | 'meal_planner' | 'shopping_guide' | 'report_reader';
   action: 'start' | 'done';
   detail?: string;
+  task?: string;
+  result_summary?: string;
+  elapsed_seconds?: number;
+  user_query?: string;
+  output_summary?: string;
 };
 
 export type StreamCallbacks = {
