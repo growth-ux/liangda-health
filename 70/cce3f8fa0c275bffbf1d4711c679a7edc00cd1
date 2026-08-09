@@ -1,0 +1,58 @@
+docs/ppt/create_adaptive_feedback_evolution_slide.js
+  s_e1534495e09899::t_0bfe40cf70d7bc 1-97,99,101-121
+  s_e1534495e09899::t_06a89b0606f428 98,100
+docs/ppt/create_health_alert_slide.js
+  s_588a1380549e64::t_6247d26522bc22 1-64,66-67,69,73,79-94
+  s_588a1380549e64::t_a3b6805b0758b5 65,68,70-72,74-78
+scripts/create_evidence_chain_showcase.py
+  s_d935da149545d2::t_e37e65d6ab9e25 1-134
+scripts/create_evidence_chain_slide.js
+  s_d5b051d12f37ab::t_2bdf81f9d2e088 1-45
+_fix.py
+  s_588a1380549e64::t_195660818ed597 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "70cce3f8fa0c275bffbf1d4711c679a7edc00cd1",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_588a1380549e64": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe5e3-7605-7f53-bc2b-3d62b1c2ce68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_d5b051d12f37ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe574-bbbb-7772-9a8f-5a5df7dadc3c",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_d935da149545d2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe5b3-f1e5-78f0-b545-77628a2738d4",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_e1534495e09899": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fe6cd-8804-70b3-9673-7c240eb04268",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
