@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.time import utc_now
 from app.models.mall import MallCartItem, MallProduct, MallProductRelation, MallZone
 from app.schemas.mall import MallCartResponse, MallCartItem as MallCartItemSchema, MallProductSummary, MallZone as MallZoneSchema
-from app.services.mall_catalog import load_mall_catalog
+from app.services.mall.mall_catalog import load_mall_catalog
 
 
 def _product_to_summary(product: MallProduct, recommend_reason: str | None = None) -> MallProductSummary:

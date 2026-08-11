@@ -10,9 +10,9 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
-from app.services.langchain_agent import LlmConfigError
-from app.services.ops_agent import OpsAgentRunner
-from app.services.ops_agent_tools import OpsAgentTools
+from app.services.agent.langchain_agent import LlmConfigError
+from app.services.agent.ops_agent import OpsAgentRunner
+from app.services.agent.ops_agent_tools import OpsAgentTools
 
 logger = logging.getLogger(__name__)
 

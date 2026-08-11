@@ -3,8 +3,8 @@ import logging
 from collections.abc import Iterable
 
 from app.core.config import settings
-from app.services.langchain_agent import LlmConfigError, _content_to_text
-from app.services.llm_logging import log_llm_request
+from app.services.agent.langchain_agent import LlmConfigError, _content_to_text
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 

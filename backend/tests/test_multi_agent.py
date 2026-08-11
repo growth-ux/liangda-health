@@ -4,8 +4,8 @@ import queue
 import pytest
 
 from app.core.config import settings
-from app.services.langchain_agent import LlmConfigError
-from app.services.multi_agent import (
+from app.services.agent.langchain_agent import LlmConfigError
+from app.services.agent.multi_agent import (
     MEAL_PLANNER_PROMPT_TEMPLATE,
     REPORT_READER_PROMPT_TEMPLATE,
     SHOPPING_GUIDE_PROMPT_TEMPLATE,
@@ -258,7 +258,7 @@ def test_multi_agent_stream_worker_error_propagates(monkeypatch):
 def test_multi_agent_stream_fallback_evidence_card_when_no_respond(monkeypatch):
     from langchain_core.messages import AIMessageChunk
     from app.schemas.agent_response import EvidenceItem
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     class FakeSupervisor:
         def stream(self, payload, stream_mode):

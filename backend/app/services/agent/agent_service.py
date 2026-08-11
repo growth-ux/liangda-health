@@ -9,7 +9,7 @@ from fastapi import HTTPException
 logger = logging.getLogger(__name__)
 
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
-from app.services.langchain_agent import LlmConfigError
+from app.services.agent.langchain_agent import LlmConfigError
 
 
 class AgentService:
@@ -232,7 +232,7 @@ class AgentService:
         resolve_owner = getattr(ms, '_resolve_owner', None)
         resolved_member_id = None
         if resolve_owner is not None:
-            from app.services.memory_service import _should_skip_memory_write
+            from app.services.common.memory_service import _should_skip_memory_write
             if _should_skip_memory_write(content):
                 return
             try:

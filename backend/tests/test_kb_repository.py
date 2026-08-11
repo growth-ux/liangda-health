@@ -9,7 +9,7 @@ from app.db.session import Base
 from app.models.kb import KbChunk, KbDocument
 from app.models.member import Member
 from app.repositories.kb_repository import SqlAlchemyKbRepository
-from app.services.chunker import TextChunk
+from app.services.kb.chunker import TextChunk
 
 
 @pytest.fixture

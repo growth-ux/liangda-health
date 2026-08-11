@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models.health_fact import HealthFact
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
-from app.services.meal_product_recommendation_service import MealProductRecommendationService
+from app.services.meal.meal_product_recommendation_service import MealProductRecommendationService
 
 
 def _add_member(
@@ -278,7 +278,7 @@ class FakeMemoryServiceForRank:
 
 def test_recommend_memory_driven_avoidance_penalizes_product(db_session):
     """规避记忆中的关键词命中商品名时，该商品应被降权。"""
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session)
     repo = SqlAlchemyMallRepository(db_session)
@@ -305,7 +305,7 @@ def test_recommend_memory_driven_avoidance_penalizes_product(db_session):
 
 def test_recommend_memory_driven_preference_boosts_product(db_session):
     """偏好记忆中的关键词命中商品名时，该商品应被加权。"""
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session)
     repo = SqlAlchemyMallRepository(db_session)

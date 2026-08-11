@@ -1,4 +1,4 @@
-from app.services.chunker import chunk_page_text
+from app.services.kb.chunker import chunk_page_text
 
 
 def test_chunk_page_text_splits_structured_report_sections():

@@ -1,5 +1,5 @@
 """Loop Engineering: 冲突检测 + 安全替代策略测试。"""
-from app.services.loop_feedback import (
+from app.services.agent.loop_feedback import (
     ConflictDetector,
     detect_conflicts,
     suggest_safe_alternatives,

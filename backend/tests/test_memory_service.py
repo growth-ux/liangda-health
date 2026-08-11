@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 
 from app.core.config import settings
-from app.services.memory_service import MemoryService, _mem0_config
+from app.services.common.memory_service import MemoryService, _mem0_config
 
 
 def test_mem0_dependency_is_installed():

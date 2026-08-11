@@ -5,7 +5,7 @@ import re
 from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
-from app.services.meal_plan_service import MealPlanService
+from app.services.meal.meal_plan_service import MealPlanService
 
 logger = logging.getLogger(__name__)
 

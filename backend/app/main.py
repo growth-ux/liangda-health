@@ -28,7 +28,7 @@ from app.models import member as _member_models
 from app.models import notice as _notice_models
 from app.models import alert as _alert_models
 from app.repositories.member_repository import SqlAlchemyMemberRepository
-from app.services.device_service import DeviceService
+from app.services.common.device_service import DeviceService
 
 
 def configure_logging() -> None:

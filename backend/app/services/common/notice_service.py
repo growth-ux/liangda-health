@@ -208,7 +208,7 @@ class NoticeService:
         return created
 
     def _generate_alert_rule_notices(self) -> bool:
-        from app.services.alert_rule_service import AlertRuleService
+        from app.services.common.alert_rule_service import AlertRuleService
         return AlertRuleService(self.db).generate_alert_notices()
 
     def _counts(self) -> NoticeCounts:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.models.kb import KbChunk, KbDocument
-from app.services.agent_tools import KbSearchTool
+from app.services.agent.agent_tools import KbSearchTool
 
 
 class FakeEmbeddingService:
@@ -93,7 +93,7 @@ class FakeMemoryService:
 
 
 def test_memory_search_tool_returns_memory_text():
-    from app.services.agent_tools import MemorySearchTool
+    from app.services.agent.agent_tools import MemorySearchTool
 
     service = FakeMemoryService()
     tool = MemorySearchTool(service)
@@ -105,7 +105,7 @@ def test_memory_search_tool_returns_memory_text():
 
 
 def test_memory_search_tool_rejects_empty_query():
-    from app.services.agent_tools import MemorySearchTool
+    from app.services.agent.agent_tools import MemorySearchTool
 
     service = FakeMemoryService()
     tool = MemorySearchTool(service)
@@ -117,8 +117,8 @@ def test_memory_search_tool_rejects_empty_query():
 
 
 def test_memory_search_tool_pushes_evidence_item():
-    from app.services.agent_evidence import AgentEvidenceCollector
-    from app.services.agent_tools import MemorySearchTool
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_tools import MemorySearchTool
 
     collector = AgentEvidenceCollector()
     service = FakeMemoryService()
@@ -134,7 +134,7 @@ def test_memory_search_tool_pushes_evidence_item():
 
 def test_evidence_collector_dedupes_same_memory_evidence_item():
     from app.schemas.agent_response import EvidenceItem
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     collector = AgentEvidenceCollector()
     item = EvidenceItem(
@@ -183,8 +183,8 @@ class FakeMealPlanService:
 
 
 def test_meal_plan_tool_pushes_report_and_device_evidence_items():
-    from app.services.agent_evidence import AgentEvidenceCollector
-    from app.services.agent_tools import MealPlanTool
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_tools import MealPlanTool
 
     collector = AgentEvidenceCollector()
     service = FakeMealPlanService()
@@ -224,7 +224,7 @@ class FakeMallRecommendService:
 
 def test_mall_recommend_tool_returns_structured_json():
     """工具把 service 的 dict JSON 序列化后返回，runner 后续按结构解析。"""
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_tools import MallRecommendTool
 
     service = FakeMallRecommendService()
     tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
@@ -246,7 +246,7 @@ def test_mall_recommend_tool_returns_structured_json():
 
 
 def test_mall_recommend_tool_rejects_unknown_member():
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_tools import MallRecommendTool
 
     service = FakeMallRecommendService()
     tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
@@ -260,7 +260,7 @@ def test_mall_recommend_tool_rejects_unknown_member():
 def test_mall_recommend_tool_allows_empty_meal_plan_text():
     """直接商品推荐（如"推荐一款适合全家人的油"）没有 meal_plan 时，
     工具必须放行并把空串透传给 service，让 service 用健康画像兜底匹配。"""
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_tools import MallRecommendTool
 
     service = FakeMallRecommendService()
     tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
@@ -276,7 +276,7 @@ def test_mall_recommend_tool_allows_empty_meal_plan_text():
 
 
 def test_mall_recommend_tool_passes_query_text_for_category_requests():
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_tools import MallRecommendTool
 
     service = FakeMallRecommendService()
     tool = MallRecommendTool(service, allowed_member_ids=["mem_dad"])
@@ -293,8 +293,8 @@ def test_mall_recommend_tool_passes_query_text_for_category_requests():
 
 
 def test_mall_recommend_tool_pushes_product_evidence_items():
-    from app.services.agent_evidence import AgentEvidenceCollector
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_tools import MallRecommendTool
 
     collector = AgentEvidenceCollector()
     service = FakeMallRecommendService()
@@ -315,8 +315,8 @@ def test_mall_recommend_tool_pushes_product_evidence_items():
 
 def test_mall_recommend_tool_pushes_safety_block_evidence_items():
     """被安全红线拦截的商品要写入 evidence 的 safety_items，让生成链可见。"""
-    from app.services.agent_evidence import AgentEvidenceCollector
-    from app.services.agent_tools import MallRecommendTool
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_tools import MallRecommendTool
 
     class BlockingMallRecommendService(FakeMallRecommendService):
         def recommend(self, *, scope, meal_plan_text, member_id=None, query_text="", limit=5):
@@ -358,7 +358,7 @@ def test_mall_recommend_tool_pushes_safety_block_evidence_items():
 
 def test_kb_search_tool_pushes_first_chunk_only_as_evidence():
     """kb_search 只把第一个 chunk 写入 evidence；一次返回多个 chunk 也不能把右栏塞满。"""
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     class MultiChunkRepository(FakeKbRepository):
         def get_chunks_by_ids(self, chunk_ids):
@@ -411,14 +411,14 @@ def test_kb_search_tool_pushes_first_chunk_only_as_evidence():
 
 
 def test_compress_chunk_content_short_text_unchanged():
-    from app.services.agent_tools import _compress_chunk_content
+    from app.services.agent.agent_tools import _compress_chunk_content
 
     text = "血压 152，偏高"
     assert _compress_chunk_content(text) == text
 
 
 def test_compress_chunk_content_truncates_at_sentence_boundary():
-    from app.services.agent_tools import _compress_chunk_content
+    from app.services.agent.agent_tools import _compress_chunk_content
 
     # 200+ 字，包含多个句号和分号
     text = "总胆固醇 6.2mmol/L，明显偏高。" + "x" * 180 + "空腹血糖 6.5mmol/L。" + "y" * 100
@@ -429,14 +429,14 @@ def test_compress_chunk_content_truncates_at_sentence_boundary():
 
 
 def test_compress_chunk_content_exact_limit():
-    from app.services.agent_tools import _compress_chunk_content
+    from app.services.agent.agent_tools import _compress_chunk_content
 
     text = "x" * 200
     assert _compress_chunk_content(text) == text
 
 
 def test_compress_chunk_content_no_sentence_boundary():
-    from app.services.agent_tools import _compress_chunk_content
+    from app.services.agent.agent_tools import _compress_chunk_content
 
     text = "a" * 300  # 没有任何句边界
     result = _compress_chunk_content(text, max_chars=200)

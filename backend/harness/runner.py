@@ -8,11 +8,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.services.langchain_agent import BaseAgentRunner
-from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool
-from app.services.meal_plan_service import MealPlanService
-from app.services.meal_product_recommendation_service import MealProductRecommendationService
-from app.services.memory_service import MemoryService
+from app.services.agent.langchain_agent import BaseAgentRunner
+from app.services.agent.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool
+from app.services.meal.meal_plan_service import MealPlanService
+from app.services.meal.meal_product_recommendation_service import MealProductRecommendationService
+from app.services.common.memory_service import MemoryService
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.repositories.mall_repository import SqlAlchemyMallRepository as _MallRepo

@@ -5,12 +5,12 @@ import threading
 import time
 
 from app.core.config import settings
-from app.services.langchain_agent import (
+from app.services.agent.langchain_agent import (
     BaseAgentRunner,
     _build_members_block,
     _content_to_text,
 )
-from app.services.llm_logging import log_llm_request
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +191,7 @@ class MultiAgentRunner(BaseAgentRunner):
             """把报告检索和解读任务交给报告解读师。task 里写清 member_id 和用户问题。"""
             return self._run_expert("report_reader", task)
 
-        from app.services.langchain_agent import _RESPOND_TOOL
+        from app.services.agent.langchain_agent import _RESPOND_TOOL
 
         tools = [ask_meal_planner, ask_shopping_guide, ask_report_reader]
 
@@ -344,7 +344,7 @@ class MultiAgentRunner(BaseAgentRunner):
         4. AIMessageChunk 有 tool_call_chunks 时：只保留 respond 的 summary_text 增量，静默普通文本（推理过程）
         5. AIMessageChunk 没有 tool_call_chunks 时：输出普通文本（LLM 直接回复，不是推理）
         """
-        from app.services.langchain_agent import (
+        from app.services.agent.langchain_agent import (
             _try_parse_mall_recommend_payload,
             _parse_respond_payload,
             _parse_respond_payload_from_args_state,

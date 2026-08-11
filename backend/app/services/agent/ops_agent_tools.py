@@ -2,7 +2,7 @@
 import logging
 
 from app.db.session import SessionLocal
-from app.services.dashboard_service import DashboardService
+from app.services.common.dashboard_service import DashboardService
 
 logger = logging.getLogger(__name__)
 

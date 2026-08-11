@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.health_analysis import HealthAnalysisMemberResponse, HealthAnalysisOverviewResponse
-from app.services.health_analysis_service import HealthAnalysisService
+from app.services.health.health_analysis_service import HealthAnalysisService
 
 router = APIRouter(prefix="/api/health-analysis", tags=["health-analysis"])
 

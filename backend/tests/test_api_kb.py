@@ -10,8 +10,8 @@ from app.main import create_app
 from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.models.member import Member
-from app.services.embedding import DashScopeEmbeddingService
-from app.services.kb_service import UploadResult
+from app.services.kb.embedding import DashScopeEmbeddingService
+from app.services.kb.kb_service import UploadResult
 
 
 class FakeQuery:

@@ -1,6 +1,6 @@
 from app.db.session import SessionLocal
 from app.repositories.kb_repository import SqlAlchemyKbRepository
-from app.services.health_fact_extractor import HealthFactExtractor
+from app.services.health.health_fact_extractor import HealthFactExtractor
 
 
 def extract_health_facts_for_document(document_id: str) -> None:

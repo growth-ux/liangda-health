@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from app.models.device import DeviceDailyMetric
 from app.models.health_fact import HealthFact
 from app.models.member import Member
-from app.services.health_profile_service import HealthProfileService
+from app.services.health.health_profile_service import HealthProfileService
 
 
 def _add_member(
@@ -175,7 +175,7 @@ def test_health_profile_maps_health_fact_to_risk_and_principles(db_session):
 
 
 def test_health_profile_keeps_low_sodium_above_salty_memory(db_session):
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session, health_tags=[])
     _add_fact(db_session, name="血压偏高", evidence_text="收缩压偏高")
@@ -190,7 +190,7 @@ def test_health_profile_keeps_low_sodium_above_salty_memory(db_session):
 
 
 def test_health_profile_memory_avoidance_stays_out_of_health_avoid_tags(db_session):
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session, member_id="mem_dad", name="李建国", relation="爸爸", gender="男", health_tags=["高血压"])
     memory = FakeMemoryService([MemoryItem(content="爸爸不喜欢鱼", memory_type="avoidance", member_id="mem_dad")])
@@ -206,7 +206,7 @@ def test_health_profile_memory_avoidance_stays_out_of_health_avoid_tags(db_sessi
 
 
 def test_health_profile_uses_member_memory_full_recall_for_preferences(db_session):
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session, member_id="mem_dad", name="李建国", relation="爸爸", gender="男", health_tags=[])
     memory = FakeMemoryService([MemoryItem(content="爸爸不喜欢鱼", memory_type="avoidance", member_id="mem_dad")])
@@ -219,7 +219,7 @@ def test_health_profile_uses_member_memory_full_recall_for_preferences(db_sessio
 
 
 def test_family_profile_merges_health_facts_and_family_memory(db_session):
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session, member_id="mem_mom", name="张桂兰", relation="妈妈", health_tags=[])
     _add_member(db_session, member_id="mem_dad", name="李建国", relation="爸爸", gender="男", health_tags=[])

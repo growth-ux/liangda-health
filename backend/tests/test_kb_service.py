@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.services.kb_service import KbService
+from app.services.kb.kb_service import KbService
 
 
 class FakeVectorStore:

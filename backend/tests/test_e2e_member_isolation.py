@@ -13,7 +13,7 @@ from app.db.session import Base, get_db
 from app.main import create_app
 from app.models.kb import KbChunk, KbDocument
 from app.models.member import Member
-from app.services.embedding import DashScopeEmbeddingService
+from app.services.kb.embedding import DashScopeEmbeddingService
 
 
 class FakeVectorStore:

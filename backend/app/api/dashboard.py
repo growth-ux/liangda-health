@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.dashboard import DashboardResponse
-from app.services.dashboard_service import DashboardService
+from app.services.common.dashboard_service import DashboardService
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 

@@ -5,8 +5,8 @@ from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.models.member import Member
 from app.repositories.health_fact_repository import HealthFactCreate
-from app.services.kb_service import DocumentCreate, PageCreate
-from app.services.metadata import BasicMetadata
+from app.services.kb.kb_service import DocumentCreate, PageCreate
+from app.services.kb.metadata import BasicMetadata
 
 
 class SqlAlchemyKbRepository:

@@ -3,7 +3,7 @@ import json
 import pytest
 
 from app.core.config import settings
-from app.services.langchain_agent import (
+from app.services.agent.langchain_agent import (
     BaseAgentRunner,
     LlmConfigError,
     _build_members_block,
@@ -823,7 +823,7 @@ def test_langchain_agent_stream_uses_generic_card_when_payload_shape_invalid(mon
 def test_langchain_agent_stream_raises_on_invalid_respond_without_summary(monkeypatch):
     """respond 没有可展示 summary_text 时才抛 ResponseSchemaError。"""
     from langchain_core.messages import ToolMessage
-    from app.services.langchain_agent import ResponseSchemaError
+    from app.services.agent.langchain_agent import ResponseSchemaError
 
     class FakeAgent:
         def stream(self, payload, stream_mode):
@@ -909,7 +909,7 @@ def test_langchain_agent_stream_stops_after_first_valid_respond(monkeypatch):
 def test_langchain_agent_run_extracts_card(monkeypatch):
     """run() 同步路径应从 respond ToolMessage 提取 card 字段，校验失败抛 ResponseSchemaError。"""
     from langchain_core.messages import AIMessage, ToolMessage
-    from app.services.langchain_agent import ResponseSchemaError
+    from app.services.agent.langchain_agent import ResponseSchemaError
     import json
 
     card_args = {
@@ -981,7 +981,7 @@ def test_langchain_agent_run_extracts_card_from_respond_tool_call_args(monkeypat
 def test_langchain_agent_run_raises_when_no_respond(monkeypatch):
     """run() 路径 LLM 没调 respond 抛 ResponseSchemaError。"""
     from langchain_core.messages import AIMessage
-    from app.services.langchain_agent import ResponseSchemaError
+    from app.services.agent.langchain_agent import ResponseSchemaError
 
     class FakeAgent:
         def invoke(self, payload):
@@ -998,7 +998,7 @@ def test_langchain_agent_run_raises_when_no_respond(monkeypatch):
 def test_langchain_agent_run_raises_on_invalid_respond_payload(monkeypatch):
     """respond ToolMessage 存在但 payload 不合法时，run() 抛 ResponseSchemaError。"""
     from langchain_core.messages import ToolMessage
-    from app.services.langchain_agent import ResponseSchemaError
+    from app.services.agent.langchain_agent import ResponseSchemaError
 
     class FakeAgent:
         def invoke(self, payload):
@@ -1036,7 +1036,7 @@ def test_langchain_agent_stream_attaches_collected_evidence_to_card(monkeypatch)
     runner = BaseAgentRunner()
     monkeypatch.setattr(runner, "_agent", lambda: FakeAgent())
 
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     collector = AgentEvidenceCollector()
     collector.add_content(
@@ -1061,7 +1061,7 @@ def test_langchain_agent_stream_emits_fallback_evidence_card_when_respond_missin
     """模型没调 respond 直接文本收尾时，stream 结束前补发只带证据链的空卡，保证前端 tab 可见。"""
     from langchain_core.messages import AIMessageChunk
     from app.schemas.agent_response import EvidenceItem
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     class FakeAgent:
         def stream(self, payload, stream_mode):
@@ -1099,7 +1099,7 @@ def test_langchain_agent_stream_emits_fallback_evidence_card_when_respond_missin
 def test_langchain_agent_run_attaches_collected_content_and_product_evidence(monkeypatch):
     from langchain_core.messages import AIMessage, ToolMessage
     from app.schemas.agent_response import EvidenceItem
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     class FakeAgent:
         def invoke(self, payload):

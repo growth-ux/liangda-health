@@ -3,10 +3,10 @@ import logging
 from pathlib import Path
 from uuid import uuid4
 
-from app.services.chunker import TextChunk, chunk_page_text
-from app.services.embedding import DashScopeEmbeddingService
-from app.services.metadata import BasicMetadata, extract_basic_metadata
-from app.services.vector_store import VectorRecord
+from app.services.kb.chunker import TextChunk, chunk_page_text
+from app.services.kb.embedding import DashScopeEmbeddingService
+from app.services.kb.metadata import BasicMetadata, extract_basic_metadata
+from app.services.kb.vector_store import VectorRecord
 
 logger = logging.getLogger(__name__)
 

@@ -23,7 +23,7 @@ from app.schemas.health_analysis import (
     HealthAnalysisOverviewResponse,
     HealthAnalysisSummaryItem,
 )
-from app.services.device_service import DeviceService
+from app.services.common.device_service import DeviceService
 
 
 @dataclass(frozen=True)

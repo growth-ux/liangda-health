@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
-from app.services.context_pipeline import ContextPipeline, PruningLog
-from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
-from app.services.llm_logging import log_llm_request
-from app.services.loop_feedback import suggest_safe_alternatives
+from app.services.agent.context_pipeline import ContextPipeline, PruningLog
+from app.services.health.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
+from app.services.agent.llm_logging import log_llm_request
+from app.services.agent.loop_feedback import suggest_safe_alternatives
 
 logger = logging.getLogger(__name__)
 

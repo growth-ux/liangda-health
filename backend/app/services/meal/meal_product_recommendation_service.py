@@ -11,9 +11,9 @@ from app.core.demo import real_only
 from app.models.mall import MallProduct
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
-from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
-from app.services.mall_recommendation import build_recommend_reason, score_product_for_member
-from app.services.memory_service import MemoryItem, MemoryService
+from app.services.health.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
+from app.services.mall.mall_recommendation import build_recommend_reason, score_product_for_member
+from app.services.common.memory_service import MemoryItem, MemoryService
 
 
 @dataclass(frozen=True)

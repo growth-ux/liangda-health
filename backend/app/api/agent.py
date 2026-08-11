@@ -19,13 +19,13 @@ from app.schemas.agent import (
     AgentSessionListItem,
     QuickActionItem,
 )
-from app.services.agent_service import AgentService
-from app.services.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool, ReportFactTool
-from app.services.multi_agent import MultiAgentRunner
-from app.services.meal_product_recommendation_service import MealProductRecommendationService
-from app.services.meal_plan_service import MealPlanService
-from app.services.memory_service import MemoryService
-from app.services.session_summarizer import SessionSummarizer
+from app.services.agent.agent_service import AgentService
+from app.services.agent.agent_tools import KbSearchTool, MallRecommendTool, MealPlanTool, MemorySearchTool, ReportFactTool
+from app.services.agent.multi_agent import MultiAgentRunner
+from app.services.meal.meal_product_recommendation_service import MealProductRecommendationService
+from app.services.meal.meal_plan_service import MealPlanService
+from app.services.common.memory_service import MemoryService
+from app.services.agent.session_summarizer import SessionSummarizer
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 

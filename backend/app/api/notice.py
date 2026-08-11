@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.schemas.notice import NoticeItem, NoticeListResponse, NoticeReadAllResponse, NoticeSummaryResponse
-from app.services.notice_service import NoticeService
+from app.services.common.notice_service import NoticeService
 
 router = APIRouter(prefix="/api/notices", tags=["notices"])
 

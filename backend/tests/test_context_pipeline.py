@@ -1,7 +1,7 @@
 """context_pipeline 三件套单测：Ranking / Budgeting / Pruning。"""
 import pytest
 
-from app.services.context_pipeline import (
+from app.services.agent.context_pipeline import (
     ContextBudget,
     ContextItem,
     ContextPipeline,
@@ -135,7 +135,7 @@ def test_pruning_keeps_all_when_under_budget():
 
 
 def test_pruning_log_kept_text():
-    from app.services.context_pipeline import PruningLog
+    from app.services.agent.context_pipeline import PruningLog
 
     log = PruningLog(
         kept=[
@@ -149,7 +149,7 @@ def test_pruning_log_kept_text():
 
 
 def test_pruning_log_summary():
-    from app.services.context_pipeline import PruningLog
+    from app.services.agent.context_pipeline import PruningLog
 
     log = PruningLog(
         kept=[
@@ -164,7 +164,7 @@ def test_pruning_log_summary():
 
 
 def test_pruning_log_empty():
-    from app.services.context_pipeline import PruningLog
+    from app.services.agent.context_pipeline import PruningLog
 
     log = PruningLog()
     assert log.kept_count == 0

@@ -13,8 +13,8 @@ from app.schemas.alert import (
     SmsTestRequest,
     SmsTestResponse,
 )
-from app.services.alert_rule_service import AlertRuleService
-from app.services.sms_service import SmsService
+from app.services.common.alert_rule_service import AlertRuleService
+from app.services.common.sms_service import SmsService
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 

@@ -7,9 +7,9 @@ from app.db.session import Base
 from app.models.member import Member
 from app.models.health_fact import HealthFact
 from app.models.device import DeviceDailyMetric
-from app.services.context_pipeline import ContextPipeline, ContextBudget
-from app.services.health_profile_service import HealthProfileService
-from app.services.agent_evidence import AgentEvidenceCollector
+from app.services.agent.context_pipeline import ContextPipeline, ContextBudget
+from app.services.health.health_profile_service import HealthProfileService
+from app.services.agent.agent_evidence import AgentEvidenceCollector
 from app.schemas.agent_response import EvidenceItem
 
 
@@ -232,7 +232,7 @@ def test_evidence_collector_empty_pruning():
 
 def test_multiple_pruning_logs():
     """测试 Collector 可以记录多个 pruning log。"""
-    from app.services.context_pipeline import ContextItem
+    from app.services.agent.context_pipeline import ContextItem
 
     collector = AgentEvidenceCollector()
 

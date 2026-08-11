@@ -22,12 +22,12 @@ from app.schemas.kb import (
     SearchResultItem,
     UploadResponse,
 )
-from app.services.embedding import DashScopeEmbeddingService
-from app.services.kb_service import KbService
-from app.services.ocr import CloudOcrClient
-from app.services.pdf_extractor import PdfExtractor
-from app.services.health_fact_tasks import extract_health_facts_for_document
-from app.services.vector_store import MilvusVectorStore
+from app.services.kb.embedding import DashScopeEmbeddingService
+from app.services.kb.kb_service import KbService
+from app.services.kb.ocr import CloudOcrClient
+from app.services.kb.pdf_extractor import PdfExtractor
+from app.services.health.health_fact_tasks import extract_health_facts_for_document
+from app.services.kb.vector_store import MilvusVectorStore
 
 logger = logging.getLogger(__name__)
 

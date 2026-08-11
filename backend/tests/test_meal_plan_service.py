@@ -5,8 +5,8 @@ from app.models.device import DeviceDailyMetric
 from app.models.health_fact import HealthFact
 from app.models.kb import KbDocument
 from app.models.member import Member
-from app.services.meal_plan_service import MealPlanService
-from app.services.memory_service import MemoryItem
+from app.services.meal.meal_plan_service import MealPlanService
+from app.services.common.memory_service import MemoryItem
 
 
 def _add_member(

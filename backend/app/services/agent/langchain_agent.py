@@ -7,8 +7,8 @@ from typing import Literal
 from langchain.tools import tool
 
 from app.core.config import settings
-from app.services.agent_evidence import AgentEvidenceCollector
-from app.services.llm_logging import log_llm_request
+from app.services.agent.agent_evidence import AgentEvidenceCollector
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
