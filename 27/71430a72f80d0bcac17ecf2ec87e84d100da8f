@@ -1,0 +1,30 @@
+backend/app/services/meal_plan_service.py
+  h_7549b7dc6a6921 207,231-236,259,279-285,374,383-388,423,435-441
+backend/app/db/session.py
+  h_7549b7dc6a6921 13-17
+backend/app/services/langchain_agent.py
+  h_7549b7dc6a6921 610-622
+backend/app/services/multi_agent.py
+  h_7549b7dc6a6921 68,73
+backend/app/services/ops_agent.py
+  h_7549b7dc6a6921 32-33,38
+frontend/src/components/chat/MessageBubble.tsx
+  h_7549b7dc6a6921 51,53,56-63
+frontend/src/components/members/MemberCard.tsx
+  h_7549b7dc6a6921 1,8,18,21-28,31-35
+frontend/src/pages/MembersPage.tsx
+  h_7549b7dc6a6921 1,3,8,11-20,38
+frontend/src/styles.css
+  h_7549b7dc6a6921 2709,2717-2744
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "2771430a72f80d0bcac17ecf2ec87e84d100da8f",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
