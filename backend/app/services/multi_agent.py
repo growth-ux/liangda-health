@@ -47,14 +47,19 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 
 调度规则：
 1. 三餐/吃什么问题：先调 ask_meal_planner；拿到餐单后，把餐单文本原样写进 ask_shopping_guide 的任务里继续推荐商品。
-   - 【重要】task 文本必须明确写出 scope 和 member_id：用户提到特定家人（如“爸爸/妈妈/儿子”）时写 scope=member + 对应 member_id；用户说“全家/我们家”时写 scope=family。
-   - task 里也要写清 meal_type：用户说“今晚/晚餐”写 dinner，“早餐”写 breakfast，“午餐”写 lunch，“今天/一日三餐”写 day。
+   - 【重要】task 文本必须明确写出 scope 和 member_id：用户提到特定家人（如"爸爸/妈妈/儿子"）时写 scope=member + 对应 member_id；用户说"全家/我们家"时写 scope=family。
+   - task 里也要写清 meal_type：用户说"今晚/晚餐"写 dinner，"早餐"写 breakfast，"午餐"写 lunch，"今天/一日三餐"写 day。
    - 拿到餐单后传给 ask_shopping_guide 时，同样要带上与餐单一致的 scope 和 member_id。
-2. 纯商品/类目问题：直接调 ask_shopping_guide。
-3. 专家返回以 "Error:" 开头的结果时，温和降级说明（如“暂时无法推荐商品”），同一专家最多重试 1 次。
-4. 不需要调度专家、直接调用 respond 的场景（用 kind=qa 或 kind=greeting）：
+2. 纯商品/类目问题：用户明确要"推荐/买/选"某类商品时才调 ask_shopping_guide。
+3. 专家返回以 "Error:" 开头的结果时，温和降级说明（如"暂时无法推荐商品"），同一专家最多重试 1 次。
+4. 【禁止调 ask_shopping_guide 的场景——违反会货不对板】只要用户的核心意图是"问偏好/习惯/口味"而非"要买/推荐商品"，就绝对不要调 ask_shopping_guide，一律走 memory_search + respond(kind=qa)：
+   - 询问偏好："爸爸喜欢吃鱼吗""妈妈爱喝什么茶""儿子爱吃辣吗"
+   - 声明偏好/排斥："爸爸不喜欢吃鱼""妈妈不吃辣的""儿子不要海鲜"
+   - 问胃口/状态："儿子最近胃口怎么样""爸爸吃得还好吗"
+   - 判断方法：句子主语是家人 + 谓语是"喜欢/不喜欢/爱吃/不吃/排斥/胃口"等 → 一定是偏好类，不是商品推荐。
+   - 即使问题中出现了食品名（鱼/肉/菜/水果等），只要不是在"推荐/买/选"商品，就不要调商品导购师。
+5. 不需要调度专家、直接调用 respond 的其他场景（用 kind=qa 或 kind=greeting）：
    - 简单寒暄："你好""谢谢""晚安"等。
-   - 关于家人偏好/习惯的闲聊："爸爸喜欢吃鱼吗""妈妈爱喝什么茶""儿子最近胃口怎么样"——这类问题不需要生成餐单也不需要查报告，先调 memory_search 查相关记忆后直接 respond。
    - 普通健康常识问答："感冒了吃什么好""高血压能喝酒吗"——不涉及具体家人的报告数据。
    - 判断标准：如果回复不需要生成餐单、不需要推荐商品、也不需要查体检报告，就不要调度专家，直接 respond。
 {members_block}
@@ -178,7 +183,7 @@ class MultiAgentRunner(BaseAgentRunner):
             return self._run_expert("meal_planner", task)
 
         def ask_shopping_guide(task: str) -> str:
-            """把商品推荐任务交给商品导购师。带餐单时 task 原样附餐单文本，同时写清 scope=member/family 和 member_id（与餐单一致）；只问商品类目时写用户原问题。"""
+            """把商品推荐任务交给商品导购师。仅当用户明确要求"推荐/买/选"商品时使用。带餐单时 task 原样附餐单文本，同时写清 scope=member/family 和 member_id（与餐单一致）；只问商品类目时写用户原问题。注意：询问家人偏好（"爸爸喜欢吃鱼吗"）、声明排斥（"妈妈不吃辣的"）、问胃口状态等绝对不要调用本工具，应走 memory_search + respond。"""
             return self._run_expert("shopping_guide", task)
 
         def ask_report_reader(task: str) -> str:
@@ -325,6 +330,81 @@ class MultiAgentRunner(BaseAgentRunner):
             payload = {"agent": agent, "action": action, "detail": detail}
             payload.update(extra)
             self._activity_queue.put(("activity", payload))
+
+    # ---- 流式输出过滤 ----
+
+    def _process_stream_chunk(self, chunk, respond_args_state):
+        """重写父类：supervisor 的推理文本不输出给用户，但直接回复要保留。
+
+        规则：
+        1. mall_recommend 工具结果 → product_recommendations
+        2. respond 工具的 ToolMessage → card
+        3. respond 工具的 summary_text 增量 → delta
+        4. AIMessageChunk 有 tool_call_chunks 时：只保留 respond 的 summary_text 增量，静默普通文本（推理过程）
+        5. AIMessageChunk 没有 tool_call_chunks 时：输出普通文本（LLM 直接回复，不是推理）
+        """
+        from app.services.langchain_agent import (
+            _try_parse_mall_recommend_payload,
+            _parse_respond_payload,
+            _parse_respond_payload_from_args_state,
+            _extract_respond_summary_text_delta,
+            _content_to_text,
+            ResponseSchemaError,
+        )
+
+        events = []
+
+        # 1) mall_recommend → product_recommendations
+        payload = _try_parse_mall_recommend_payload(chunk)
+        if payload is not None and payload.get("items"):
+            logger.info("multi_agent stream emit product_recommendations item_count=%s", len(payload["items"]))
+            events.append(("product_recommendations", payload))
+            return events, False
+
+        # 2) respond ToolMessage → card
+        if chunk.__class__.__name__ == "ToolMessage" and getattr(chunk, "name", None) == "respond":
+            card = _parse_respond_payload(chunk) or _parse_respond_payload_from_args_state(
+                respond_args_state,
+                tool_call_id=getattr(chunk, "tool_call_id", None),
+            )
+            if card is None:
+                raw_content = getattr(chunk, "content", "")
+                logger.warning(
+                    "multi_agent stream respond payload invalid tool_call_id=%s raw=%r",
+                    getattr(chunk, "tool_call_id", None),
+                    raw_content[:500] if isinstance(raw_content, str) else str(raw_content)[:500],
+                )
+                raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
+            card = self._apply_evidence_to_card(card)
+            logger.info(
+                "multi_agent stream emit card kind=%s summary_chars=%s",
+                card.get("kind"),
+                len(card.get("summary_text", "")),
+            )
+            events.append(("card", card))
+            return events, True
+
+        # 3) AIMessageChunk
+        if chunk.__class__.__name__ == "AIMessageChunk":
+            tool_call_chunks = getattr(chunk, "tool_call_chunks", None) or []
+            if tool_call_chunks:
+                # 有 tool_call：只保留 respond 的 summary_text 增量，静默普通文本（推理过程）
+                respond_chunk_text = _extract_respond_summary_text_delta(tool_call_chunks, respond_args_state)
+                if respond_chunk_text:
+                    events.append(("delta", respond_chunk_text))
+                else:
+                    text = _content_to_text(getattr(chunk, "content", ""))
+                    if text:
+                        logger.debug("multi_agent suppress supervisor reasoning text chars=%s", len(text))
+            else:
+                # 没有 tool_call：LLM 直接回复，输出普通文本
+                text = _content_to_text(getattr(chunk, "content", ""))
+                if text:
+                    logger.info("multi_agent stream emit direct reply text chars=%s", len(text))
+                    events.append(("delta", text))
+            return events, False
+
+        return events, False
 
     # ---- 商品结构捕获 ----
 
