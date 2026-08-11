@@ -1,0 +1,50 @@
+docs/ppt/three-tier-revenue-snapshot-slide.js
+  s_2b2d2c95e0630c::t_ba5b02c087641e 87-92,94-95,100-105,107-108,113-118,120-121
+  s_2b2d2c95e0630c::t_978a6bb9d957cd 68-70
+  s_2b2d2c95e0630c::t_505f5d23d6617f 55
+  s_2b2d2c95e0630c::t_68bb2864df0160 222
+  s_1c7acf38d21617::t_22196b9eadc81b 1-54,56-67,71-86,93,96-99,106,109-112,119,122-221,223-233
+docs/ppt/three-tier-revenue-linechart-slide.js
+  s_2b2d2c95e0630c::t_f519258e95c08c 68-69
+  s_2b2d2c95e0630c::t_c57230a5aed33f 85-90
+  s_1c7acf38d21617::t_d0c74d582bfd51 125,138-143,146-148,151-153,156-158,161-163,166-168,171-198
+  s_2b2d2c95e0630c::t_788d6f6c714c0f 144-145,149-150,154-155,159-160,164-165,169-170
+  s_1c7acf38d21617::t_5999b4d378f5fe 1-67,71-84,91-124,126-137,199-202,204-208,211-212,221-223,225,227-228,234-253
+  s_1c7acf38d21617::t_201ac076557ac7 203,209-210
+  s_2b2d2c95e0630c::t_20d5e083e4c519 70
+  s_2b2d2c95e0630c::t_78ae2f0879d5f1 213-220
+  s_1c7acf38d21617::t_912bd0bf22b2e9 224,226,229-233
+docs/ppt/three-phase-promotion-value-slide.js
+  s_1c7acf38d21617::t_2f1255801bd58f 1-180
+backend/app/services/multi_agent.py
+  s_1c7acf38d21617::t_8e4822763f54fc 50-51,53-61,186,334-408
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "eb6f385b0f824313a017b65af0ccddfba3661268",
+  "prompts": {},
+  "humans": {
+    "h_7549b7dc6a6921": {
+      "author": "tiger <1360055716@qq.com>"
+    }
+  },
+  "sessions": {
+    "s_1c7acf38d21617": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "62a8c401-49ec-4190-9b1e-3b245b6a4130",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    },
+    "s_2b2d2c95e0630c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7fbe310d-8810-45c4-b993-0a70a9fbcf5b",
+        "model": "MiniMax-M3"
+      },
+      "human_author": "tiger <1360055716@qq.com>"
+    }
+  }
+}
