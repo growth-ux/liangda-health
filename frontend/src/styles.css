@@ -2706,11 +2706,40 @@ select {
   padding: 20px 24px;
   cursor: pointer;
   transition: all 0.1s;
+  position: relative;
 }
 
 .member-rich-card:hover {
   border-color: #10b981;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.06);
+}
+
+.member-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.15s;
+  z-index: 1;
+}
+
+.member-rich-card:hover .member-delete-btn {
+  opacity: 1;
+}
+
+.member-delete-btn:hover {
+  background: #fef2f2;
+  color: #ef4444;
 }
 
 .member-rich-header {

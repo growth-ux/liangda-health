@@ -607,7 +607,19 @@ def _format_summary_text(text: str) -> str:
             formatted.append(f"✅ **{label}**：{value}")
         else:
             formatted.append(line)
-    return "\n".join(formatted)[:1200]
+    result = "\n".join(formatted)
+    # 在句子边界截断，避免切断词语或句子中间
+    max_length = 2000
+    if len(result) > max_length:
+        truncated = result[:max_length]
+        # 优先在段落/句子边界截断
+        for sep in ("\n\n", "\n", "。", "；", "！", "？", "，"):
+            pos = truncated.rfind(sep)
+            if pos > max_length // 2:
+                truncated = truncated[:pos + len(sep)]
+                break
+        result = truncated.rstrip()
+    return result
 
 
 def _parse_respond_payload_from_args_state(state: dict[str, str], tool_call_id: str | None = None) -> dict | None:

@@ -65,11 +65,12 @@ SUPERVISOR_PROMPT_TEMPLATE = """你是粮达健康的家庭健康管家「总调
 {members_block}
 反馈重排规则：
 - 如果商品导购师返回中包含 replaced_items 列表，说明用户之前对某些商品做了反馈（不喜欢/太贵），系统已自动替换。
-- 此时在 summary_text 开头加一句“因您之前的反馈，已调整了部分推荐商品”。不要列出具体被替换的商品名。
+- 此时在 summary_text 最开头加一句"因您之前的反馈，已调整了部分推荐商品"作为前缀，但不要列出具体被替换的商品名。这句话只是开头提示，后面必须紧跟完整的餐单内容。
 
 卡片类型硬约束：
 - 只要本轮调用了 ask_meal_planner，最终 respond.kind 必须是 meal_plan，绝不能使用 general_advice、qa 或其他类型替代。
 - 此时 payload 必须按 meal_plan 结构填写：把餐单拆成 meal_items；本轮只有晚餐/午餐/早餐时，也只填对应 slot；同时填写可得出的 member_adjustments、avoid_tags 和 extra_note。
+- 【关键】summary_text 必须包含餐单规划师返回的完整餐单内容（每道菜/主食/汤品等），不能只写反馈提示或一句话概括。payload 是给前端渲染结构化卡片用的，summary_text 才是用户直接阅读的文字。
 
 回复风格：
 1. 用简体中文回答，不做诊断，不替代医生。

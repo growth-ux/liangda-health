@@ -48,14 +48,19 @@ export function MessageBubble({
       <div className={`msg-avatar ${isUser ? 'user' : 'agent'}`}>{isUser ? '张' : '家'}</div>
       <div className="msg-wrap">
         <div className="msg-bubble">
-          {!hasStructuredCard && (
+          {isPlaceholder && !hasStructuredCard && (
             <div className="msg-text">
-              {isPlaceholder ? <PlaceholderDots /> : isUser ? message.content : <MarkdownContent text={message.content} />}
+              <PlaceholderDots />
             </div>
           )}
-          {hasStructuredCard && message.card?.summary_text && (
-            <div className="msg-text mb-2">
-              <MarkdownContent text={message.card.summary_text} />
+          {!isPlaceholder && isUser && (
+            <div className="msg-text">
+              {message.content}
+            </div>
+          )}
+          {!isPlaceholder && isAssistant && (
+            <div className={`msg-text${hasStructuredCard ? ' mb-2' : ''}`}>
+              <MarkdownContent text={message.content} />
             </div>
           )}
           {hasStructuredCard && (

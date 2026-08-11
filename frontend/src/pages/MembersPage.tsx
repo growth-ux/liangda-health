@@ -1,11 +1,22 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { listMembers } from '../api/members';
+import { deleteMember, listMembers, type Member } from '../api/members';
 import { AppShell } from '../components/AppShell';
 import { MemberCard } from '../components/members/MemberCard';
 
 export function MembersPage() {
+  const queryClient = useQueryClient();
   const membersQuery = useQuery({ queryKey: ['members'], queryFn: listMembers });
+
+  const handleDelete = async (member: Member) => {
+    try {
+      await deleteMember(member.member_id);
+      await queryClient.invalidateQueries({ queryKey: ['members'] });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '删除失败';
+      alert(message);
+    }
+  };
 
   return (
     <AppShell title="家庭成员" activeId="members">
@@ -24,7 +35,7 @@ export function MembersPage() {
       {!!membersQuery.data?.length && (
         <div className="members-grid">
           {membersQuery.data.map((member) => (
-            <MemberCard key={member.member_id} member={member} />
+            <MemberCard key={member.member_id} member={member} onDelete={handleDelete} />
           ))}
         </div>
       )}

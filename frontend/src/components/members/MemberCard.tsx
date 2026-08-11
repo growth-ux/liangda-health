@@ -1,10 +1,11 @@
-import { FileText } from 'lucide-react';
+import { FileText, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Member } from '../../api/members';
 import { getMemberInitial, getMemberTone } from './memberUtils';
 
 type Props = {
   member: Member;
+  onDelete?: (member: Member) => void;
 };
 
 function formatMeta(member: Member) {
@@ -14,11 +15,24 @@ function formatMeta(member: Member) {
   return parts.join(' · ');
 }
 
-export function MemberCard({ member }: Props) {
+export function MemberCard({ member, onDelete }: Props) {
   const tone = getMemberTone(member.relation);
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.confirm(`确定要删除「${member.name}」的档案吗？`)) {
+      onDelete?.(member);
+    }
+  };
 
   return (
     <Link className="member-rich-card" to={`/members/${member.member_id}`}>
+      {onDelete && (
+        <button className="member-delete-btn" onClick={handleDelete} title="删除家人">
+          <X size={16} />
+        </button>
+      )}
       <div className="member-rich-header">
         <div className="member-rich-avatar" style={tone}>
           {getMemberInitial(member.name)}
