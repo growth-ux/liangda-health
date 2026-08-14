@@ -3,8 +3,8 @@ import logging
 from collections.abc import Iterable
 
 from app.core.config import settings
-from app.services.langchain_agent import LlmConfigError, _content_to_text
-from app.services.llm_logging import log_llm_request
+from app.services.agent.langchain_agent import LlmConfigError, _content_to_text
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +29,13 @@ OPS_AGENT_SYSTEM_PROMPT = """你是粮达健康的「集团运营 AI 助手」�
 1. 回答必须基于工具返回的真实数据，不要编造数字。
 2. 分析要有洞察，不只罗列数据，要指出趋势、异常和建议。
 3. 用简体中文回答，语气专业但易懂，像一位资深数据分析师在做汇报。
-4. 【重要】使用规范的 Markdown 格式让回复结构清晰：
-   - 用 **加粗** 突出关键数字和结论
+4. 【重要】使用简洁的 Markdown 格式让回复结构清晰：
+   - 用 **加粗** 做段落标题和突出关键数字、结论
    - 排行榜、对比数据使用标准 Markdown 表格（| 列 | 列 | + 分隔行）
    - 要点使用无序列表（- 开头）
    - 不同主题之间用空行分隔
    - 不要用 | 符号做纯文本分隔
+   - 禁止使用 # / ## / ### / #### 等标题语法，一律用 **加粗文字** 代替
 5. 当运营人员问“最近经营怎么样”等开放问题时，主动调用多个工具汇总关键指标。
 6. 发现异常数据（如转化率下降、某品牌突然掉量）时主动提示并给出可能原因。
 7. 回复控制在 400 字以内，先给结论再给数据支撑。

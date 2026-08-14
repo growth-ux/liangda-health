@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from app.services.chunker import TextChunk
-from app.services.chunker import chunk_page_text
-from app.services.health_fact_extractor import HealthFactExtractor
-from app.services.kb_service import PageCreate
-from app.services.pdf_extractor import PdfExtractor
+from app.services.kb.chunker import TextChunk
+from app.services.kb.chunker import chunk_page_text
+from app.services.health.health_fact_extractor import HealthFactExtractor
+from app.services.kb.kb_service import PageCreate
+from app.services.kb.pdf_extractor import PdfExtractor
 
 
 class FakeLlmClient:

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.services.session_summarizer import SessionSummarizer
+from app.services.agent.session_summarizer import SessionSummarizer
 
 
 # ── SessionSummarizer ─────────────────────────────────────
@@ -105,7 +105,7 @@ class FakeRepository:
 
 def test_history_no_summarization_when_few_messages():
     """消息数 <= recent_keep 时不触发摘要，直接返回。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     messages = [
         FakeMessage("user", "你好"),
@@ -124,7 +124,7 @@ def test_history_no_summarization_when_few_messages():
 
 def test_history_summarizes_older_messages():
     """消息数 > recent_keep 时旧消息被压缩为摘要。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     messages = [
         FakeMessage("user", "爸爸今晚吃什么"),
@@ -156,7 +156,7 @@ def test_history_summarizes_older_messages():
 
 def test_history_no_summarizer_returns_all():
     """没有 summarizer 时直接返回所有消息。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     messages = [FakeMessage("user", f"消息{i}") for i in range(10)]
     repo = FakeRepository(messages)
@@ -170,7 +170,7 @@ def test_history_no_summarizer_returns_all():
 
 def test_history_summarizer_skips_when_summary_empty():
     """摘要返回空字符串时不做替换，直接返回全部消息。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     messages = [FakeMessage("user", f"消息{i}") for i in range(6)]
     repo = FakeRepository(messages)

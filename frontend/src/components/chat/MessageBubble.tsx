@@ -36,6 +36,7 @@ export function MessageBubble({
   });
   const isPlaceholder = !isUser && !message.content && message.status === 'sending';
   const productItems = message.product_recommendations ?? [];
+  const hasStructuredCard = isAssistant && !!message.card?.summary_text;
   const isInlineEvidenceOpen =
     mobileEvidenceMode &&
     modalState.open &&
@@ -47,15 +48,28 @@ export function MessageBubble({
       <div className={`msg-avatar ${isUser ? 'user' : 'agent'}`}>{isUser ? '张' : '家'}</div>
       <div className="msg-wrap">
         <div className="msg-bubble">
-          <div className="msg-text">
-            {isPlaceholder ? <PlaceholderDots /> : isUser ? message.content : <MarkdownContent text={message.content} />}
-          </div>
-          {!isUser && message.card && message.card.summary_text && (
-            <StructuredCard card={message.card} />
+          {isPlaceholder && !hasStructuredCard && (
+            <div className="msg-text">
+              <PlaceholderDots />
+            </div>
+          )}
+          {!isPlaceholder && isUser && (
+            <div className="msg-text">
+              {message.content}
+            </div>
+          )}
+          {!isPlaceholder && isAssistant && (
+            <div className={`msg-text${hasStructuredCard ? ' mb-2' : ''}`}>
+              <MarkdownContent text={message.content} />
+            </div>
+          )}
+          {hasStructuredCard && (
+            <StructuredCard card={message.card!} />
           )}
           {!isUser && productItems.length > 0 && (
             <ProductRecommendationCards
               items={productItems}
+              replacedItems={message.replaced_items}
               sessionId={message.session_id}
               messageId={message.message_id}
             />

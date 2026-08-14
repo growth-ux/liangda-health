@@ -24,8 +24,8 @@ import sys
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.kb import KbChunk
-from app.services.embedding import DashScopeEmbeddingService
-from app.services.vector_store import MilvusVectorStore, VectorRecord
+from app.services.kb.embedding import DashScopeEmbeddingService
+from app.services.kb.vector_store import MilvusVectorStore, VectorRecord
 
 BATCH_SIZE = 10  # DashScope text-embedding-v3 单次最多 10 条
 

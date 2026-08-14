@@ -4,8 +4,8 @@ import queue
 import pytest
 
 from app.core.config import settings
-from app.services.langchain_agent import LlmConfigError
-from app.services.multi_agent import (
+from app.services.agent.langchain_agent import LlmConfigError
+from app.services.agent.multi_agent import (
     MEAL_PLANNER_PROMPT_TEMPLATE,
     REPORT_READER_PROMPT_TEMPLATE,
     SHOPPING_GUIDE_PROMPT_TEMPLATE,
@@ -226,9 +226,13 @@ def test_multi_agent_stream_emits_activity_product_delta_card_in_order(monkeypat
         "agent_activity",  # supervisor done
     ]
     activities = [payload for kind, payload in events if kind == "agent_activity"]
-    assert activities[0] == {"agent": "supervisor", "action": "start", "detail": "调度中心解析意图中"}
+    assert activities[0]["agent"] == "supervisor"
+    assert activities[0]["action"] == "start"
+    assert activities[0]["user_query"] == "今晚吃什么"
     assert activities[1]["agent"] == "meal_planner"
-    assert activities[-1] == {"agent": "supervisor", "action": "done", "detail": "调度中心完成"}
+    assert activities[-1]["agent"] == "supervisor"
+    assert activities[-1]["action"] == "done"
+    assert "elapsed_seconds" in activities[-1]
     products = [payload for kind, payload in events if kind == "product_recommendations"]
     assert products[0]["items"][0]["product_id"] == "p_oil"
     deltas = [payload for kind, payload in events if kind == "delta"]
@@ -254,7 +258,7 @@ def test_multi_agent_stream_worker_error_propagates(monkeypatch):
 def test_multi_agent_stream_fallback_evidence_card_when_no_respond(monkeypatch):
     from langchain_core.messages import AIMessageChunk
     from app.schemas.agent_response import EvidenceItem
-    from app.services.agent_evidence import AgentEvidenceCollector
+    from app.services.agent.agent_evidence import AgentEvidenceCollector
 
     class FakeSupervisor:
         def stream(self, payload, stream_mode):

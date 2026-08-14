@@ -3,7 +3,7 @@ from datetime import datetime
 from app.models.health_fact import HealthFact
 from app.models.kb import KbChunk, KbDocument, KbPage
 from app.repositories.health_fact_repository import HealthFactCreate
-from app.services.health_fact_tasks import extract_health_facts_for_document
+from app.services.health.health_fact_tasks import extract_health_facts_for_document
 
 
 def _seed_document(db_session, document_id: str = "doc_1") -> None:
@@ -70,8 +70,8 @@ def test_extract_health_facts_task_saves_facts_and_marks_ready(db_session, monke
                 )
             ]
 
-    monkeypatch.setattr("app.services.health_fact_tasks.SessionLocal", lambda: db_session)
-    monkeypatch.setattr("app.services.health_fact_tasks.HealthFactExtractor", FakeExtractor)
+    monkeypatch.setattr("app.services.health.health_fact_tasks.SessionLocal", lambda: db_session)
+    monkeypatch.setattr("app.services.health.health_fact_tasks.HealthFactExtractor", FakeExtractor)
 
     extract_health_facts_for_document("doc_1")
 
@@ -91,8 +91,8 @@ def test_extract_health_facts_task_marks_failed_when_extractor_raises(db_session
         def extract(self, *, document_id, member_id, pages, chunks):
             raise RuntimeError("LLM 调用失败")
 
-    monkeypatch.setattr("app.services.health_fact_tasks.SessionLocal", lambda: db_session)
-    monkeypatch.setattr("app.services.health_fact_tasks.HealthFactExtractor", BrokenExtractor)
+    monkeypatch.setattr("app.services.health.health_fact_tasks.SessionLocal", lambda: db_session)
+    monkeypatch.setattr("app.services.health.health_fact_tasks.HealthFactExtractor", BrokenExtractor)
 
     extract_health_facts_for_document("doc_1")
 

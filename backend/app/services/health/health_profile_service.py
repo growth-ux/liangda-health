@@ -13,7 +13,7 @@ from app.models.member import Member
 from app.repositories.device_repository import SqlAlchemyDeviceRepository
 from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.member_repository import SqlAlchemyMemberRepository
-from app.services.context_pipeline import (
+from app.services.agent.context_pipeline import (
     ContextItem,
     PRIORITY_DEVICE_ANOMALY,
     PRIORITY_MEMBER_CONSTRAINT,
@@ -22,9 +22,9 @@ from app.services.context_pipeline import (
     PRIORITY_REPORT_FACT,
     PRIORITY_SAFETY,
 )
-from app.services.device_service import DeviceService
-from app.services.loop_feedback import ConflictDetector, detect_conflicts, suggest_safe_alternatives
-from app.services.memory_service import MemoryItem, MemoryService
+from app.services.common.device_service import DeviceService
+from app.services.agent.loop_feedback import ConflictDetector, detect_conflicts, suggest_safe_alternatives
+from app.services.common.memory_service import MemoryItem, MemoryService
 
 
 @dataclass(frozen=True)

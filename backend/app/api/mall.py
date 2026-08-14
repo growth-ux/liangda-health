@@ -18,7 +18,7 @@ from app.schemas.mall import (
     ProductFeedbackRequest,
     ProductFeedbackResponse,
 )
-from app.services.mall_recommendation import (
+from app.services.mall.mall_recommendation import (
     build_daily_recommendations,
     build_family_recommendation,
     build_member_recommendations,
@@ -115,7 +115,7 @@ def list_mall_products(
         if member:
             s = score_product_for_member(member, product)
             if s > 0:
-                from app.services.mall_recommendation import build_recommend_reason
+                from app.services.mall.mall_recommendation import build_recommend_reason
 
                 recommend_reason = build_recommend_reason(member, product)
 
@@ -287,7 +287,7 @@ def submit_product_feedback(
     from datetime import datetime as _dt
 
     from app.models.mall import MallProduct, MallProductFeedback
-    from app.services.memory_service import MemoryService
+    from app.services.common.memory_service import MemoryService
 
     if request.feedback_type not in FEEDBACK_LABELS:
         raise HTTPException(status_code=400, detail="feedback_type 不合法")

@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import type { ProductRecommendationItem } from '../../api/agent';
 import { addMallCartItem, submitProductFeedback, type ProductFeedbackType } from '../../api/mall';
 
+type ReplacedItem = { product_id: string; name: string; reason: string };
+
 type Props = {
   items: ProductRecommendationItem[];
+  replacedItems?: ReplacedItem[];
   sessionId?: string;
   messageId?: string;
 };
@@ -20,7 +23,7 @@ function truncateProductName(name: string) {
   return chars.length > 10 ? `${chars.slice(0, 10).join('')}...` : name;
 }
 
-export function ProductRecommendationCards({ items, sessionId, messageId }: Props) {
+export function ProductRecommendationCards({ items, replacedItems, sessionId, messageId }: Props) {
   // 每张卡片独立记录反馈状态：{ product_id: feedback_type }
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
   // 加购状态：{ product_id: true }
@@ -68,6 +71,17 @@ export function ProductRecommendationCards({ items, sessionId, messageId }: Prop
   return (
     <section className="msg-product-section card-message">
       <div className="card-message-header info">🛒 可选商品</div>
+      {replacedItems && replacedItems.length > 0 && (
+        <div className="card-message-replaced-hint">
+          <span className="replaced-icon">🔄</span>
+          <span>
+            因您之前的反馈，已为您替换了 {replacedItems.length} 个商品
+            <span className="replaced-names">
+              （已排除：{replacedItems.map((r) => truncateProductName(r.name)).join('、')}）
+            </span>
+          </span>
+        </div>
+      )}
       <div className="card-message-body">
         <div className="product-row">
           {items.map((item, index) => {

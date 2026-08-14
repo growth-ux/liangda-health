@@ -10,7 +10,11 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(settings.database_url)
+engine = create_engine(
+    settings.database_url,
+    pool_pre_ping=True,   # 每次 checkout 前发 SELECT 1 检测连接是否存活，避免拿到死连接
+    pool_recycle=1800,     # 30 分钟回收连接，防止 MySQL wait_timeout 断开
+)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

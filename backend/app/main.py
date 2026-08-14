@@ -17,6 +17,7 @@ from app.api.mall import router as mall_router
 from app.api.members import router as members_router
 from app.api.ops_agent import router as ops_agent_router
 from app.api.notice import router as notice_router
+from app.api.settings import router as settings_router
 from app.core.config import settings
 from app.db.session import Base, SessionLocal, engine
 from app.models import agent as _agent_models
@@ -25,8 +26,9 @@ from app.models import kb as _kb_models
 from app.models import mall as _mall_models
 from app.models import member as _member_models
 from app.models import notice as _notice_models
+from app.models import alert as _alert_models
 from app.repositories.member_repository import SqlAlchemyMemberRepository
-from app.services.device_service import DeviceService
+from app.services.common.device_service import DeviceService
 
 
 def configure_logging() -> None:
@@ -125,6 +127,7 @@ def create_app(session_factory: Callable[[], object] = SessionLocal) -> FastAPI:
     app.include_router(mall_router)
     app.include_router(members_router)
     app.include_router(notice_router)
+    app.include_router(settings_router)
     app.include_router(ops_agent_router)
     app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
     app.mount("/mall-products", StaticFiles(directory=mall_products_dir), name="mall-products")

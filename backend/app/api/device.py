@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.repositories.member_repository import SqlAlchemyMemberRepository
 from app.schemas.device import DeviceOverviewResponse
-from app.services.device_service import DeviceService
+from app.services.common.device_service import DeviceService
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 

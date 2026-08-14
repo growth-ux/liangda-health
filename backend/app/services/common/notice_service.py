@@ -61,6 +61,7 @@ class NoticeService:
         created = self._generate_device_notices() or created
         created = self._generate_report_reminders() or created
         created = self._generate_recommendation_notices() or created
+        created = self._generate_alert_rule_notices() or created
         if created:
             self.db.commit()
 
@@ -205,6 +206,10 @@ class NoticeService:
             )
             created = True
         return created
+
+    def _generate_alert_rule_notices(self) -> bool:
+        from app.services.common.alert_rule_service import AlertRuleService
+        return AlertRuleService(self.db).generate_alert_notices()
 
     def _counts(self) -> NoticeCounts:
         return NoticeCounts(

@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from app.services.embedding import DashScopeEmbeddingService
+from app.services.kb.embedding import DashScopeEmbeddingService
 
 
 def test_dashscope_embedding_service_calls_text_embedding_and_returns_vectors():

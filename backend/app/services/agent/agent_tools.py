@@ -5,7 +5,7 @@ import re
 from app.repositories.health_fact_repository import SqlAlchemyHealthFactRepository
 from app.repositories.kb_repository import SqlAlchemyKbRepository
 from app.schemas.agent_response import EvidenceItem
-from app.services.meal_plan_service import MealPlanService
+from app.services.meal.meal_plan_service import MealPlanService
 
 logger = logging.getLogger(__name__)
 
@@ -173,13 +173,13 @@ class ReportFactTool:
         lines = [f"该家人共有 {len(facts)} 条已提取的健康事实：", ""]
         for index, fact in enumerate(facts, start=1):
             document = self.kb_repository.get_document(fact.source_document_id)
-            doc_name = (document.title or document.file_name) if document else fact.source_document_id
+            doc_label = document.file_name if (document and document.file_name) else (document.title if document else fact.source_document_id)
             value_part = f"，实测值：{fact.value}{fact.unit or ''}" if fact.value else ""
             range_part = f"，参考范围：{fact.reference_range}" if fact.reference_range else ""
             status_label = {"normal": "正常", "warning": "偏高/偏低", "danger": "异常"}.get(fact.status, fact.status)
             lines.append(
                 f"{index}. [{status_label}] {fact.name}{value_part}{range_part}"
-                f"\n   来源：{doc_name} 第{fact.source_page_no}页"
+                f"\n   来源：{doc_label} 第{fact.source_page_no}页"
                 f"\n   说明：{fact.evidence_text}"
             )
 
@@ -189,14 +189,14 @@ class ReportFactTool:
                 if fact.status not in {"warning", "danger"}:
                     continue
                 document = self.kb_repository.get_document(fact.source_document_id)
-                doc_name = (document.title or document.file_name) if document else fact.source_document_id
+                doc_label = document.file_name if (document and document.file_name) else (document.title if document else fact.source_document_id)
                 self.evidence_collector.add_content(
                     EvidenceItem(
                         type="report_fact",
                         title=fact.name[:80],
                         excerpt=_normalize_evidence_excerpt(fact.evidence_text, max_length=180),
                         source_id=fact.fact_id,
-                        source_label=f"{doc_name} p{fact.source_page_no}",
+                        source_label=f"{doc_label} p{fact.source_page_no}",
                     )
                 )
 

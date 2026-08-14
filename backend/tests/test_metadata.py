@@ -1,6 +1,6 @@
 from datetime import date
 
-from app.services.metadata import extract_basic_metadata
+from app.services.kb.metadata import extract_basic_metadata
 
 
 def test_extract_basic_metadata_from_report_text():

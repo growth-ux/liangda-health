@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models.health_fact import HealthFact
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
-from app.services.meal_product_recommendation_service import MealProductRecommendationService
+from app.services.meal.meal_product_recommendation_service import MealProductRecommendationService
 
 
 def _add_member(
@@ -278,7 +278,7 @@ class FakeMemoryServiceForRank:
 
 def test_recommend_memory_driven_avoidance_penalizes_product(db_session):
     """规避记忆中的关键词命中商品名时，该商品应被降权。"""
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session)
     repo = SqlAlchemyMallRepository(db_session)
@@ -305,7 +305,7 @@ def test_recommend_memory_driven_avoidance_penalizes_product(db_session):
 
 def test_recommend_memory_driven_preference_boosts_product(db_session):
     """偏好记忆中的关键词命中商品名时，该商品应被加权。"""
-    from app.services.memory_service import MemoryItem
+    from app.services.common.memory_service import MemoryItem
 
     _add_member(db_session)
     repo = SqlAlchemyMallRepository(db_session)
@@ -325,9 +325,53 @@ def test_recommend_memory_driven_preference_boosts_product(db_session):
     )
 
     assert result["is_error"] is False
-    # 带“燕麦”关键词的商品应获得加权（可能出现在推荐列表中）
+    # 带"燕麦"关键词的商品应获得加权（可能出现在推荐列表中）
     oat_items = [item for item in result["items"] if "燕麦" in item["name"]]
     # 不强制要求出现，但如果出现则说明加权生效
     if oat_items:
         assert oat_items[0]["score"] > 0
+
+
+def test_dislike_feedback_hard_excludes_product(db_session):
+    """用户点不喜欢后，该商品应被硬性排除，不再出现在推荐列表中。"""
+    from app.models.mall import MallProductFeedback
+
+    _add_member(db_session)
+    repo = SqlAlchemyMallRepository(db_session)
+    repo.seed_default_data()
+    service = MealProductRecommendationService(db_session, mall_repository=repo)
+
+    # 先推荐一次，拿到第一个商品
+    result_before = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：杂粮饭 + 鸡胸肉 + 豆腐青菜。建议低钠、少油。",
+        limit=5,
+    )
+    assert result_before["items"], "第一次推荐应有商品"
+    disliked_product_id = result_before["items"][0]["product_id"]
+
+    # 写入 dislike 反馈
+    db_session.add(MallProductFeedback(
+        product_id=disliked_product_id,
+        feedback_type="dislike",
+        member_id="mem_dad",
+    ))
+    db_session.commit()
+
+    # 再推荐一次
+    result_after = service.recommend(
+        scope="member",
+        member_id="mem_dad",
+        meal_plan_text="晚餐：杂粮饭 + 鸡胸肉 + 豆腐青菜。建议低钠、少油。",
+        limit=5,
+    )
+
+    # 被 dislike 的商品不应出现在推荐列表中
+    recommended_ids = {item["product_id"] for item in result_after["items"]}
+    assert disliked_product_id not in recommended_ids, f"被 dislike 的商品 {disliked_product_id} 不应再出现"
+
+    # 出现在 replaced_items 中（用于前端提示）
+    replaced_ids = {item["product_id"] for item in result_after["replaced_items"]}
+    assert disliked_product_id in replaced_ids
 

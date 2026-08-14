@@ -7,8 +7,8 @@ from typing import Literal
 from langchain.tools import tool
 
 from app.core.config import settings
-from app.services.agent_evidence import AgentEvidenceCollector
-from app.services.llm_logging import log_llm_request
+from app.services.agent.agent_evidence import AgentEvidenceCollector
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +156,13 @@ class BaseAgentRunner:
             logger.warning("agent run no respond tool call in messages; raising")
             raise ResponseSchemaError("LLM 未调用 respond 工具")
         card = self._apply_evidence_to_card(card)
+        # 临时诊断日志：记录总调度最终交给前端的完整结构化回复。
+        logger.info(
+            "agent run respond card raw kind=%s payload=%s summary=%s",
+            card.get("kind"),
+            json.dumps(card.get("payload"), ensure_ascii=False),
+            card.get("summary_text", ""),
+        )
         result = {
             "content": card.get("summary_text", ""),
             "token_prompt": token_usage.get("prompt_tokens"),
@@ -249,6 +256,13 @@ class BaseAgentRunner:
                 )
                 raise ResponseSchemaError("respond 工具参数不符合 StructuredResponse schema")
             card = self._apply_evidence_to_card(card)
+            # 临时诊断日志：记录总调度最终交给前端的完整结构化回复，便于和专家原始输出对比。
+            logger.info(
+                "agent stream respond card raw kind=%s payload=%s summary=%s",
+                card.get("kind"),
+                json.dumps(card.get("payload"), ensure_ascii=False),
+                card.get("summary_text", ""),
+            )
             logger.info(
                 "agent stream emit card kind=%s summary_chars=%s payload_keys=%s args_state_keys=%s",
                 card.get("kind"),
@@ -593,7 +607,19 @@ def _format_summary_text(text: str) -> str:
             formatted.append(f"✅ **{label}**：{value}")
         else:
             formatted.append(line)
-    return "\n".join(formatted)[:1200]
+    result = "\n".join(formatted)
+    # 在句子边界截断，避免切断词语或句子中间
+    max_length = 2000
+    if len(result) > max_length:
+        truncated = result[:max_length]
+        # 优先在段落/句子边界截断
+        for sep in ("\n\n", "\n", "。", "；", "！", "？", "，"):
+            pos = truncated.rfind(sep)
+            if pos > max_length // 2:
+                truncated = truncated[:pos + len(sep)]
+                break
+        result = truncated.rstrip()
+    return result
 
 
 def _parse_respond_payload_from_args_state(state: dict[str, str], tool_call_id: str | None = None) -> dict | None:
@@ -612,20 +638,31 @@ def _parse_respond_payload_from_args_state(state: dict[str, str], tool_call_id: 
             continue
         try:
             data = json.loads(raw)
-        except (TypeError, json.JSONDecodeError):
+        except (TypeError, json.JSONDecodeError) as exc:
+            logger.warning(
+                "respond args candidate invalid json error=%s raw=%s",
+                exc,
+                raw,
+            )
             continue
         if not isinstance(data, dict):
+            logger.warning("respond args candidate is not object type=%s raw=%s", type(data).__name__, raw)
             continue
         card = _validate_respond_payload(data)
         if card is not None:
             return card
+        logger.warning(
+            "respond args candidate failed schema kind=%s raw=%s",
+            data.get("kind"),
+            raw,
+        )
     if state:
         # 诊断：args_state 有内容但都校验失败
         logger.warning(
             "respond args_state present but no candidate validated: state_keys=%s tool_call_id=%s last_raw=%s",
             list(state.keys()),
             tool_call_id,
-            json.dumps(list(state.values())[-1], ensure_ascii=False)[:300] if state else "",
+            json.dumps(list(state.values())[-1], ensure_ascii=False) if state else "",
         )
     return None
 

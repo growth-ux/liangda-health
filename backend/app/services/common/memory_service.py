@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from collections.abc import Callable, Iterable
 
 from app.core.config import settings
-from app.services.context_pipeline import ContextItem, PRIORITY_MEMORY
+from app.services.agent.context_pipeline import ContextItem, PRIORITY_MEMORY
 
 logger = logging.getLogger(__name__)
 

@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.core.config import settings
 from app.repositories.health_fact_repository import HealthFactCreate
-from app.services.chunker import TextChunk
-from app.services.llm_logging import log_llm_request
+from app.services.kb.chunker import TextChunk
+from app.services.agent.llm_logging import log_llm_request
 
 logger = logging.getLogger(__name__)
 

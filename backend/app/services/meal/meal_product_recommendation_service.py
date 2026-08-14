@@ -4,15 +4,16 @@ import json
 import re
 from dataclasses import dataclass
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.core.demo import real_only
 from app.models.mall import MallProduct
 from app.models.member import Member
 from app.repositories.mall_repository import SqlAlchemyMallRepository
-from app.services.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
-from app.services.mall_recommendation import build_recommend_reason, score_product_for_member
-from app.services.memory_service import MemoryItem, MemoryService
+from app.services.health.health_profile_service import FamilyHealthProfile, HealthProfile, HealthProfileService
+from app.services.mall.mall_recommendation import build_recommend_reason, score_product_for_member
+from app.services.common.memory_service import MemoryItem, MemoryService
 
 
 @dataclass(frozen=True)
@@ -118,9 +119,15 @@ class MealProductRecommendationService:
         from app.models.mall import MallProductFeedback
 
         _PENALTY = {"dislike": -100, "too_expensive": -50, "like": 30, "purchased": -20}
+        # SQLite 中 IN 子句无法匹配 NULL，需要用 is_(None) 单独处理
+        null_filter = MallProductFeedback.member_id.is_(None)
+        if member_ids:
+            combined_filter = or_(MallProductFeedback.member_id.in_(member_ids), null_filter)
+        else:
+            combined_filter = null_filter
         rows = (
             self.db.query(MallProductFeedback)
-            .filter(MallProductFeedback.member_id.in_(member_ids + [None]))
+            .filter(combined_filter)
             .order_by(MallProductFeedback.created_at.desc())
             .limit(50)
             .all()
@@ -295,15 +302,20 @@ class MealProductRecommendationService:
         else:
             avoid_sources = []
 
-        # 反馈重排：加载反馈分数（dislike -100 / too_expensive -50 / like +30 / purchased -20）
+        # 反馈重排：dislike 硬性排除（不进推荐），too_expensive/purchased 降权，like 加权
         member_ids = [m.member_id for m in members]
         feedback_scores = self._load_feedback_scores(member_ids) if member_ids else {}
+        disliked_product_ids = {pid for pid, delta in feedback_scores.items() if delta <= -100}
         # 记忆驱动重排：从 avoidance/preference 记忆中提取关键词
         avoidance_keywords, preference_keywords = self._load_memory_scores(member_ids)
 
         scored: list[MealProductRecommendation] = []
         blocked: list[BlockedProduct] = []
         for product in products:
+            # 用户反馈不喜欢 → 硬性排除，不进推荐列表
+            if product.product_id in disliked_product_ids:
+                blocked.append(BlockedProduct(product=product, reason="用户反馈不喜欢，已排除"))
+                continue
             block_reason = _find_safety_block(product, members, avoid_sources)
             if block_reason:
                 blocked.append(BlockedProduct(product=product, reason=block_reason))
@@ -313,7 +325,7 @@ class MealProductRecommendationService:
             tag_score, tag_reason = _score_tags(context, tags)
             member_score = sum(max(0, score_product_for_member(member, product)) for member in members) * 2
             requested_score = 120 if requested_category and product.category_code == requested_category else 0
-            # 应用反馈重排分
+            # 应用反馈重排分（too_expensive -50 / like +30 / purchased -20）
             feedback_delta = feedback_scores.get(product.product_id, 0)
             # 应用记忆驱动重排分
             memory_delta = _score_memory_match(product.name, avoidance_keywords, preference_keywords)
@@ -327,7 +339,7 @@ class MealProductRecommendationService:
                 category_reason=category_reason,
                 tag_reason=tag_reason,
             )
-            # 反馈替换提示：不喜欢/太贵的商品若仍进入列表，加上替换说明
+            # 反馈替换提示：太贵/已购买的商品若仍进入列表，加上替换说明
             if feedback_delta < 0 and score > 0:
                 reason = f"因您反馈已调整推荐，本商品优先级已降低。{reason}"
             if score > 0:

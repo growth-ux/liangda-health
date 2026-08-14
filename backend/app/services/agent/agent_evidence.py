@@ -4,7 +4,7 @@ import logging
 import re
 
 from app.schemas.agent_response import EvidenceItem, MessageEvidence
-from app.services.context_pipeline import DroppedItem, PruningLog
+from app.services.agent.context_pipeline import DroppedItem, PruningLog
 
 logger = logging.getLogger(__name__)
 

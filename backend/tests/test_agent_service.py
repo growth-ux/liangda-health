@@ -2,8 +2,8 @@ import json
 import time
 
 from app.repositories.agent_repository import SqlAlchemyAgentRepository
-from app.services.agent_service import AgentService
-from app.services.langchain_agent import LlmConfigError
+from app.services.agent.agent_service import AgentService
+from app.services.agent.langchain_agent import LlmConfigError
 
 
 class StaticRunner:
@@ -179,7 +179,7 @@ def test_agent_service_stream_omits_product_recommendations_when_no_match(db_ses
 
 def test_agent_service_send_message_persists_card(monkeypatch):
     """runner.run() 返回 result['card'] 时，仓储应落库为 JSON 字符串。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     class FakeRunner:
         def run(self, messages):
@@ -232,7 +232,7 @@ def test_agent_service_send_message_persists_card(monkeypatch):
 
 def test_agent_service_stream_message_emits_card_event(monkeypatch):
     """runner.stream() yield ('card', dict) 时，service 透传为 SSE 'card' 事件并落库。"""
-    from app.services.agent_service import AgentService
+    from app.services.agent.agent_service import AgentService
 
     card_dict = {
         "kind": "qa",

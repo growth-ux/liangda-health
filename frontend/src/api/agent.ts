@@ -27,6 +27,7 @@ export type AgentMessage = {
   created_at: string;
   attachments?: Attachment[];
   product_recommendations?: ProductRecommendationItem[];
+  replaced_items?: { product_id: string; name: string; reason: string }[];
   card?: StructuredCard & { evidence?: MessageEvidence | null };
 };
 
@@ -45,13 +46,18 @@ export type AgentActivityPayload = {
   agent: 'supervisor' | 'meal_planner' | 'shopping_guide' | 'report_reader';
   action: 'start' | 'done';
   detail?: string;
+  task?: string;
+  result_summary?: string;
+  elapsed_seconds?: number;
+  user_query?: string;
+  output_summary?: string;
 };
 
 export type StreamCallbacks = {
   onUserMessage?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'attachments'>) => void;
   onAssistantStart?: (message: Pick<AgentMessage, 'message_id' | 'role'>) => void;
   onDelta?: (content: string) => void;
-  onProductRecommendations?: (payload: { message_id: string; items: ProductRecommendationItem[] }) => void;
+  onProductRecommendations?: (payload: { message_id: string; items: ProductRecommendationItem[]; replaced_items?: { product_id: string; name: string; reason: string }[] }) => void;
   onCard?: (payload: { message_id: string; card: StructuredCard }) => void;
   onAgentActivity?: (payload: AgentActivityPayload) => void;
   onAssistantDone?: (message: Pick<AgentMessage, 'message_id' | 'session_id' | 'role' | 'content' | 'product_recommendations' | 'card'>) => void;

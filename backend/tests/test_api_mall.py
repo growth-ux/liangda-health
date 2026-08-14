@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 from app.db.session import get_db
 from app.main import create_app
 from app.models.mall import MallProduct
-from app.services import mall_catalog
-from app.services.mall_catalog import MANIFEST_ROOT
+from app.services.mall import mall_catalog
+from app.services.mall.mall_catalog import MANIFEST_ROOT
 
 
 def _manifest_item(category: str, goods_id: str) -> dict | None:

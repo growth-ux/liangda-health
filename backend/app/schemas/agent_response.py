@@ -54,11 +54,34 @@ EvidenceType = Literal["report_fact", "device", "memory", "product", "safety_blo
 
 
 class EvidenceItem(BaseModel):
-    type: EvidenceType
-    title: str = Field(..., min_length=1, max_length=80)
+    type: EvidenceType = "report_fact"
+    title: str = Field(default="", max_length=80)
     excerpt: str = Field(..., min_length=1, max_length=200)
-    source_id: str = Field(..., min_length=1, max_length=80)
-    source_label: str = Field(..., min_length=1, max_length=120)
+    source_id: str = Field(default="", max_length=80)
+    source_label: str = Field(default="", max_length=120)
+
+    @field_validator("excerpt", mode="before")
+    @classmethod
+    def _coerce_excerpt(cls, v):
+        if isinstance(v, str) and len(v) > 200:
+            return v[:200]
+        return v
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_fields(cls, data):
+        if not isinstance(data, dict):
+            return data
+        # LLM 经常只输出 source + excerpt，需要映射到完整字段
+        if "source" in data and "source_label" not in data:
+            data["source_label"] = data["source"]
+        if "source_id" not in data:
+            data["source_id"] = data.get("source", data.get("source_label", "unknown"))
+        if "title" not in data or not data.get("title"):
+            data["title"] = data.get("source", data.get("source_label", "健康指标"))
+        if "type" not in data:
+            data["type"] = "report_fact"
+        return data
 
 
 class MessageEvidence(BaseModel):
@@ -70,9 +93,25 @@ class MessageEvidence(BaseModel):
     pruning_summary: str | None = Field(default=None, max_length=200)
 
 
+_PRIORITY_MAP = {
+    "high": "primary",
+    "medium": "secondary",
+    "low": "secondary",
+    "primary": "primary",
+    "secondary": "secondary",
+}
+
+
 class SuggestionItem(BaseModel):
     text: str = Field(..., min_length=1, max_length=200)
     priority: Literal["primary", "secondary"] = "primary"
+
+    @field_validator("priority", mode="before")
+    @classmethod
+    def normalize_priority(cls, v):
+        if isinstance(v, str):
+            return _PRIORITY_MAP.get(v.lower(), "primary")
+        return v
 
 
 class KbInterpretationPayload(BaseModel):
@@ -96,7 +135,7 @@ class KbInterpretationPayload(BaseModel):
 
 class GeneralAdvicePayload(BaseModel):
     topic: str = Field(..., min_length=1, max_length=80)
-    advice: str = Field(..., min_length=1, max_length=400)
+    advice: str = Field(..., min_length=1, max_length=1200)
     cautions: list[str] = Field(default_factory=list)
 
 

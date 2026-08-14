@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.db.session import Base, get_db
 from app.main import create_app
 from app.models import kb as _kb_models
-from app.services.vector_store import VectorHit
+from app.services.kb.vector_store import VectorHit
 
 
 class FakeVectorStore:

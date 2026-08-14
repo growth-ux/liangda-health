@@ -10,13 +10,13 @@ type Props = { card: Card };
 export function StructuredCard({ card }: Props) {
   switch (card.kind) {
     case 'meal_plan':
-      return <MealPlanCard payload={card.payload as any} />;
+      return <MealPlanCard payload={card.payload as any} summaryText={card.summary_text} />;
     case 'qa':
       return <QaCard payload={card.payload as any} />;
     case 'greeting':
       return <GreetingCard payload={card.payload as any} />;
     case 'kb_interpretation':
-      return <KbInterpretationCard payload={card.payload as any} />;
+      return <KbInterpretationCard payload={card.payload as any} summaryText={card.summary_text} />;
     case 'general_advice':
       return <GeneralAdviceCard payload={card.payload as any} />;
     default: {
